@@ -5,7 +5,7 @@ import numpy as np
 from psychopy import data, visual, core, event
 import platform
 
-def getParameters(subject_n, tasks):
+def getParameters(subject_n):
     """Create parameters for all tasks
     Many parameters, aesthetics, and options are controlled by the 
     parameters/dictonary defined here. 
@@ -21,6 +21,12 @@ def getParameters(subject_n, tasks):
     # Variable parameters
     parameters['subject_n'] = subject_n
     parameters['tasks'] = tasks
+    parameters['qst_selection'] = qst_selection
+    parameters['lidocaine_timepoint'] = lidocaine_timepoint
+    parameters['arm'] = arm
+    parameters['TGIwarm'] = warm
+    parameters['TGIcold'] = cold
+    parameters['comPort'] = comPort
     
     # Fixed Parameters
     if platform.system() == 'Darwin': 
