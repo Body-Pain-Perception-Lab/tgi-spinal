@@ -73,14 +73,14 @@ def getParameters(subject_n, tasks, arm):
                                 'TGI': "TGI \n \n Ved dennne test varmes eller køles din hud. Fjern testapparatet, når du hører et bip - vælg derefter hvordan du oplevede stimulus ud fra mulighederne på skærmen. \n \n Dette måles i alt 9 gange. "},
             '+' : "+",
             'textBp' : "Der blev trykket på knappen",
-            'textVasTitle': {'pain': "Hvor smertefuldt var stimulus, lige da du hørte bippet?",
-                            'unpleasantness': "Hvor ubehageligt var stimulus, lige da du hørte bippet?",
-                           'cold': "Hvor koldt føltes stimulus, lige da du hørte bippet?",
-                           'warm': "Hvor varmt føltes stimulus, lige da du hørte bippet?"},
-            'textVasAnchors': {'pain': ["Ingen smerte", "Værst tænkelige smerte"],
-                           'unpleasantness': ["Intet ubehag", "Værst tænkelige ubehag"], #no unpleasantness; worst unpleasantness imaginable
-                           'cold': ["Overhovedet ikke kold","Ekstremt koldt"], #no cold; extremely cold
-                           'warm': ["Overhovedet ikke varm","Ekstremt varmt"]}} #no warm; 100 extremely warm
+            'textVasTitle': {'pain': "How painful was the stimulus at the moment you heard the beep?", #Hvor smertefuldt/ubehagt/kold/varmt var stimulus, lige da du hørte bippet?
+                            'unpleasantness': "How unpleasant was the stimulus at the moment you heard the beep?",
+                           'cold': "How cold was the stimulus at the moment you heard the beep?",
+                           'warm': "How warm was the stimulus at the moment you heard the beep?"},
+            'textVasAnchors': {'pain': ["No pain", "Worst pain imaginable"], #Ingen smærte; Værst tænkelige smerte
+                           'unpleasantness': ["No unpleasantness", "Worst unpleasantness imaginable"], #Intet ubehag; Værst tænkelige ubehag
+                           'cold': ["Not cold at all","Extremely cold"], #Overhovedet ikke kold; Ekstremt koldt
+                           'warm': ["Not warm at all","Extremely warm"]}} #Overhovedet ikke varm; Ekstremt varmt
     parameters['textSize'] = 0.07
 
     # VAS
