@@ -1,6 +1,8 @@
 # Author AG Mitchell 22.02.22, adapted from task_functions.py by Francesca Fardo
 
 import datetime as dt
+import random
+from parameters_spinal import getParameters
 
 from psychopy import prefs
 prefs.general['audioLib'] = ['PTB']
@@ -17,7 +19,10 @@ def quit_exp(parameters):
         print ("User exited")
         core.quit()
         
-def vasRatingScale(parameters, vas, win=None):
+vas = ['pain', 'unpleasantness', 'cold', 'warm']
+random.shuffle(vas)
+        
+def vasRatingScale(parameters, vas, win=1):
     """Rating scale, using keyboard inputs.
     Parameters
     ----------
@@ -26,10 +31,14 @@ def vasRatingScale(parameters, vas, win=None):
     vas: 'pain', 'unpleasantness', 'cold', 'warm'
     win1 : psychopy window instance for participant - the VAS is shown here
         The window where to show the task.
+    win0 : experimenters screen
     """
     # Define window
     if win is None:
         win = parameters['win1']
+    else: 
+        win = parameters['win0']
+
     
     #Setup pyglet keyboard for slider
     #pyglet_key=pyglet.window.key #redundant?
@@ -45,7 +54,7 @@ def vasRatingScale(parameters, vas, win=None):
     labels = parameters['texts']['textVasAnchors'][vas]
     text = parameters['texts']['textVasTitle'][vas]
     #VAS scale
-    vasRatingScale = visual.RatingScale(parameters['win1'], 
+    vasRatingScale = visual.RatingScale(parameters['win0'], 
                     low = low,
                     high = high ,
                     marker = parameters['vasParameters']['marker'], 
@@ -66,7 +75,7 @@ def vasRatingScale(parameters, vas, win=None):
                     acceptText = parameters['vasParameters']['acceptText'],
                     textColor = parameters['vasParameters']['textColor'],
                     textSize = parameters['vasParameters']['textSize'])
-    vasText = visual.TextStim(parameters['win1'],
+    vasText = visual.TextStim(parameters['win0'],
                     pos = parameters['vasParameters']['pos'],
                     height = parameters['vasParameters']['height'], 
                     text = text)
