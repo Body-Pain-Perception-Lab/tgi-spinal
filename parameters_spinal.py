@@ -5,7 +5,7 @@ import numpy as np
 from psychopy import data, visual, core, event
 import platform
 
-def getParameters(subject_n, tasks):
+def getParameters(subject_n, tasks, arm):
     """Create parameters for all tasks
     Many parameters, aesthetics, and options are controlled by the 
     parameters/dictonary defined here. 
@@ -21,6 +21,7 @@ def getParameters(subject_n, tasks):
     # Variable parameters
     parameters['subject_n'] = subject_n
     parameters['tasks'] = tasks
+    parameters['arm'] = arm
     
     # Fixed Parameters
     if platform.system() == 'Darwin': 
@@ -34,11 +35,11 @@ def getParameters(subject_n, tasks):
     parameters['pathResults'] = parameters['path'] +  parameters['slash'] + 'results' +  parameters['slash'] + subject_n
     #Saving data
     # preparing df
-    parameters['trialInfo'] = tasks + '_' + lidocaine_timepoint + '_' + subject_n + '_' + arm + '_'
+    parameters['trialInfo'] = tasks + '_' + subject_n + '_' + arm + '_'
     parameters['columnsVas'] = ['subject_n','arm','temps','trial_n','vas','rating','time'] 
     parameters['lidocaine_df'] = pd.DataFrame(columns = parameters['columnsVas'])
     
-    parameters['sumDfInfo'] = [subject_n, lidocaine_timepoint, arm]
+    parameters['sumDfInfo'] = [subject_n, arm]
     parameters['columnsSum'] = ['subject_n','timepoint','arm','task','threshold']
     parameters['qst_filename'] = parameters['pathResults'] + parameters['slash'] + 'QST_summary' + '.csv'
     if not os.path.isfile(parameters['qst_filename']):
@@ -46,58 +47,6 @@ def getParameters(subject_n, tasks):
     else:
         parameters['qst_df'] = pd.read_csv(parameters['qst_filename'])
     
-    # Sequences
-    parameters['runDemoQST']  = False
-    parameters['runQST'] = False
-    parameters['runDemoTSL2']  = False
-    parameters['runTSL2']  = False
-    parameters['runDemoTGI']  = False
-    parameters['runTGI']  = False
-    if parameters['tasks'] is 'Demo_QST':
-        parameters['runDemoQST'] = True
-    elif parameters['tasks'] is 'QST':
-        parameters['runQST'] = True
-    elif parameters['tasks'] is 'Demo_TSL2':
-        parameters['runDemoTSL2'] = True
-    elif parameters['tasks'] is 'TSL2':
-        parameters['runTSL2'] = True
-    elif parameters['tasks'] is 'Demo_TGI':
-        parameters['runDemoTGI'] = True
-    elif parameters['tasks'] is 'TGI':
-        parameters['runTGI'] = True
-    
-    # QST
-    parameters['qst_sequence'] = np.array(['CDT', 'WDT', 'TSL1', 'CPT', 'HPT'])
-    if parameters['qst_selection'] is not 'CDT':
-        qst_index = np.where(parameters['qst_sequence'] == parameters['qst_selection'])
-        parameters['qst_sequence'] = parameters['qst_sequence'][qst_index[0][0]:len(parameters['qst_sequence'])]
-    
-    # define QST parameters: first value = targetT, second value = iti
-    #parameters['qst_parameters'] = {'CDT': [0, 5], 'WDT': [50, 5], 'TSL1': [0, 0], 'CPT': [0, 10], 'HPT': [50, 10]}
-    parameters['CDT'] =  {'base': 32, 'targetT': [0]*5, 'iti': [5]*5}
-    parameters['WDT'] =  {'base': 32, 'targetT': [50]*5, 'iti': [5]*5}
-    parameters['TSL1'] = {'base': 32, 'targetT': [0]*5, 'iti': [0]*5}
-    parameters['CPT'] =  {'base': 32, 'targetT': [0]*5, 'iti': [10]*5}
-    parameters['HPT'] =  {'base': 32, 'targetT': [50]*5, 'iti': [10]*5}
-    
-    # define TGI temperatures
-    w, c, b = float(parameters['TGIwarm']), float(parameters['TGIcold']), 32
-    parameters['tgi_stimuli'] = {'TGI': [w, c, w, c, w],
-            'nonTGIcold': ([c, c, b, b, b], [b, c, c, b, b], [b, b, c, c, b], [b, b, b, c, c]),
-            'nonTGIwarm': ([w, w, w, b, b], [b, w, w, w, b], [b, b, w, w, w]),
-            'all_warm': [w]*5,
-            'all_cold': [w]*5}
-            
-    # define tsl temperatures
-    tsl_baseline = [b,50,b,0]
-    tsl_warming = [w,50,w,0]
-    tsl_cooling = [c,50,c,0]
-    
-    # define TSL sequences
-    if (int(parameters['subject_n'][-1]) % 2) == 0: #if odd number
-        parameters['tsl_sequence'] = [tsl_baseline, tsl_warming, tsl_cooling]
-    if (int(parameters['subject_n'][-1]) % 2) == 1: #if even number
-        parameters['tsl_sequence']  = [tsl_baseline, tsl_cooling, tsl_warming]
         
     # Texts
     parameters['texts'] = {
