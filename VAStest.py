@@ -2,11 +2,16 @@ import datetime as dt
 import random
 import pandas as pd
 import numpy as np
+import os
+import csv
+import pickle
 from parameters_spinal import getParameters
 
 from psychopy import prefs
 prefs.general['audioLib'] = ['PTB']
 from psychopy import event, visual, core, gui, sound #gui redundant?
+
+os.chdir('/Users/au706616/Documents/Git/SpinalTGI/') #set directory whilst debugging - to save results in useful place
 
 #Define clock
 timer = core.Clock()
@@ -120,19 +125,22 @@ def messageParticipantAndExperimenter(parameters, text0, text1):
 #def run_vas(parameters, targetT, trial_n, filenameInfo, tgi_df):
 vas = ['pain', 'unpleasantness', 'cold', 'warm']
 random.shuffle(vas)
-ratings = []
-j = 0
+r = {}
+ratings = {}
 for i in range(len(vas)):
-    j = j+1 #to add to a data-frame (for debugging)
     rating_value, vas_time = vasRatingScale(parameters, vas[i]) # present rating scale
     chosen_rating = str(vas[i]) + '_' + 'chosen rating value: ' + str(rating_value) 
-    messageParticipantAndExperimenter(parameters, chosen_rating, parameters['texts']['+'])
-    ratings[j] = chosen_rating
-    #display to experimenter what the participant chooses on the VAS
+    messageParticipantAndExperimenter(parameters, chosen_rating, parameters['texts']['+']) #display to experimenter what the participant chooses on the VAS
+    #ratings[i, 1] = str(vas[i])
+    r[i] = rating_value
+ratings = pickle.dumps(r)
+    
     #tgiData = [trial_n, vas_time, vas[i], rating_value, targetT] # update tgi data with rating results
     #tgi_df = tcs.saveTgiData(parameters, tgiData, filenameInfo, tgi_df) # save results
 #return tgi_df
 
-with open('VAS.csv', 'w', newline = '') as csvfile:
-    my_writer = csv.writer(csvfile, delimiter = ' ')
-    my_writer.writerow(ratings)
+datafile = open('ratings.csv','w')
+writer = csv.writer(datafile, delimiter=";")
+for i, row in enumerate(ratings):
+    writer.writerow([i, row])
+datafile.close()
