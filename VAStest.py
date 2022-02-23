@@ -108,22 +108,31 @@ def vasRatingScale(parameters, vas, win=None):
 
 def messageParticipantAndExperimenter(parameters, text0, text1):
     win0 = parameters['win0']
-    win1 = parameters['win1']
+    win = parameters['win1']
     text0 = visual.TextStim(win0, height=parameters['textSize'], text = text0)
-    text1 = visual.TextStim(win1, height=parameters['textSize'], text = text1)
+    text1 = visual.TextStim(win, height=parameters['textSize'], text = text1)
     text0.draw()
     text1.draw()
     win0.flip()
-    win1.flip()
+    win.flip()
 
 # Define parameters for VAS scale
 #def run_vas(parameters, targetT, trial_n, filenameInfo, tgi_df):
 vas = ['pain', 'unpleasantness', 'cold', 'warm']
 random.shuffle(vas)
+ratings = []
+j = 0
 for i in range(len(vas)):
+    j = j+1 #to add to a data-frame (for debugging)
     rating_value, vas_time = vasRatingScale(parameters, vas[i]) # present rating scale
     chosen_rating = str(vas[i]) + '_' + 'chosen rating value: ' + str(rating_value) 
-    messageParticipantAndExperimenter(parameters, chosen_rating, parameters['texts']['+']) #display to experimenter what the participant chooses on the VAS
+    messageParticipantAndExperimenter(parameters, chosen_rating, parameters['texts']['+'])
+    ratings[j] = chosen_rating
+    #display to experimenter what the participant chooses on the VAS
     #tgiData = [trial_n, vas_time, vas[i], rating_value, targetT] # update tgi data with rating results
     #tgi_df = tcs.saveTgiData(parameters, tgiData, filenameInfo, tgi_df) # save results
 #return tgi_df
+
+with open('VAS.csv', 'w', newline = '') as csvfile:
+    my_writer = csv.writer(csvfile, delimiter = ' ')
+    my_writer.writerow(ratings)
