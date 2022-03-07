@@ -6,6 +6,7 @@
 
 %% Load parameters
 VAS_loadParams;
+addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
 
 % Reseed the random-number generator
 SetupRand;
@@ -20,7 +21,7 @@ scr.ViewDist = vars.ViewDist; % viewing distance
 
 %% Open a PTB window
 AssertOpenGL;
-if vars.c ontrol.devFlag
+if vars.control.devFlag
     [scr.win, scr.winRect] = PsychImaging('OpenWindow', scr.screenID, scr.BackgroundGray, [0 0 1000 1000]); %,[0 0 1920 1080] mr screen dim
 else
     [scr.win, scr.winRect] = PsychImaging('OpenWindow', scr.screenID, scr.BackgroundGray); %,[0 0 1920 1080] mr screen dim
@@ -38,7 +39,7 @@ Screen('TextSize', scr.win, scr.TextSize);
 scr.priorityLevel = MaxPriority(scr.win);
 Priority(scr.priorityLevel);
 
-% Determine stim size in pixels
+% Determine stim size in pixels %% can this be done in a diff function?  v 
 scr.dist        = scr.ViewDist;
 scr.width       = scr.MonitorWidth;
 scr.resolution  = scr.winRect(3:4);                    % number of pixels of display in horizontal direction
@@ -68,7 +69,7 @@ for trial_idx=1:vars.task.NTrialsTotal
     % Will loop through the number of VAS questions
     % for each trial (both params are set in VAS_load.params.m)
     % Currently set to 4 VAS questions, for 2 trials
-    randQuestion = vars.instructions.QuestionCode (randperm(length(vars.instructions.whichQuestion)));
+    randQuestion = vars.instructions.QuestionCode(randperm(length(vars.instructions.whichQuestion)));
     for rand_idx=1:length(randQuestion)
         question_type_idx = randQuestion(rand_idx);
         [Results.vasResponse(trial_idx,rand_idx), ...
