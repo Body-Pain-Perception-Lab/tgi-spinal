@@ -61,6 +61,11 @@ for trial_idx=1:vars.task.NTrialsTotal
     %% Open start screen
     % to control when each trial starts - can remove this if VAS questions
     % need to be continuous  
+
+    %% to consider:
+    % having a 'TGI countdown' where button is pressed at the beginning of
+    % TGI stimulation that counts down 15s, before participants can rate
+    % VAS
     DrawFormattedText(scr.win, vars.instructions.StartVas, 'center', 'center', scr.TextColour);
     [~, ~] = Screen('Flip', scr.win);
     KbStrokeWait;
@@ -68,7 +73,7 @@ for trial_idx=1:vars.task.NTrialsTotal
     %% Run VAS
     % Will loop through the number of VAS questions
     % for each trial (both params are set in VAS_load.params.m)
-    % Currently set to 4 VAS questions, for 2 trials
+    % Currently set to 3 VAS questions - burning, warm, cold
     randQuestion = vars.instructions.QuestionCode(randperm(length(vars.instructions.whichQuestion)));
     for rand_idx=1:length(randQuestion)
         question_type_idx = randQuestion(rand_idx);
@@ -76,6 +81,12 @@ for trial_idx=1:vars.task.NTrialsTotal
             Results.vasReactionTime(trial_idx,rand_idx)]= getVasRatings(keys, scr, vars, question_type_idx);
         Results.vasQuestionType(trial_idx, rand_idx ) = vars.instructions.Question(question_type_idx); 
     end 
+
+    if trial_idx == vars.instructions.ThermodeShow(trial_idx)
+        DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
+        [~, ~] = Screen('Flip', scr.win);
+        KbStrokeWait;
+    end
 end
 
 sca;
