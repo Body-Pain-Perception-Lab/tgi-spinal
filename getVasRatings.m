@@ -4,6 +4,8 @@ function [vasResp, RT] = getVasRatings(keys, scr, vars, instruction_n)
 % Camila Sardeto Deolindo & Francesca Fardo 
 % Last edit: 07/02/2022
 
+% Adapted by A G Mitchell on 08/03/2022 (line 45)
+
 %         answer = 0;                 % reset response flag
     vars.control.vasOnset = GetSecs;
     
@@ -31,8 +33,6 @@ function [vasResp, RT] = getVasRatings(keys, scr, vars, instruction_n)
         vasResp = NaN;
 %             vars.ValidTrial(2) = 1;
     end
-%         vars.control.vasTime = vasTimeStamp;
-%         vars.control.vasRT = RT;
         
     % Show rating in command window
     if ~isnan(vasResp)
@@ -40,8 +40,11 @@ function [vasResp, RT] = getVasRatings(keys, scr, vars, instruction_n)
     else
         disp(['No rating recorded.']);
     end
+    % setting a mouse at a random position on the screen before each VAS -
+    % for case = 1 only
+    SetMouse(round(rand * scr.xPix), round(rand * scr.yPix), scr.win);
 
-  % Draw Fixation
+    % Draw Fixation
     [~, ~] = Screen('Flip', scr.win);            % clear screen
     Screen('FillRect', scr.win, scr.BackgroundGray, scr.winRect);
     scr = drawFixation(scr); % fixation point

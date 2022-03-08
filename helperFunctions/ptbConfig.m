@@ -1,4 +1,4 @@
-function [scr, keys] = ptbConfig(scr)
+function [scr, keys] = ptbConfig(scr, vars)
 
 %% Display Configuration
 % Extracted from screenConfig by Niia Nikolova
@@ -47,6 +47,28 @@ scr.TextColour = Black;
 scr.AccentColour = [255 0 0]; % Red
 scr.TaskColours = [11 114 193; 39 154 56; 120 91 45];
 scr.bkColor = scr.BackgroundGray;
+
+%% Open a PTB window
+AssertOpenGL;
+%devFlag  = 1; % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
+
+if vars.control.devFlag
+    [scr.win, scr.winRect] = PsychImaging('OpenWindow', scr.screenID, scr.BackgroundGray, [0 0 1000 1000]); %,[0 0 1920 1080] mr screen dim
+else
+    [scr.win, scr.winRect] = PsychImaging('OpenWindow', scr.screenID, scr.BackgroundGray); %,[0 0 1920 1080] mr screen dim
+end 
+
+% Set priority for script execution to realtime priority:
+scr.priorityLevel = MaxPriority(scr.win);
+Priority(scr.priorityLevel);
+
+% Determine stim size in pixels %% can this be done in a diff function?  v 
+scr.dist        = scr.ViewDist;
+scr.width       = scr.MonitorWidth;
+scr.resolution  = scr.winRect(3:4);                    % number of pixels of display in horizontal direction
+
+[scr.xCenter scr.yCenter] = RectCenter(scr.winRect);
+[scr.xPix, scr.yPix] = Screen('WindowSize', scr.win);
 
 %% Keyboard Configuration
 % Set-up keyboard

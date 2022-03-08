@@ -31,7 +31,7 @@ vars.task.device = 'mouse'; %change between either keyboard or mouse, depending 
 %% Instructions
 vars.instructions.textSize = 32;
 
-vars.instructions.StartVas = 'Press a key to begin VAS ratings';
+vars.instructions.StartVas = 'Press a key when stimulation begins';
 
 vars.instructions.Question = {'At the moment, how much is the stimulus BURNING?',...
                                'At the moment, how WARM is the stimulus?',...
@@ -46,6 +46,11 @@ vars.instructions.ThermodeSwitch = 1:vars.task.NTrialsChange:vars.task.NTrialsTo
 vars.instructions.Thermode = 'Thank you. Please wait whilst we change the thermode location';
 
 vars.instructions.ConfEndPoints = {'Not at all', 'Extreme'};
+%% Waiting during stimulation
+vars.waitStim.text = 'When the countdown ends, please rate your experience';
+vars.waitStim.secs = 15; %the number of seconds you want to stimulate TGI for
+vars.waitStim.textSize = 65;
+
 
 
 
