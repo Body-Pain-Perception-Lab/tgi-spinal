@@ -10,6 +10,9 @@ vars.control.inputDevice    = 1;   % Response method for button presses 1 - mous
 % Now it works only for MOUSE
 % need to develop keyboard response
 
+%% Paths
+vars.filename.path = "/Users/au706616/Documents/Experiments/SPINALTGI/"; % this should change depending on computer used
+
 %% Task parameters
 
 %Viewing distance

@@ -23,12 +23,6 @@ datPath = vars.filename.path;
 % input participant details for filename
 vars.filename.ID = string(inputdlg('Please enter participant number:',...
              'Participant', [1 30]));
-
-% make participant folder - do this later
-%ppPath = [datPath vars.filename.ID];
-%mkdir ppPath
-
-% get date
 formatout = 'yymmdd';
 vars.filename.date = datestr(now, formatout);
 
