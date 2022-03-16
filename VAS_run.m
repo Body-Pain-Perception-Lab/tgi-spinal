@@ -5,6 +5,10 @@
 % Last edit - 08.03.2022
 
 % Helpers required: 
+% VAS_loadParams.m; getVasRatings.m; SetupRand.m; ptbConfig.m; 
+% openScreen.m; StimCount.m; slideScale.m; drawFixation.m;
+% angle2pix.m
+% probably more...            
         
 
 %% Load parameters
@@ -66,16 +70,13 @@ for trial_idx=1:vars.task.NTrialsTotal
     % to control when each trial starts - can remove this if VAS questions
     % need to be continuous  
 
-    %% to consider:
-    % having a 'TGI countdown' where button is pressed at the beginning of
-    % TGI stimulation that counts down 15s, before participants can rate
-    % VAS
     Screen('TextSize', scr.win, scr.TextSize);
     DrawFormattedText(scr.win, vars.instructions.StartVas, 'center', 'center', scr.TextColour);
     [~, ~] = Screen('Flip', scr.win);
     KbStrokeWait;
 
-    % run countdown during TGI stimulation
+    % run countdown during TGI stimulation - number of seconds defined in
+    % VAS_loadParams.m
     StimCount(scr, vars);  
 
     %% Run VAS
@@ -108,10 +109,11 @@ sca; % close VAS
 
 %% Saving data
 % to path specified in VAS_loadparams.m
+% first raw mat files
 matFile = fullfile(datPath, matName);
 save(matFile,'vars', 'results'); % saving raw data files as is
 
-% csv file names
+% then csv files with key data
 csvFile1 = fullfile(datPath, csv_ratName);
 csvFile2 = fullfile(datPath, csv_respName);
 % saving VAS response and VAS response time as seperate CSVs
