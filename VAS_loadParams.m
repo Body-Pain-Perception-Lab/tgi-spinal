@@ -24,7 +24,7 @@ vars.task.NTrialsChange      = 1; % The frequency of thermode change per trial (
 vars.task.feedbackBPtime     = 0.25; % this determines how long the feedbacks "button press detected" is shown on the screen
 %vars.task.ITI                = 6 - (vars.task.jitter + vars.task.feedbackBPtime);
 vars.task.movingT            = 3; %Time to move the thermode to adjacent position
-vars.task.RespT              = 10;    % Time to respond
+vars.task.RespT              = 8;    % Time to respond
 % vars.task.device = 'keyboard'; 
 vars.task.device = 'mouse'; %change between either keyboard or mouse, depending on preference
 
@@ -37,7 +37,7 @@ vars.instructions.Question = {'At the moment, how much is the stimulus BURNING?'
                                'At the moment, how WARM is the stimulus?',...
                                'At the moment, how COLD is the stimulus?'}; 
                            
-vars.instructions.QuestionCode = [1 2 3]; 
+vars.instructions.QuestionCode = [1 2 3]; % 1 - burning, 2 - warm, 3 - cold
 vars.instructions.whichQuestion = [1 1 1]; %Enable or disable question (1 = enabled) %% not sure this works, needs fixing!
 
 vars.instructions.whichKey = {'LR','UD'}; % Left/Right. Up/Down. If you are using the mouse as an input device let this entirely as LR
@@ -48,7 +48,7 @@ vars.instructions.Thermode = 'Thank you. Please wait whilst we change the thermo
 vars.instructions.ConfEndPoints = {'Not at all', 'Extreme'};
 %% Waiting during stimulation
 vars.waitStim.text = 'When the countdown ends, please rate your experience';
-vars.waitStim.secs = 15; %the number of seconds you want to stimulate TGI for
+vars.waitStim.secs = 5; %the number of seconds you want to stimulate TGI for
 vars.waitStim.textSize = 65;
 
 
