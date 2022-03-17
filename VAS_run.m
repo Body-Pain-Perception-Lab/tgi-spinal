@@ -2,7 +2,7 @@
 %% A.G. Mitchell - 25.02.2022
 % Developed from code by Camila Deolindo & Francesca Fardo
 
-% Last edit - 08.03.2022
+% Last edit - 17.03.2022
 
 % Helpers required: 
 % VAS_loadParams.m; getVasRatings.m; SetupRand.m; ptbConfig.m; 
@@ -25,8 +25,8 @@ vars.control.devFlag  = 0; % Development flag 1. Set to 1 when developing the ta
 % (VAS_loadParams.m)
 datPath = vars.filename.path;
 % input participant details for filename
-vars.filename.ID = string(inputdlg('Please enter participant number:',...
-             'Participant', [1 30]));
+vars.filename.ID = string(inputdlg({'Participant number:','Conterbalance procedure:'},...
+             'Participant information', [1 30; 1 30]));
 
 % make participant folder - do this later
 %ppPath = [datPath vars.filename.ID];
@@ -99,11 +99,11 @@ for trial_idx=1:vars.task.NTrialsTotal
     end 
 
     % display thermode switch text - atm not needed
-    %if trial_idx == vars.instructions.ThermodeSwitch(trial_idx)
-    %    DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
-    %    [~, ~] = Screen('Flip', scr.win);
-    %    KbStrokeWait;
-    %end
+    if trial_idx == vars.instructions.ThermodeSwitch(trial_idx)
+        DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
+        [~, ~] = Screen('Flip', scr.win);
+        KbStrokeWait;
+    end
 end
 sca; % close VAS
 

@@ -2,7 +2,7 @@
 %
 %
 % A G Mitchell 02/03/2022
-% Last edit: 07/03/2022
+% Last edit: 17/03/2022
 
 %% Key flags
                                                  
@@ -20,7 +20,7 @@ vars.ViewDist = 56;
 
 %Trials
 vars.task.NTrialsTotal       = 12; % Total number of trials
-vars.task.NTrialsChange      = 1; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
+vars.task.NTrialsChange      = 4; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
 
 %Times
 %vars.task.jitter             = randInRange(1,3,[1,vars.task.NTrialsTotal]); % time between the beginning of the trial and the beginning of the stimulation
@@ -30,6 +30,10 @@ vars.task.movingT            = 3; %Time to move the thermode to adjacent positio
 vars.task.RespT              = 8;    % Time to respond
 % vars.task.device = 'keyboard'; 
 vars.task.device = 'mouse'; %change between either keyboard or mouse, depending on preference
+
+% loading counterbalancing file - make sure it is in the file directory you
+% are running from
+writetable(vars.task.randomise, 'counterbalancing.csv', 'WriteVariableNames', 0); 
 
 %% Instructions
 vars.instructions.textSize = 32;
