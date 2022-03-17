@@ -33,7 +33,7 @@ vars.task.device = 'mouse'; %change between either keyboard or mouse, depending 
 
 % loading counterbalancing file - make sure it is in the file directory you
 % are running from
-writetable(vars.task.randomise, 'counterbalancing.csv', 'WriteVariableNames', 0); 
+vars.task.randomise = readtable('counterbalancing.csv'); 
 
 %% Instructions
 vars.instructions.textSize = 32;
