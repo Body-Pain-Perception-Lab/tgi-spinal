@@ -1,0 +1,293 @@
+---
+title: "TGI-spine"
+author: "Francesca Fardo"
+date: "18/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+## Simulate results for one participant
+```{r}
+simulate_subj <- function(subid) {
+trialN = 10
+conditionN = 8
+ratingN = 3
+df <- data.frame(matrix(ncol = 0, nrow = trialN*conditionN*ratingN))
+df$id <- rep(subid,trialN*conditionN*ratingN)
+df$trialn <- rep(1:trialN,conditionN*ratingN)
+df$dermatome <- rep(rep(c(rep("within",trialN*2), rep("across",trialN*2)),2),ratingN)
+df$cold_location <- rep(rep(c(rep("dist_rostr",trialN), rep("prox_caud", trialN)),conditionN/2),ratingN)
+df$stimuli <- rep(c(rep("tgi",trialN*conditionN/2), rep("non-tgi",trialN*conditionN/2)),ratingN)
+df$quality <- c(rep("cold",trialN*conditionN), rep("warm",trialN*conditionN), rep("burn",trialN*conditionN))
+  
+# The following intervals and mean can be changed to reflect hypotheses
+# Cold ratigs: simulation
+w_dr_tgi_cold <- rnorm(trialN, mean=sample(5:35,1), sd=10)
+w_pc_tgi_cold <- rnorm(trialN, mean=sample(5:35,1), sd=10)
+a_dr_tgi_cold <- rnorm(trialN, mean=sample(10:40,1), sd=10)
+a_pc_tgi_cold <- rnorm(trialN, mean=sample(10:45,1), sd=10)
+w_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:50,1), sd=15)
+w_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:50,1), sd=15)
+a_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:50,1), sd=15)
+a_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:50,1), sd=15)
+
+# Warm ratigs: simulation
+w_dr_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=15)
+w_pc_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=15)
+a_dr_tgi_warm <- rnorm(trialN, mean=sample(10:65,1), sd=15)
+a_pc_tgi_warm <- rnorm(trialN, mean=sample(5:50,1), sd=15)
+w_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+w_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+a_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+a_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+
+# Burning ratigs: simulation
+ w_dr_tgi_burn <- rnorm(trialN, mean=sample(10:80,1), sd=15)
+ w_pc_tgi_burn <- rnorm(trialN, mean=sample(10:80,1), sd=15)
+ a_dr_tgi_burn <- rnorm(trialN, mean=sample(10:65,1), sd=15)
+ a_pc_tgi_burn <- rnorm(trialN, mean=sample(5:50,1), sd=15)
+# 
+ w_dr_nontgi_burn <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+ w_pc_nontgi_burn <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+ a_dr_nontgi_burn <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+ a_pc_nontgi_burn <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+
+df$rating <- c(w_dr_tgi_cold, w_pc_tgi_cold, a_dr_tgi_cold, a_pc_tgi_cold, w_dr_nontgi_cold, w_pc_nontgi_cold, a_dr_nontgi_cold, a_pc_nontgi_cold,
+               w_dr_tgi_warm, w_pc_tgi_warm, a_dr_tgi_warm, a_pc_tgi_warm, w_dr_nontgi_warm, w_pc_nontgi_warm, a_dr_nontgi_warm, a_pc_nontgi_warm,
+               w_dr_tgi_burn, w_pc_tgi_burn, a_dr_tgi_burn, a_pc_tgi_burn, w_dr_nontgi_burn, w_pc_nontgi_burn, a_dr_nontgi_burn, a_pc_nontgi_burn)
+return(df)}
+```
+
+# Simulate results for 30 participants
+```{r}
+df30 <- data.frame()
+for (i in 1:30) {
+  df <- simulate_subj(i)
+  df30 <- rbind(df30,df)}
+df30
+```
+```{r}
+df30$conditionN[df$dermatome == "within" & df30$cold_location == "dist_rostr"] <- 1
+df30$conditionN[df$dermatome == "within" & df30$cold_location == "prox_caud"] <- 2
+df30$conditionN[df$dermatome == "across" & df30$cold_location == "dist_rostr"] <- 3
+df30$conditionN[df$dermatome == "across" & df30$cold_location == "prox_caud"] <- 4
+df30
+```
+
+## Summary stats: subject-level
+```{r}
+# Subject-level
+df <- df30
+df_subj <- aggregate(df$rating, by = list(id = df$id, conditionN = df$conditionN, dermatome = df$dermatome, cold_location = df$cold_location, stimuli = df$stimuli, quality = df$quality), FUN = mean)
+#df_subj$dermatome <- factor(df_subj$dermatome, levels = c('within','across')) # re-order conditions
+df_subj
+```
+## Summary stats: group-level
+```{r}
+# Group-level stats
+df <- df_subj
+group_mean   <- aggregate(df$x, by = list(conditionN = df$conditionN, dermatome = df$dermatome, cold_location = df$cold_location, stimuli = df$stimuli, quality = df$quality), FUN = mean)
+group_median <- aggregate(df$x, by = list(conditionN = df$conditionN,dermatome = df$dermatome, cold_location = df$cold_location, stimuli = df$stimuli, quality = df$quality), FUN = median)
+group_sd     <- aggregate(df$x, by = list(conditionN = df$conditionN,dermatome = df$dermatome, cold_location = df$cold_location, stimuli = df$stimuli, quality = df$quality), FUN = sd)
+group_se     <- group_sd$x/sqrt(length(unique(df$id)))
+
+
+df_group <- data.frame(group_mean, mean = group_mean$x, median = group_median$x, sd = group_sd$x, se = group_se)
+df_group
+```
+
+## Settings for plots
+
+```{r, echo = FALSE}
+# Load libraries
+library("ggplot2")
+library("gghalves")
+library("RColorBrewer")
+
+# Define colors
+reds <- brewer.pal(6, "Reds")
+blues <- brewer.pal(6, "Blues")
+purps <- brewer.pal(6, "Purples")
+
+col_cold_n <- blues[5]
+col_cold_w <- blues[3]
+col_warm_n <- reds[3]
+col_warm_w <- reds[5]
+col_unpl_n <- purps[3]
+col_unpl_w <- purps[5]
+
+# Parameters for plots
+tgi_theme = theme( 
+    text = element_text(size = 14),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    legend.title=element_text(size=12), 
+    legend.text=element_text(size=12),
+    plot.title = element_text(lineheight=.8, face="bold", size = 12),
+    panel.border = element_rect(size=1),
+    panel.grid.minor = element_blank(), 
+    panel.grid.major = element_blank(),
+    axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+    legend.key = element_blank(),
+    axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))
+    
+
+# Other parameters
+nudge1 = .2
+nudge2 = .3
+nudge3 = .4
+
+# Define how to plot half violins
+tgi_half_violin <- function(df_subj, tgi_dermatome, tgi_cold_location, tgi_stimuli, nudge, color) {
+v1 <- geom_half_violin(
+   data = df_subj %>% filter(dermatome == tgi_dermatome & cold_location == tgi_cold_location & stimuli == tgi_stimuli), 
+   aes(x = conditionN, y = x), position = position_nudge(x = nudge), side = "r", fill = color, alpha = .8)
+return(v1)}
+
+# Define how to plot group means and error bars
+tgi_group_mean <- function(df_group, tgi_dermatome, tgi_cold_location, tgi_stimuli, nudge, color, shape) {
+m1 <- geom_point(
+  data = df_group %>% filter(dermatome == tgi_dermatome & cold_location == tgi_cold_location & stimuli == tgi_stimuli), 
+  aes(x = conditionN, y = mean), position = position_nudge(x = nudge + .05), size = 3, shape = shape)
+return(m1)}
+
+# Define how to plot error bars
+tgi_group_error <- function(df_group, tgi_dermatome, tgi_cold_location, tgi_stimuli, tgi_nudge, tgi_color) {
+e1 <- geom_errorbar(
+  data = df_group %>% filter(dermatome == tgi_dermatome & cold_location == tgi_cold_location & stimuli == tgi_stimuli), 
+  aes(x = conditionN, y = mean, ymin = mean - se, ymax = mean + se), position = position_nudge(tgi_nudge + .05), width = 0)
+return(e1)}
+
+```
+
+## Plot cold ratings
+
+```{r, echo=FALSE}
+# Subset of data corresponding to cold ratings
+df_subj_cold  <- subset(df_subj, quality == "cold")
+df_group_cold <- subset(df_group, quality == "cold")  
+
+# Set jitter for geom_point
+set.seed(321)
+df_subj_cold$xj <- jitter(df_subj_cold$conditionN, amount=.1)
+
+c1 <- ggplot(data = df_subj_cold, mapping = aes(x = conditionN, y = x, fill = stimuli, shape = stimuli, color = stimuli)) +
+   
+   # Add theme
+   theme_bw()+
+   tgi_theme +
+   geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5) +
+  
+   # Add points (for each subject and condition)
+   geom_point(aes(x = xj), size = 2, alpha = .8) +
+  
+   # Add half violin plots
+   tgi_half_violin(df_subj_cold, "within", "dist_rostr", "non-tgi", nudge2, col_cold_n) +
+   tgi_half_violin(df_subj_cold, "within", "prox_caud", "non-tgi", nudge2, col_cold_n) +
+   tgi_half_violin(df_subj_cold, "across", "dist_rostr", "non-tgi", nudge2, col_cold_n) +
+   tgi_half_violin(df_subj_cold, "across", "prox_caud", "non-tgi", nudge2, col_cold_n) +
+   tgi_half_violin(df_subj_cold, "within", "dist_rostr", "tgi", nudge1, col_cold_w) +
+   tgi_half_violin(df_subj_cold, "within", "prox_caud", "tgi", nudge1, col_cold_w) +
+   tgi_half_violin(df_subj_cold, "across", "dist_rostr", "tgi", nudge1, col_cold_w) +
+   tgi_half_violin(df_subj_cold, "across", "prox_caud", "tgi", nudge1, col_cold_w) +
+  
+   # Add group summary stats (between-condition lines, errors bars, and means)
+   geom_line(data = df_group_cold %>% filter(stimuli == "non-tgi"), aes(x = conditionN + .45, y = mean)) +
+   geom_line(data = df_group_cold %>% filter(stimuli == "tgi"), aes(x = conditionN + .35, y = mean)) +
+  
+   tgi_group_error(df_group_cold, "within", "dist_rostr", "non-tgi", nudge3, col_cold_n) +
+   tgi_group_error(df_group_cold, "within", "prox_caud", "non-tgi", nudge3, col_cold_n) +
+   tgi_group_error(df_group_cold, "across", "dist_rostr", "non-tgi", nudge3, col_cold_n) +
+   tgi_group_error(df_group_cold, "across", "prox_caud", "non-tgi", nudge3, col_cold_n) +
+   tgi_group_error(df_group_cold, "within", "dist_rostr", "tgi", nudge2, col_cold_w) +
+   tgi_group_error(df_group_cold, "within", "prox_caud", "tgi", nudge2, col_cold_w) +
+   tgi_group_error(df_group_cold, "across", "dist_rostr", "tgi", nudge2, col_cold_w) +
+   tgi_group_error(df_group_cold, "across", "prox_caud", "tgi", nudge2, col_cold_w) +
+
+   tgi_group_mean(df_group_cold, "within", "dist_rostr", "non-tgi", nudge3, col_cold_n, 22) +
+   tgi_group_mean(df_group_cold, "within", "prox_caud", "non-tgi", nudge3, col_cold_n, 22) +
+   tgi_group_mean(df_group_cold, "across", "dist_rostr", "non-tgi", nudge3, col_cold_n, 22) +
+   tgi_group_mean(df_group_cold, "across", "prox_caud", "non-tgi", nudge3, col_cold_n, 22) +
+   tgi_group_mean(df_group_cold, "within", "dist_rostr", "tgi", nudge2, col_cold_w, 21) +
+   tgi_group_mean(df_group_cold, "within", "prox_caud", "tgi", nudge2, col_cold_w, 21) +
+   tgi_group_mean(df_group_cold, "across", "dist_rostr", "tgi", nudge2, col_cold_w, 21) +
+   tgi_group_mean(df_group_cold, "across", "prox_caud", "tgi", nudge2, col_cold_w, 21) +
+  
+   # Define additional settings
+   scale_shape_manual(values = c(22, 21)) +
+   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), labels=c("distal", "proximal", "caudal", "rostral"), limits=c(0.6, 5)) +
+   scale_fill_manual(labels = c("non-TGI", "TGI"), values=c(blues[6],blues[3])) +
+   scale_color_manual(labels = c("non-TGI", "TGI"), values=c(blues[6], "gray25")) +
+   guides(shape = FALSE) +
+   labs(title = "", x = "", y = "Cold ratings", fill = "Stimuli", color = "Stimuli") +
+   ggtitle('Figure 1: Cold perception')
+
+c1
+```
+## Plot warm ratings
+
+```{r, echo=FALSE}
+# Subset of data corresponding to cold ratings
+df_subj_warm  <- subset(df_subj, quality == "warm")
+df_group_warm <- subset(df_group, quality == "warm")  
+
+# Set jitter for geom_point
+set.seed(321)
+df_subj_warm$xj <- jitter(df_subj_warm$conditionN, amount=.1)
+
+w1 <- ggplot(data = df_subj_warm, mapping = aes(x = conditionN, y = x, fill = stimuli, shape = stimuli, color = stimuli)) +
+   
+   # Add theme
+   theme_bw()+
+   tgi_theme +
+   geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5) +
+  
+   # Add points (for each subject and condition)
+   geom_point(aes(x = xj), size = 2, alpha = .8) +
+  
+   # Add half violin plots
+   tgi_half_violin(df_subj_warm, "within", "dist_rostr", "non-tgi", nudge2, col_warm_n) +
+   tgi_half_violin(df_subj_warm, "within", "prox_caud", "non-tgi", nudge2, col_warm_n) +
+   tgi_half_violin(df_subj_warm, "across", "dist_rostr", "non-tgi", nudge2, col_warm_n) +
+   tgi_half_violin(df_subj_warm, "across", "prox_caud", "non-tgi", nudge2, col_warm_n) +
+   tgi_half_violin(df_subj_warm, "within", "dist_rostr", "tgi", nudge1, col_warm_w) +
+   tgi_half_violin(df_subj_warm, "within", "prox_caud", "tgi", nudge1, col_warm_w) +
+   tgi_half_violin(df_subj_warm, "across", "dist_rostr", "tgi", nudge1, col_warm_w) +
+   tgi_half_violin(df_subj_warm, "across", "prox_caud", "tgi", nudge1, col_warm_w) +
+  
+   # Add group summary stats (between-condition lines, errors bars, and means)
+   geom_line(data = df_group_warm %>% filter(stimuli == "non-tgi"), aes(x = conditionN + .45, y = mean)) +
+   geom_line(data = df_group_warm %>% filter(stimuli == "tgi"), aes(x = conditionN + .35, y = mean)) +
+  
+   tgi_group_error(df_group_warm, "within", "dist_rostr", "non-tgi", nudge3, col_warm_n) +
+   tgi_group_error(df_group_warm, "within", "prox_caud", "non-tgi", nudge3, col_warm_n) +
+   tgi_group_error(df_group_warm, "across", "dist_rostr", "non-tgi", nudge3, col_warm_n) +
+   tgi_group_error(df_group_warm, "across", "prox_caud", "non-tgi", nudge3, col_warm_n) +
+   tgi_group_error(df_group_warm, "within", "dist_rostr", "tgi", nudge2, col_warm_w) +
+   tgi_group_error(df_group_warm, "within", "prox_caud", "tgi", nudge2, col_warm_w) +
+   tgi_group_error(df_group_warm, "across", "dist_rostr", "tgi", nudge2, col_warm_w) +
+   tgi_group_error(df_group_warm, "across", "prox_caud", "tgi", nudge2, col_warm_w) +
+
+   tgi_group_mean(df_group_warm, "within", "dist_rostr", "non-tgi", nudge3, col_warm_n, 22) +
+   tgi_group_mean(df_group_warm, "within", "prox_caud", "non-tgi", nudge3, col_warm_n, 22) +
+   tgi_group_mean(df_group_warm, "across", "dist_rostr", "non-tgi", nudge3, col_warm_n, 22) +
+   tgi_group_mean(df_group_warm, "across", "prox_caud", "non-tgi", nudge3, col_warm_n, 22) +
+   tgi_group_mean(df_group_warm, "within", "dist_rostr", "tgi", nudge2, col_warm_w, 21) +
+   tgi_group_mean(df_group_warm, "within", "prox_caud", "tgi", nudge2, col_warm_w, 21) +
+   tgi_group_mean(df_group_warm, "across", "dist_rostr", "tgi", nudge2, col_warm_w, 21) +
+   tgi_group_mean(df_group_warm, "across", "prox_caud", "tgi", nudge2, col_warm_w, 21) +
+  
+   # Define additional settings
+   scale_shape_manual(values = c(22, 21)) +
+   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), labels=c("distal", "proximal", "caudal", "rostral"), limits=c(0.6, 5)) +
+   scale_fill_manual(labels = c("non-TGI", "TGI"), values=c(col_warm_n, col_warm_w)) +
+   scale_color_manual(labels = c("non-TGI", "TGI"), values=c("gray25", reds[6])) +
+   guides(shape = FALSE) +
+   labs(title = "", x = "", y = "Warm ratings", fill = "Stimuli", color = "Stimuli") +
+   ggtitle('Figure 1: Warm perception')
+
+w1
+```
