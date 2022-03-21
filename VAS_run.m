@@ -36,9 +36,11 @@ vars.filename.ID = string(inputdlg({'Participant number:','Conterbalance procedu
 formatout = 'yymmdd';
 vars.filename.date = datestr(now, formatout);
 
-matName = sprintf('%s_%s_VAS_sTGI.mat', vars.filename.ID, vars.filename.date);
-csv_ratName = sprintf('%s_%s_VASratings_sTGI.csv', vars.filename.ID, vars.filename.date);
-csv_respName = sprintf('%s_%s_VASresp_sTGI.csv', vars.filename.ID, vars.filename.date);
+% saving file name with participantID_pseudorandomProcedure_Date
+matName = sprintf('%s_%s_%s_VAS_sTGI.mat', vars.filename.ID, vars.filename.date);
+csv_ratName = sprintf('%s_%s_%s_VASratings_sTGI.csv', vars.filename.ID, vars.filename.date);
+csv_respName = sprintf('%s_%s_%s_VASrespTime_sTGI.csv', vars.filename.ID, vars.filename.date);
+csv_trialName = sprintf('%s_%s_%s_VAStrialInfo_sTGI.csv', vars.filename.ID, vars.filename.date);
 
 %% Psychtoolbox settings
 PsychDefaultSetup(2);
@@ -70,11 +72,11 @@ vars.control.abortFlag = 0;
 order = str2double(vars.filename.ID(2));
 % extract trials associated with specific counterbalancing procedure
 procedure = vars.task.randomise(vars.task.randomise.procedure==order, :);
-
+    
 trial_idx = 0 ; %create a seperate index for individual trials
 
 for block_idx=1:vars.task.NBlocksTotal
-    for pseudo_idx=1:length(procedure.trial_  type)
+    for pseudo_idx=1:length(procedure.trial_type)
         % record number of total trials per participant
         trial_idx = trial_idx+1;
         %% Open start screen
@@ -118,7 +120,8 @@ for block_idx=1:vars.task.NBlocksTotal
         results.trialInfo.trial_tot(trial_idx) = trial_idx;
         % display text for thermode location switch, need to refine this
         % step when counterbalancing procedure is finalised
-        if trial_idx == vars.instructions.ThermodeSwitch(trial_idx)
+        if bitget(trial_idx,1) %if the trial index is odd, no thermode switch
+        else
             DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
             [~, ~] = Screen('Flip', scr.win);
             KbStrokeWait;
@@ -136,7 +139,9 @@ save(matFile,'vars', 'results'); % saving raw data files as is
 % then csv files with key data
 csvFile1 = fullfile(datPath, csv_ratName);
 csvFile2 = fullfile(datPath, csv_respName);
+csvFile3 = fullfile(datPath, csv_trialName);
 % saving VAS response and VAS response time as seperate CSVs
 writematrix(results.vasResponse, csvFile1);
 writematrix(results.vasReactionTime, csvFile2);
+writematrix(results.trialInfo, csvFile3)
 % saving results as a CSV
