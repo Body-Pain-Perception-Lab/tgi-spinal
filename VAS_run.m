@@ -65,44 +65,59 @@ end
     vars.control.abortFlag = 0;
     [~, ~, keys.KeyCode] = KbCheck;
 
-for trial_idx=1:vars.task.NTrialsTotal
-    %% Open start screen
-    % to control when each trial starts - can remove this if VAS questions
-    % need to be continuous  
+    %% Pseudorandomise information
+    % get specific procedure order from main file
+    order = str2double(vars.filename.ID(2));
+    % extract trials associated with specific counterbalancing procedure
+    procedure = vars.task.randomise(vars.task.randomise.procedure==order, :);
 
-    Screen('TextSize', scr.win, scr.TextSize);
-    DrawFormattedText(scr.win, vars.instructions.StartVas, 'center', 'center', scr.TextColour);
-    [~, ~] = Screen('Flip', scr.win);
-    KbStrokeWait;
-
-    % run countdown during TGI stimulation - number of seconds defined in
-    % VAS_loadParams.m
-    StimCount(scr, vars);  
-
-    %% Run VAS
-    % Will loop through the number of VAS questions
-    % for each trial (both params are set in VAS_load.params.m)
-    % Currently set to 3 VAS questions - burning, warm, cold
-    % this is used to index which question was addressed in output (see
-    % VAS_loadParams.m for details)
-    randQuestion = vars.instructions.QuestionCode(randperm(length(vars.instructions.whichQuestion)));
-
-    Screen('TextSize', scr.win, scr.TextSize); % resetting text size
-    for rand_idx=1:length(randQuestion)
-        question_type_idx = randQuestion(rand_idx);
-        [results.vasResponse(trial_idx, question_type_idx), ...
-            results.vasReactionTime(trial_idx, question_type_idx)] = ...
-            getVasRatings(keys, scr, vars, question_type_idx); 
-        % making sure that VAS ratings are saved in correct column for each
-        % question (sanity check)
-        results.QuestionType(trial_idx, question_type_idx) = vars.instructions.Question(question_type_idx); 
-    end 
-
-    % display thermode switch text - atm not needed
-    if trial_idx == vars.instructions.ThermodeSwitch(trial_idx)
-        DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
+trial_idx = []; %create a seperate index for individual trials
+for block_idx=1:vars.task.NBlocksTotal
+    for pseudo_idx=1:length(procedure.trials)
+        % record number of total trials per participant
+        trial_idx = trial_idx+1;
+        %% Open start screen
+        % to control when each trial starts - can remove this if VAS questions
+        % need to be continuous  
+    
+        Screen('TextSize', scr.win, scr.TextSize);
+        DrawFormattedText(scr.win, vars.instructions.StartVas, 'center', 'center', scr.TextColour);
         [~, ~] = Screen('Flip', scr.win);
         KbStrokeWait;
+    
+        % run countdown during TGI stimulation - number of seconds defined in
+        % VAS_loadParams.m
+        StimCount(scr, vars);  
+    
+        %% Run VAS
+        % Will loop through the number of VAS questions
+        % for each trial (both params are set in VAS_load.params.m)
+        % Currently set to 3 VAS questions - burning, warm, cold
+        % this is used to index which question was addressed in output (see
+        % VAS_loadParams.m for details)
+        randQuestion = vars.instructions.QuestionCode(randperm(length(vars.instructions.whichQuestion)));
+    
+        Screen('TextSize', scr.win, scr.TextSize); % resetting text size
+        for rand_idx=1:length(randQuestion)
+            question_type_idx = randQuestion(rand_idx);
+            [results.vasResponse(trial_idx, question_type_idx), ...
+                results.vasReactionTime(trial_idx, question_type_idx)] = ...
+                getVasRatings(keys, scr, vars, question_type_idx); 
+            % making sure that VAS ratings are saved in correct column for each
+            % question (sanity check)
+            results.QuestionType(trial_idx, question_type_idx) = vars.instructions.Question(question_type_idx); 
+            % adding pseudorandomised info from the trial - extracted from
+            % counterbalance csv file  
+            results.trialInfo(trial_idx, :) = procedure(pseudo_idx, :);
+            results.trialInfo.trial(trial_idx) = trial_idx;
+        end 
+    
+        % display thermode switch text - atm not needed
+        if trial_idx == vars.instructions.ThermodeSwitch(trial_idx)
+            DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
+            [~, ~] = Screen('Flip', scr.win);
+            KbStrokeWait;
+        end
     end
 end
 sca; % close VAS

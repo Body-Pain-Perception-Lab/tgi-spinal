@@ -19,7 +19,7 @@ vars.filename.path = "/Users/au706616/Documents/Experiments/SPINALTGI/"; % this 
 vars.ViewDist = 56;
 
 %Trials
-vars.task.NTrialsTotal       = 12; % Total number of trials
+vars.task.NBlocksTotal       = 1; %Total number of blocks per pseudorandom procedure (n x 8 trials)
 vars.task.NTrialsChange      = 4; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
 
 %Times
