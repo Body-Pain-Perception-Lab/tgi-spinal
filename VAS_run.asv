@@ -103,10 +103,8 @@ for block_idx=1:vars.task.NBlocksTotal
             question_type_idx = randQuestion(rand_idx);
             [results.vasResponse(trial_idx, question_type_idx), ...
                 results.vasReactionTime(trial_idx, question_type_idx)] = ...
-                getVasRatings(keys, scr, vars, question_type_idx);  
-            % adding trial numbers to data-frame for later merging
+                getVasRatings(keys, scr, vars, question_type_idx);         
             results.vasResponse(trial_idx, 4) = trial_idx;
-            results.vasReactionTime(trial_idx, 4) = trial_idx;
             % making sure that VAS ratings are saved in correct column for each
             % question (sanity check)
             results.QuestionType(trial_idx, question_type_idx) = vars.instructions.Question(question_type_idx); 
@@ -116,8 +114,7 @@ for block_idx=1:vars.task.NBlocksTotal
         % counterbalance csv file
         results.trialInfo(trial_idx, 1:6) = procedure(pseudo_idx, 1:6);
         results.trialInfo.trial_tot(trial_idx) = trial_idx;
-        % display text for thermode location switch, need to refine this
-        % step when counterbalancing procedure is finalised
+        % display thermode switch text - atm not needed
         if trial_idx == vars.instructions.ThermodeSwitch(trial_idx)
             DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
             [~, ~] = Screen('Flip', scr.win);
