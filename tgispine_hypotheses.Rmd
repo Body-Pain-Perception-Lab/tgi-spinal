@@ -7,12 +7,13 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
 
 ```
 ## Simulate results for one participant
 ```{r}
 simulate_subj <- function(subid) {
-trialN = 10
+trialN = 9
 conditionN = 8
 ratingN = 3
 df <- data.frame(matrix(ncol = 0, nrow = trialN*conditionN*ratingN))
@@ -64,7 +65,7 @@ return(df)}
 # Simulate results for 30 participants
 ```{r}
 df30 <- data.frame()
-for (i in 1:30) {
+for (i in 1:50) {
   df <- simulate_subj(i)
   df30 <- rbind(df30,df)}
 df30
@@ -290,4 +291,49 @@ w1 <- ggplot(data = df_subj_warm, mapping = aes(x = conditionN, y = x, fill = st
    ggtitle('Figure 1: Warm perception')
 
 w1
+```
+
+# running ANOVA on simulated data - to gain idea of effect size
+
+```{r, echo=FALSE}
+library(ez)
+library(psychReport)
+# burning VAS
+burn_anova <- ezANOVA(
+  data = df_subj[df_subj$quality == 'burn' ,]
+  , dv = .(x)
+  , wid = .(id)
+  , within = .(dermatome, cold_location, stimuli),
+  return_aov = TRUE,
+  detailed = TRUE
+)
+
+# warm VAS
+warm_anova <- ezANOVA(
+  data = df_subj[df_subj$quality == 'warm' ,]
+  , dv = .(x)
+  , wid = .(id)
+  , within = .(dermatome, cold_location, stimuli),
+  return_aov = TRUE,
+  detailed = TRUE
+)
+
+# cold VAS
+cold_anova <- ezANOVA(
+  data = df_subj[df_subj$quality == 'cold' ,]
+  , dv = .(x)
+  , wid = .(id)
+  , within = .(dermatome, cold_location, stimuli),
+  return_aov = TRUE,
+  detailed = TRUE
+)
+
+```{r}
+burn_anova
+```
+```{r}
+warm_anova
+```
+``` {r}
+cold_anova
 ```
