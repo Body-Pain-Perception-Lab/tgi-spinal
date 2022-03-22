@@ -1,8 +1,8 @@
-%% VAS rating main script
+                                                                            %% VAS rating main script
 %% A.G. Mitchell - 25.02.2022
 % Developed from code by Camila Deolindo & Francesca Fardo
 
-% Last edit - 22.03.22
+% Last edit - 17.03.2022
 
 % Helpers required: 
 % VAS_loadParams.m; getVasRatings.m; SetupRand.m; ptbConfig.m; 
@@ -12,8 +12,6 @@
         
 
 %% Load parameters
-clear all % clearing all old data
-
 VAS_loadParams;
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
 
