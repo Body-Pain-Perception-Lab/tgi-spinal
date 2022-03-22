@@ -18,15 +18,17 @@ addpath helperFunctions % getting helper functions to path, just incase they are
 % Reseed the random-number generator
 SetupRand;   
 
-vars.control.devFlag  = 1 ; % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
+vars.control.devFlag  = 1; % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
 
 %% Path
 % path to save data to - should be changed depending on laptop
 % (VAS_loadParams.m)
 datPath = vars.filename.path;
 % input participant details for filename
-vars.filename.ID = string(inputdlg({'Participant number:','Conterbalance procedure:'},...
-             'Participant information', [1 30; 1 30]));
+% task is either TGI or control, participant number is a string of 4 digits
+% (e.g. 0001), counterbalance procedure is index 1,2,3 or 4
+vars.filename.ID = string(inputdlg({'Participant number:','Conterbalance procedure:','Task:'},...
+             'Participant information', [1 10; 1 30; 1 10]));
 
 % make participant folder - do this later
 %ppPath = [datPath vars.filename.ID];
@@ -37,10 +39,10 @@ formatout = 'yymmdd';
 vars.filename.date = datestr(now, formatout);
 
 % saving file name with participantID_pseudorandomProcedure_Date
-matName = sprintf('%s_%s_%s_VAS_sTGI.mat', vars.filename.ID, vars.filename.date);
-csv_ratName = sprintf('%s_%s_%s_VASratings_sTGI.csv', vars.filename.ID, vars.filename.date);
-csv_respName = sprintf('%s_%s_%s_VASrespTime_sTGI.csv', vars.filename.ID, vars.filename.date);
-csv_trialName = sprintf('%s_%s_%s_VAStrialInfo_sTGI.csv', vars.filename.ID, vars.filename.date);
+matName = sprintf('%s_%s_%s_%s_VAS_spinalTGI.mat', vars.filename.ID, vars.filename.date);
+csv_ratName = sprintf('%s_%s_%s_%s_%s_VAS_spinalTGI.csv', vars.filename.ID, vars.filename.date);
+csv_respName = sprintf('%s_%s_%s_%s_VAS_spinalTGI.csv', vars.filename.ID, vars.filename.date);
+csv_trialName = sprintf('%s_ %s_%s_%s_VAS_spinalTGI.csv', vars.filename.ID, vars.filename.date);
 
 %% Psychtoolbox settings
 PsychDefaultSetup(2);
@@ -143,5 +145,5 @@ csvFile3 = fullfile(datPath, csv_trialName);
 % saving VAS response and VAS response time as seperate CSVs
 writematrix(results.vasResponse, csvFile1);
 writematrix(results.vasReactionTime, csvFile2);
-writematrix(results.trialInfo, csvFile3)
+writetable(results.trialInfo, csvFile3)
 % saving results as a CSV
