@@ -20,7 +20,9 @@ addpath helperFunctions % getting helper functions to path, just incase they are
 % Reseed the random-number generator
 SetupRand;   
 
-vars.control.devFlag  = 1; % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
+vars.control.devFlag  = 0sca
+sca
+; % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
 
 %% Path
 if vars.control.devFlag == 0 %only run if not debugging

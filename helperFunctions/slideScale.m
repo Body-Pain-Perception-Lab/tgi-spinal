@@ -98,7 +98,7 @@ scalaLength   = 0.9;
 scalaPosition = 0.6;
 sliderColor   = [255 0 0];
 scaleColor    = [0 0 0];
-device        = 'mouse';
+device        = 'keyboard';
 aborttime     = Inf;
 KbName('UnifyKeyNames');
 responseKeys  = [KbName('return') KbName('LeftArrow') KbName('RightArrow')];

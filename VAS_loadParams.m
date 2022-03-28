@@ -6,7 +6,8 @@
 
 %% Key flags
                                                  
-vars.control.inputDevice    = 2;   % Response method for button presses 1 - mouse, 2 - keyboard 
+vars.control.inputDevice    =  2;   % Response method for button presses 1 - mouse, 2 - keyboard 
+vars.control.fixedTiming = 0; %add if timing of all trials should be same length, regardless of resp
 % Now it works only for MOUSE
 % need to develop keyboard response
 
@@ -28,8 +29,8 @@ vars.task.feedbackBPtime     = 0.25; % this determines how long the feedbacks "b
 %vars.task.ITI                = 6 - (vars.task.jitter + vars.task.feedbackBPtime);
 vars.task.movingT            = 3; %Time to move the thermode to adjacent position
 vars.task.RespT              = 8;    % Time to respond
-vars.task.device = 'keyboard'; 
-%vars.task.device = 'mouse'; %change between either keyboard or mouse, depending on preference
+%vars.task.device = 'keyboard'; 
+vars.task.device = 'mouse'; %change between either keyboard or mouse, depending on preference
 
 % loading counterbalancing file - make sure it is in the file directory you
 % are running from
