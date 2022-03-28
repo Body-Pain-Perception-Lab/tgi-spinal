@@ -1,5 +1,4 @@
 function [scr, keys] = ptbConfig(scr, vars)
-
 %% Display Configuration
 % Extracted from screenConfig by Niia Nikolova
 % Last edit: 16/06/2020
@@ -40,11 +39,11 @@ PsychImaging('AddTask', 'FinalFormatting', 'DisplayColorCorrection', 'SimpleGamm
 
 
 %% Colours and text params
-scr.BackgroundGray = 90;%GrayIndex(scr.screenID);
+scr.BackgroundGray = 0.75; %GrayIndex(scr.screenID);
 White = WhiteIndex(scr.screenID);
 Black = BlackIndex(scr.screenID);
 scr.TextColour = Black;
-scr.AccentColour = [255 0 0]; % Red
+scr.AccentColour = [1 0 0]; % Red
 scr.TaskColours = [11 114 193; 39 154 56; 120 91 45];
 scr.bkColor = scr.BackgroundGray;
 

@@ -6,7 +6,7 @@
 
 %% Key flags
                                                  
-vars.control.inputDevice    = 1;   % Response method for button presses 1 - mouse, 2 - keyboard 
+vars.control.inputDevice    = 2;   % Response method for button presses 1 - mouse, 2 - keyboard 
 % Now it works only for MOUSE
 % need to develop keyboard response
 
@@ -28,8 +28,8 @@ vars.task.feedbackBPtime     = 0.25; % this determines how long the feedbacks "b
 %vars.task.ITI                = 6 - (vars.task.jitter + vars.task.feedbackBPtime);
 vars.task.movingT            = 3; %Time to move the thermode to adjacent position
 vars.task.RespT              = 8;    % Time to respond
-% vars.task.device = 'keyboard'; 
-vars.task.device = 'mouse'; %change between either keyboard or mouse, depending on preference
+vars.task.device = 'keyboard'; 
+%vars.task.device = 'mouse'; %change between either keyboard or mouse, depending on preference
 
 % loading counterbalancing file - make sure it is in the file directory you
 % are running from
@@ -57,7 +57,4 @@ vars.instructions.ConfEndPoints = {'Not at all', 'Extreme'};
 vars.waitStim.text = 'When the countdown ends, please rate your experience';
 vars.waitStim.secs = 5; %the number of seconds you want to stimulate TGI for
 vars.waitStim.textSize = 65;
-
-
-
 
