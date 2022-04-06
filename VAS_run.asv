@@ -34,11 +34,11 @@ if vars.control.devFlag == 0 %only run if not debugging
     % (e.g. 0001), counterbalance procedure is index 1,2,3 or 4
     vars.filename.ID = string(inputdlg({'Participant number:','Conterbalance procedure:','Task:',...
         'Cold Temp (ºC):', 'Warm/Neutral Temp (ºC):'},...
-        'Participant information', [1 30; 1 30; 1 10; 1 30; 1 30]));
+                 'Participant information', [1 30; 1 30; 1 10; 1 30; 1 30]));
     
-    % make participant folder in correct path
-    ppPath = fullfile(datPath, vars.filename.ID(1));
-    mkdir(ppPath);
+    % make participant folder - do this later
+    ppPath = [datPath vars.filename.ID(1)];
+    mkdir ppPath
     
     % get date
     formatout = 'yymmdd';
@@ -150,13 +150,13 @@ ListenChar(0); %enable keypress
 if vars.control.devFlag == 0 % only run when not debugging
     % to path specified in VAS_loadparams.m
     % first raw mat files
-    matFile = fullfile(ppPath, matName);
+    matFile = fullfile(datPath, matName);
     save(matFile,'vars', 'results'); % saving raw data files as is
     
     % then csv files with key data
-    csvFile1 = fullfile(ppPath, csv_ratName);
-    csvFile2 = fullfile(ppPath, csv_respName);
-    csvFile3 = fullfile(ppPath, csv_trialName);
+    csvFile1 = fullfile(datPath, csv_ratName);
+    csvFile2 = fullfile(datPath, csv_respName);
+    csvFile3 = fullfile(datPath, csv_trialName);
     % saving VAS response and VAS response time as seperate CSVs
     writematrix(results.vasResponse, csvFile1);
     writematrix(results.vasReactionTime, csvFile2);
