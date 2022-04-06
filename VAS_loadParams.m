@@ -21,7 +21,7 @@ vars.ViewDist = 56;
 
 %Trials
 vars.task.NBlocksTotal       = 1; %Total number of blocks per pseudorandom procedure (n x 16 trials)
-vars.task.NTrialsChange      = 2; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
+vars.task.NTrialsChange      = 4; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
 
 %Times
 %vars.task.jitter             = randInRange(1,3,[1,vars.task.NTrialsTotal]); % time between the beginning of the trial and the beginning of the stimulation
@@ -29,8 +29,8 @@ vars.task.feedbackBPtime     = 0.25; % this determines how long the feedbacks "b
 %vars.task.ITI                = 6 - (vars.task.jitter + vars.task.feedbackBPtime);
 vars.task.movingT            = 3; %Time to move the thermode to adjacent position
 vars.task.RespT              = 8;    % Time to respond
-%vars.task.device = 'keyboard'; 
-vars.task.device = 'mouse'; %change between either keyboard or mouse, depending on preference
+vars.task.device = 'keyboard'; 
+%vars.task.device = 'mouse'; %change between either keyboard or mouse, depending on preference
 
 % loading counterbalancing file - make sure it is in the file directory you
 % are running from
