@@ -47,7 +47,7 @@ if vars.control.devFlag == 0 %only run if not debugging
     matName = sprintf('%s_%s_%s_%s_VAS_spinalTGI.mat', vars.filename.ID, vars.filename.date);
     csv_ratName = sprintf('%s_%s_%s_%s_VASResponse_spinalTGI.csv', vars.filename.ID, vars.filename.date);
     csv_respName = sprintf('%s_%s_%s_%s_VASRespT_spinalTGI.csv', vars.filename.ID, vars.filename.date);
-    csv_trialName = sprintf('%s_ %s_%s_%s_VAStrials_spinalTGI.csv', vars.filename.ID, vars.filename.date);
+    csv_trialName = sprintf('%s_%s_%s_%s_VAStrials_spinalTGI.csv', vars.filename.ID, vars.filename.date);
 end
 %% Psychtoolbox settings
 PsychDefaultSetup(2);
