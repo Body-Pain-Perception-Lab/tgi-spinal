@@ -131,6 +131,8 @@ for block_idx=1:vars.task.NBlocksTotal
         % counterbalance csv file
         results.trialInfo(trial_idx, 1:6) = procedure(pseudo_idx, 1:6);
         results.trialInfo.trial_tot(trial_idx) = trial_idx;
+        results.trialInfo.coolTemp = vars.filename.ID(4);
+        results.trialInfo.warmTemp = vars.filename.ID(5);
         % display text for thermode location switch, need to refine this
         % step when counterbalancing procedure is finalised
         if bitget(trial_idx,1) %if the trial index is odd, no thermode switch
