@@ -21,7 +21,6 @@ addpath helperFunctions % getting helper functions to path, just incase they are
 datPath = vars.filename.path;
 runPath = pwd;
 
-
 % Reseed the random-number generator
 SetupRand;   
 
