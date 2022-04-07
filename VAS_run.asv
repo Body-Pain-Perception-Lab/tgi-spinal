@@ -89,8 +89,8 @@ procedure = vars.task.randomise(vars.task.randomise.procedure==order, :);
 trial_idx = 0 ; %create a seperate index for individual trials
 
 for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
-    for pseudo_idx=1:length(procedure.trial_type) %loop through procedure order - 8 different thermode locations
-        for rep_idx = 1:vars.task.NTrialReps %loop through trial repeats, 4 trials per thermode location
+    for pseudo_idx=1:length(procedure.trial_type) %loop through procedure order - 8 different conditions
+        for rep_idx = 1:vars.task.NTrialReps
             % record number of total trials per participant
             trial_idx = trial_idx+1;
             %% Open start screen
@@ -115,7 +115,7 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             randQuestion = vars.instructions.QuestionCode(randperm(length(vars.instructions.whichQuestion)));
         
             Screen('TextSize', scr.win, scr.TextSize); % resetting text size
-            for rand_idx=1:length(randQuestion) %loop through VAS questions
+            for rand_idx=1:length(randQuestion) 
                 question_type_idx = randQuestion(rand_idx);
                 [results.vasResponse(trial_idx, question_type_idx), ...
                     results.vasReactionTime(trial_idx, question_type_idx)] = ...
@@ -131,16 +131,21 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             % adding pseudorandomised info from the trial - extracted from
             % counterbalance csv file
             results.trialInfo(trial_idx, 1:6) = procedure(pseudo_idx, 1:6);
-            results.trialInfo.trial_n(trial_idx) = trial_idx;
+            results.trialInfo.trial_tot(trial_idx) = trial_idx;
             if vars.control.devFlag == 0
                 results.trialInfo.coolTemp = vars.filename.ID(4);
                 results.trialInfo.warmTemp = vars.filename.ID(5);
             end
         end
-        % display text for thermode location switch
-        DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
-        [~, ~] = Screen('Flip', scr.win);  
-        KbStrokeWait;
+        % display text for thermode location switch, need to refine this
+        % step when counterbalancing procedure is finalised
+        %if bitget(trial_idx,1) %if the trial index is odd, no thermode switch
+        %else
+        %    DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
+        %    [~, ~] = Screen('Flip', scr.win)
+        %    
+        %    KbStrokeWait;
+        %end
     end
 end
 sca; % close VAS

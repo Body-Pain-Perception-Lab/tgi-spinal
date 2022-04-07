@@ -20,6 +20,7 @@ vars.filename.path = "/Users/au706616/Documents/Experiments/SPINALTGI/"; % this 
 vars.ViewDist = 56;
 
 %Trials
+vars.task.NTrialReps         = 4; %number of repeat trials per condition (i.e. thermode in right place)ds
 vars.task.NBlocksTotal       = 1; %Total number of blocks per pseudorandom procedure (n x 16 trials)
 vars.task.NTrialsChange      = 4; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
 
@@ -51,7 +52,7 @@ vars.instructions.whichQuestion = [1 1 1]; %Enable or disable question (1 = enab
 vars.instructions.whichKey = {'LR','UD'}; % Left/Right. Up/Down. If you are using the mouse as an input device let this entirely as LR
       
 vars.instructions.ThermodeSwitch = 2:vars.task.NTrialsChange:(vars.task.NBlocksTotal*16); %When to ask participant to change thermode position (starting from 2)
-vars.instructions.Thermode = 'Please wait whilst we change the thermode location. Press a key when done.';
+vars.instructions.Thermode = 'Please wait whilst we change the location of the thermode. Press a key when done.';
 
 vars.instructions.ConfEndPoints = {'Not at all', 'Extreme'};    
 %% Waiting during stimulation
