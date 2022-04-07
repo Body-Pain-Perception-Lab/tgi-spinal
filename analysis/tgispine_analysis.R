@@ -75,8 +75,12 @@ ggplot(AGM, aes(group = trial_tot, colour = cold_probe)) +
   theme_classic()
 
 
-# get median VAS responses for each condition
-# burning
-VASburn <- aggregate(VASburning~manipulation*condition*cold_probe*ID, median, data = AGM)
-VASwarm <- aggregate(VASwarm~manipulation*condition*cold_probe*ID, median, data = AGM)
-VAScold <- aggregate(VAScold~manipulation*condition*cold_probe*ID, median, data = AGM)
+# get mean VAS responses for each condition
+VASburn <- aggregate(VASburning~manipulation*condition*cold_probe*dermatome*ID, mean, data = AGM)
+VASwarm <- aggregate(VASwarm~manipulation*condition*cold_probe*dermatome*ID, mean, data = AGM)
+VAScold <- aggregate(VAScold~manipulation*condition*cold_probe*dermatome*ID, mean, data = AGM)
+# standard deviations
+SDburn <- aggregate(VASburning~manipulation*condition*cold_probe*dermatome*ID, sd, data = AGM)
+SDwarm <- aggregate(VASwarm~manipulation*condition*cold_probe*dermatome*ID, sd, data = AGM)
+SDcold <- aggregate(VAScold~manipulation*condition*cold_probe*dermatome*ID, sd, data = AGM)
+

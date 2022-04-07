@@ -26,35 +26,35 @@ df$quality <- c(rep("cold",trialN*conditionN), rep("warm",trialN*conditionN), re
   
 # The following intervals and mean can be changed to reflect hypotheses
 # Cold ratigs: simulation
-w_dr_tgi_cold <- rnorm(trialN, mean=sample(5:35,1), sd=10)
-w_pc_tgi_cold <- rnorm(trialN, mean=sample(5:35,1), sd=10)
-a_dr_tgi_cold <- rnorm(trialN, mean=sample(10:40,1), sd=10)
-a_pc_tgi_cold <- rnorm(trialN, mean=sample(10:45,1), sd=10)
-w_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:50,1), sd=15)
-w_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:50,1), sd=15)
-a_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:50,1), sd=15)
-a_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:50,1), sd=15)
+w_dr_tgi_cold <- rnorm(trialN, mean=sample(5:25,1), sd=10)
+w_pc_tgi_cold <- rnorm(trialN, mean=sample(5:25,1), sd=10)
+a_dr_tgi_cold <- rnorm(trialN, mean=sample(5:45,1), sd=15)
+a_pc_tgi_cold <- rnorm(trialN, mean=sample(5:40,1), sd=15)
+w_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
+w_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
+a_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
+a_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
 
 # Warm ratigs: simulation
-w_dr_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=15)
-w_pc_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=15)
-a_dr_tgi_warm <- rnorm(trialN, mean=sample(10:65,1), sd=15)
-a_pc_tgi_warm <- rnorm(trialN, mean=sample(5:50,1), sd=15)
-w_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=5)
-w_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=5)
-a_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=5)
-a_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+w_dr_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=10)
+w_pc_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=10)
+a_dr_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=15)
+a_pc_tgi_warm <- rnorm(trialN, mean=sample(5:60,1), sd=15)
+w_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
+w_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
+a_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
+a_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
 
-# Burning ratigs: simulation
- w_dr_tgi_burn <- rnorm(trialN, mean=sample(10:80,1), sd=15)
- w_pc_tgi_burn <- rnorm(trialN, mean=sample(10:80,1), sd=15)
- a_dr_tgi_burn <- rnorm(trialN, mean=sample(10:65,1), sd=15)
- a_pc_tgi_burn <- rnorm(trialN, mean=sample(5:50,1), sd=15)
+# Burning ratings: simulation
+ w_dr_tgi_burn <- rnorm(trialN, mean=sample(10:50,1), sd=10)
+ w_pc_tgi_burn <- rnorm(trialN, mean=sample(10:50,1), sd=10)
+ a_dr_tgi_burn <- rnorm(trialN, mean=sample(10:40,1), sd=15)
+ a_pc_tgi_burn <- rnorm(trialN, mean=sample(5:30,1), sd=15)
 # 
- w_dr_nontgi_burn <- rnorm(trialN, mean=sample(5:25,1), sd=5)
- w_pc_nontgi_burn <- rnorm(trialN, mean=sample(5:25,1), sd=5)
- a_dr_nontgi_burn <- rnorm(trialN, mean=sample(5:25,1), sd=5)
- a_pc_nontgi_burn <- rnorm(trialN, mean=sample(5:25,1), sd=5)
+ w_dr_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
+ w_pc_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
+ a_dr_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
+ a_pc_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
 
 df$rating <- c(w_dr_tgi_cold, w_pc_tgi_cold, a_dr_tgi_cold, a_pc_tgi_cold, w_dr_nontgi_cold, w_pc_nontgi_cold, a_dr_nontgi_cold, a_pc_nontgi_cold,
                w_dr_tgi_warm, w_pc_tgi_warm, a_dr_tgi_warm, a_pc_tgi_warm, w_dr_nontgi_warm, w_pc_nontgi_warm, a_dr_nontgi_warm, a_pc_nontgi_warm,
@@ -117,8 +117,8 @@ col_cold_n <- blues[5]
 col_cold_w <- blues[3]
 col_warm_n <- reds[3]
 col_warm_w <- reds[5]
-col_unpl_n <- purps[3]
-col_unpl_w <- purps[5]
+col_burn_n <- purps[3]
+col_burn_w <- purps[5]
 
 # Parameters for plots
 tgi_theme = theme( 
@@ -219,7 +219,7 @@ c1 <- ggplot(data = df_subj_cold, mapping = aes(x = conditionN, y = x, fill = st
   
    # Define additional settings
    scale_shape_manual(values = c(22, 21)) +
-   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), labels=c("distal", "proximal", "caudal", "rostral"), limits=c(0.6, 5)) +
+   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), labels=c("distal", "proximal", "rostral", "caudal"), limits=c(0.6, 5)) +
    scale_fill_manual(labels = c("non-TGI", "TGI"), values=c(blues[6],blues[3])) +
    scale_color_manual(labels = c("non-TGI", "TGI"), values=c(blues[6], "gray25")) +
    guides(shape = FALSE) +
@@ -231,7 +231,7 @@ c1
 ## Plot warm ratings
 
 ```{r, echo=FALSE}
-# Subset of data corresponding to cold ratings
+# Subset of data corresponding to warm ratings
 df_subj_warm  <- subset(df_subj, quality == "warm")
 df_group_warm <- subset(df_group, quality == "warm")  
 
@@ -283,14 +283,78 @@ w1 <- ggplot(data = df_subj_warm, mapping = aes(x = conditionN, y = x, fill = st
   
    # Define additional settings
    scale_shape_manual(values = c(22, 21)) +
-   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), labels=c("distal", "proximal", "caudal", "rostral"), limits=c(0.6, 5)) +
+   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), labels=c("distal", "proximal", "rostral", "caudal"), limits=c(0.6, 5)) +
    scale_fill_manual(labels = c("non-TGI", "TGI"), values=c(col_warm_n, col_warm_w)) +
    scale_color_manual(labels = c("non-TGI", "TGI"), values=c("gray25", reds[6])) +
    guides(shape = FALSE) +
    labs(title = "", x = "", y = "Warm ratings", fill = "Stimuli", color = "Stimuli") +
-   ggtitle('Figure 1: Warm perception')
+   ggtitle('Figure 2: Warm perception')
 
 w1
+```
+## Plot burn ratings
+
+```{r, echo=FALSE}
+# Subset of data corresponding to warm ratings
+df_subj_burn  <- subset(df_subj, quality == "burn")
+df_group_burn <- subset(df_group, quality == "burn")  
+
+# Set jitter for geom_point
+set.seed(321)
+df_subj_burn$xj <- jitter(df_subj_burn$conditionN, amount=.1)
+
+b1 <- ggplot(data = df_subj_burn, mapping = aes(x = conditionN, y = x, fill = stimuli, shape = stimuli, color = stimuli)) +
+   
+   # Add theme
+   theme_bw()+
+   tgi_theme +
+   geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5) +
+  
+   # Add points (for each subject and condition)
+   geom_point(aes(x = xj), size = 2, alpha = .8) +
+  
+   # Add half violin plots
+   tgi_half_violin(df_subj_burn, "within", "dist_rostr", "non-tgi", nudge2, col_burn_n) +
+   tgi_half_violin(df_subj_burn, "within", "prox_caud", "non-tgi", nudge2, col_burn_n) +
+   tgi_half_violin(df_subj_burn, "across", "dist_rostr", "non-tgi", nudge2, col_burn_n) +
+   tgi_half_violin(df_subj_burn, "across", "prox_caud", "non-tgi", nudge2, col_burn_n) +
+   tgi_half_violin(df_subj_burn, "within", "dist_rostr", "tgi", nudge1, col_burn_w) +
+   tgi_half_violin(df_subj_burn, "within", "prox_caud", "tgi", nudge1, col_burn_w) +
+   tgi_half_violin(df_subj_burn, "across", "dist_rostr", "tgi", nudge1, col_burn_w) +
+   tgi_half_violin(df_subj_burn, "across", "prox_caud", "tgi", nudge1, col_burn_w) +
+  
+   # Add group summary stats (between-condition lines, errors bars, and means)
+   geom_line(data = df_group_burn %>% filter(stimuli == "non-tgi"), aes(x = conditionN + .45, y = mean)) +
+   geom_line(data = df_group_burn %>% filter(stimuli == "tgi"), aes(x = conditionN + .35, y = mean)) +
+  
+   tgi_group_error(df_group_burn, "within", "dist_rostr", "non-tgi", nudge3, col_burn_n) +
+   tgi_group_error(df_group_burn, "within", "prox_caud", "non-tgi", nudge3, col_burn_n) +
+   tgi_group_error(df_group_burn, "across", "dist_rostr", "non-tgi", nudge3, col_burn_n) +
+   tgi_group_error(df_group_burn, "across", "prox_caud", "non-tgi", nudge3, col_burn_n) +
+   tgi_group_error(df_group_burn, "within", "dist_rostr", "tgi", nudge2, col_burn_w) +
+   tgi_group_error(df_group_burn, "within", "prox_caud", "tgi", nudge2, col_burn_w) +
+   tgi_group_error(df_group_burn, "across", "dist_rostr", "tgi", nudge2, col_burn_w) +
+   tgi_group_error(df_group_burn, "across", "prox_caud", "tgi", nudge2, col_burn_w) +
+
+   tgi_group_mean(df_group_burn, "within", "dist_rostr", "non-tgi", nudge3, col_burn_n, 22) +
+   tgi_group_mean(df_group_burn, "within", "prox_caud", "non-tgi", nudge3, col_burn_n, 22) +
+   tgi_group_mean(df_group_burn, "across", "dist_rostr", "non-tgi", nudge3, col_burn_n, 22) +
+   tgi_group_mean(df_group_burn, "across", "prox_caud", "non-tgi", nudge3, col_burn_n, 22) +
+   tgi_group_mean(df_group_burn, "within", "dist_rostr", "tgi", nudge2, col_burn_w, 21) +
+   tgi_group_mean(df_group_burn, "within", "prox_caud", "tgi", nudge2, col_burn_w, 21) +
+   tgi_group_mean(df_group_burn, "across", "dist_rostr", "tgi", nudge2, col_burn_w, 21) +
+   tgi_group_mean(df_group_burn, "across", "prox_caud", "tgi", nudge2, col_burn_w, 21) +
+  
+   # Define additional settings
+   scale_shape_manual(values = c(22, 21)) +
+   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), labels=c("distal", "proximal", "rostral", "caudal"), limits=c(0.6, 5)) +
+   scale_fill_manual(labels = c("non-TGI", "TGI"), values=c(col_burn_n, col_burn_w)) +
+   scale_color_manual(labels = c("non-TGI", "TGI"), values=c("gray25", purps[6])) +
+   guides(shape = FALSE) +
+   labs(title = "", x = "", y = "Burn ratings", fill = "Stimuli", color = "Stimuli") +
+   ggtitle('Figure 3: Burn perception')
+
+b1
 ```
 
 # running ANOVA on simulated data - to gain idea of effect size

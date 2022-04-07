@@ -24,7 +24,8 @@ datPath = vars.filename.path;
 runPath = pwd;
 
 % Reseed the random-number generator
-SetupRand;   
+SetupRand;
+
 %% Path
 if vars.control.devFlag == 0 %only run if not debugging
     % input participant details for filename
