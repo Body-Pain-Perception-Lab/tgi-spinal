@@ -28,8 +28,8 @@ df$quality <- c(rep("cold",trialN*conditionN), rep("warm",trialN*conditionN), re
 # Cold ratigs: simulation
 w_dr_tgi_cold <- rnorm(trialN, mean=sample(5:25,1), sd=10)
 w_pc_tgi_cold <- rnorm(trialN, mean=sample(5:25,1), sd=10)
-a_dr_tgi_cold <- rnorm(trialN, mean=sample(5:45,1), sd=15)
-a_pc_tgi_cold <- rnorm(trialN, mean=sample(5:40,1), sd=15)
+a_dr_tgi_cold <- rnorm(trialN, mean=sample(5:40,1), sd=15)
+a_pc_tgi_cold <- rnorm(trialN, mean=sample(5:45,1), sd=15)
 w_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
 w_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
 a_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
@@ -38,8 +38,8 @@ a_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
 # Warm ratigs: simulation
 w_dr_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=10)
 w_pc_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=10)
-a_dr_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=15)
-a_pc_tgi_warm <- rnorm(trialN, mean=sample(5:60,1), sd=15)
+a_dr_tgi_warm <- rnorm(trialN, mean=sample(5:60,1), sd=15)
+a_pc_tgi_warm <- rnorm(trialN, mean=sample(10:80,1), sd=15)
 w_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
 w_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
 a_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
@@ -48,8 +48,8 @@ a_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
 # Burning ratings: simulation
  w_dr_tgi_burn <- rnorm(trialN, mean=sample(10:50,1), sd=10)
  w_pc_tgi_burn <- rnorm(trialN, mean=sample(10:50,1), sd=10)
- a_dr_tgi_burn <- rnorm(trialN, mean=sample(10:40,1), sd=15)
- a_pc_tgi_burn <- rnorm(trialN, mean=sample(5:30,1), sd=15)
+ a_dr_tgi_burn <- rnorm(trialN, mean=sample(5:40,1), sd=15)
+ a_pc_tgi_burn <- rnorm(trialN, mean=sample(5:50,1), sd=15)
 # 
  w_dr_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
  w_pc_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
@@ -362,42 +362,35 @@ b1
 ```{r, echo=FALSE}
 library(ez)
 library(psychReport)
+# isolate just TGI for purposes of determining effect size
+df_tgi <- df_subj[df_subj$stimuli == 'tgi' ,]
+
 # burning VAS
 burn_anova <- ezANOVA(
-  data = df_subj[df_subj$quality == 'burn' ,]
+  data = df_tgi[df_tgi$quality == 'burn' ,]
   , dv = .(x)
   , wid = .(id)
-  , within = .(dermatome, cold_location, stimuli),
+  , within = .(dermatome, cold_location),
   return_aov = TRUE,
   detailed = TRUE
 )
 
 # warm VAS
 warm_anova <- ezANOVA(
-  data = df_subj[df_subj$quality == 'warm' ,]
+  data = df_tgi[df_tgi$quality == 'warm' ,]
   , dv = .(x)
   , wid = .(id)
-  , within = .(dermatome, cold_location, stimuli),
+  , within = .(dermatome, cold_location),
   return_aov = TRUE,
   detailed = TRUE
 )
 
 # cold VAS
 cold_anova <- ezANOVA(
-  data = df_subj[df_subj$quality == 'cold' ,]
+  data = df_tgi[df_tgi$quality == 'cold' ,]
   , dv = .(x)
   , wid = .(id)
-  , within = .(dermatome, cold_location, stimuli),
+  , within = .(dermatome, cold_location),
   return_aov = TRUE,
   detailed = TRUE
 )
-
-```{r}
-burn_anova
-```
-```{r}
-warm_anova
-```
-``` {r}
-cold_anova
-```
