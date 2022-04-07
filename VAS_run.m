@@ -14,18 +14,17 @@
 %% Load parameters
 clear all % clearing all old data
 
+% Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
+vars.control.devFlag  = 0; 
+
 VAS_loadParams;
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
-% path to save data to - should be changed depending on laptop
-% (VAS_loadParams.m)
+% path to save data to - should be changed depending on laptop (VAS_loadParams.m)
 datPath = vars.filename.path;
 runPath = pwd;
 
 % Reseed the random-number generator
 SetupRand;   
-
-vars.control.devFlag  = 1; % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-
 %% Path
 if vars.control.devFlag == 0 %only run if not debugging
     % input participant details for filename
@@ -75,6 +74,12 @@ vars.control.thisTrial = 1;
 vars.control.abortFlag = 0;
 [~, ~, keys.KeyCode] = KbCheck;
 
+%% Start screen
+Screen('TextSize', scr.win, scr.TextSize);
+DrawFormattedText(scr.win, vars.instructions.StartScreen, 'center', 'center', scr.TextColour);
+[~, ~] = Screen('Flip', scr.win);
+KbStrokeWait;
+
 %% Pseudorandomise information
 % get specific procedure order from main file - if in development mode then
 % just get the first order
@@ -93,11 +98,10 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
         for rep_idx = 1:vars.task.NTrialReps %loop through trial repeats, 4 trials per thermode location
             % record number of total trials per participant
             trial_idx = trial_idx+1;
-            %% Open start screen
+            %% Open VAS screen
             % to control when each trial starts - can remove this if VAS questions
             % need to be continuous  
-        
-            Screen('TextSize', scr.win, scr.TextSize);
+
             DrawFormattedText(scr.win, vars.instructions.StartVas, 'center', 'center', scr.TextColour);
             [~, ~] = Screen('Flip', scr.win);
             KbStrokeWait;
@@ -133,8 +137,8 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             results.trialInfo(trial_idx, 1:6) = procedure(pseudo_idx, 1:6);
             results.trialInfo.trial_n(trial_idx) = trial_idx;
             if vars.control.devFlag == 0
-                results.trialInfo.coolTemp = vars.filename.ID(4);
-                results.trialInfo.warmTemp = vars.filename.ID(5);
+                results.trialInfo.coolTemp(trial_idx) = vars.filename.ID(4);
+                results.trialInfo.warmTemp(trial_idx) = vars.filename.ID(5);
             end
         end
         % display text for thermode location switch

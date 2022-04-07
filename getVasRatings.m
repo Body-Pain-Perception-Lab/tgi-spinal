@@ -45,8 +45,8 @@ function [vasResp, RT] = getVasRatings(keys, scr, vars, instruction_n)
         case 2 % Keyboard response
             vars.control.vasOnset = GetSecs;
             % The avaliable keys to press
-            returnKeys = KbName('return');
-            returnKey = returnKeys(1);
+            returnKey = KbName('space');
+            %returnKey = returnKeys(1);
             leftKey = KbName('LeftArrow');
             rightKey = KbName('RightArrow');
 
