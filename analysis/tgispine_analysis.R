@@ -136,14 +136,14 @@ ggplot(CEA[CEA$manipulation=='CNT' ,], aes(group = trial_n, colour = cold_probe)
         legend.title = element_blank())
 
 
-##### Mean & plots #####
+##### Summary statistics & plots #####
 # get mean VAS responses for each condition
 VASresponse <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe*dermatome, 
                          median, data = df_plot)
 
 # H1: the effect of dermatome
 VAS_H1 <- aggregate(rating~ID*VAS*manipulation*condition, 
-                    median, data = df_plot)
+                    mean, data = VASresponse)
 # plotting - TGI
 ggplot(VAS_H1[VAS_H1$manipulation=='TGI' ,], 
        aes(condition, rating, group = ID, colour = ID)) +
@@ -161,9 +161,36 @@ ggplot(VAS_H1[VAS_H1$manipulation=='CNT' ,],
    
 # H2: across dermatome
 VAS_H2 <- VASresponse[VASresponse$condition == 'across' ,]
+# plotting - TGI
+ggplot(VAS_H2[VAS_H2$manipulation=='TGI' ,], 
+       aes(cold_probe, rating, group = ID, colour = ID)) +
+  geom_point(position = position_dodge(.3)) +
+  facet_wrap(~VAS) +
+  labs(title = 'TGI') +
+  theme_classic()
+# non TGI
+ggplot(VAS_H2[VAS_H2$manipulation=='CNT' ,], 
+       aes(cold_probe, rating, group = ID, colour = ID)) +
+  geom_point(position = position_dodge(.3)) +
+  facet_wrap(~VAS) +
+  labs(title = 'Non TGI') +
+  theme_classic()
 
-
-
-
+# H3: within dermatome
+VAS_H3 <- VASresponse[VASresponse$condition == 'within' ,]
+# plotting - TGI
+ggplot(VAS_H3[VAS_H3$manipulation=='TGI' ,], 
+       aes(cold_probe, rating, group = ID, colour = ID)) +
+  geom_point(position = position_dodge(.3)) +
+  facet_wrap(~VAS) +
+  labs(title = 'TGI') +
+  theme_classic()
+# non TGI
+ggplot(VAS_H3[VAS_H3$manipulation=='CNT' ,], 
+       aes(cold_probe, rating, group = ID, colour = ID)) +
+  geom_point(position = position_dodge(.3)) +
+  facet_wrap(~VAS) +
+  labs(title = 'Non TGI') +
+  theme_classic()
 
 
