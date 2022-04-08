@@ -44,10 +44,10 @@ if vars.control.devFlag == 0 %only run if not debugging
     vars.filename.date = datestr(now, formatout);
     
     % saving file name with participantID_pseudorandomProcedure_Date
-    matName = sprintf('%s_%s_%s_%s_VAS_spinalTGI.mat', vars.filename.ID(1:3), vars.filename.date);
-    csv_ratName = sprintf('%s_%s_%s_%s_VASResponse_spinalTGI.csv', vars.filename.ID(1:3), vars.filename.date);
-    csv_respName = sprintf('%s_%s_%s_%s_VASRespT_spinalTGI.csv', vars.filename.ID(1:3), vars.filename.date);
-    csv_trialName = sprintf('%s_%s_%s_%s_VAStrials_spinalTGI.csv', vars.filename.ID(1:3), vars.filename.date);
+    matName = sprintf('%s_%s_%s_%s_VAS_spinalTGI.mat', vars.filename.ID(, vars.filename.date);
+    csv_ratName = sprintf('%s_%s_%s_%s_VASResponse_spinalTGI.csv', vars.filename.ID, vars.filename.date);
+    csv_respName = sprintf('%s_%s_%s_%s_VASRespT_spinalTGI.csv', vars.filename.ID, vars.filename.date);
+    csv_trialName = sprintf('%s_%s_%s_%s_VAStrials_spinalTGI.csv', vars.filename.ID, vars.filename.date);
 end
 %% Psychtoolbox settings
 PsychDefaultSetup(2);
