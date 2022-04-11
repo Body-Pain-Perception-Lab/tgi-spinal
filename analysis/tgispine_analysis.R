@@ -202,46 +202,43 @@ VAS_H1 <- merge(VAS_H1, VAS_H1_SD)
 # plotting - TGI
 H1TGI <- ggplot(VAS_H1[VAS_H1$manipulation=='TGI' ,], 
        aes(condition, rating, group = ID, colour = VAS)) +
-  geom_point(size = 1, position = position_dodge(.3)) +
+  geom_point(size = 2, position = position_dodge(.3)) +
   geom_errorbar(aes(ymin=rating-SD, ymax=rating+SD), width=.2,
                 position=position_dodge(.3)) +
   facet_wrap(~VAS) +
   scale_color_manual(values = c(blues[4],reds[4],purps[5])) +
-  labs(title = 'TGI') +
+  labs(title = 'TGI', x = 'Condition', y = 'VAS Rating') +
+  lims(y = c(-5,75)) +
   theme_classic() + 
   theme(legend.position = 'none')
-
-add_summary(H1TGI, 'mean',
-            color = 'grey',
-            shape = 21,
-            size = .5)
 
 
 # non TGI
 H1NTGI <- ggplot(VAS_H1[VAS_H1$manipulation=='CNT' ,], 
        aes(condition, rating, group = ID, colour = VAS)) +
-  geom_point(size = 1, position = position_dodge(.3)) +
+  geom_point(size = 2, position = position_dodge(.3)) +
   facet_wrap(~VAS) +
   geom_errorbar(aes(ymin=rating-SD, ymax=rating+SD), width=.2,
                   position=position_dodge(.3)) +
   scale_color_manual(values = c(blues[4],reds[4],purps[5])) +
-  labs(title = 'Non TGI') +
+  labs(title = 'Non TGI', x = '', y = 'VAS Rating') +
+  lims(y = c(-5,75)) +
   theme_classic() + 
   theme(legend.position = 'none')
 
-add_summary(H1NTGI, 'mean',
-            color = 'grey',
-            shape = 21,
-            size = .5)
+H1 <- ggarrange(H1NTGI, H1TGI,
+                ncol = 1, nrow = 2)
+
+ggsave('H1plot.png', H1, device = NULL, path = datPath, width = 5, height = 8)
    
 # H2: across dermatome
 VASSD <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe*dermatome, 
                          sd, data = df_plot)
 names(VASSD)[7] <- 'SD'
 VASresponse <- merge(VASresponse, VASSD)
-
-
+# isolating across
 VAS_H2 <- VASresponse[VASresponse$condition == 'ACR' ,]
+
 # plotting - TGI
 ggplot(VAS_H2[VAS_H2$manipulation=='TGI' ,], 
        aes(cold_probe, rating, group = ID, colour = VAS)) +
@@ -250,9 +247,11 @@ ggplot(VAS_H2[VAS_H2$manipulation=='TGI' ,],
                 position=position_dodge(.3)) +
   facet_wrap(~VAS) +
   scale_color_manual(values = c(blues[4],reds[4],purps[5])) +
-  labs(title = 'TGI') +
+  labs(title = 'TGI', x = '', y = 'VAS Rating') +
+  lims(y = c(-20,100)) +
   theme_classic() +
   theme(legend.position = 'none')
+
 # non TGI
 ggplot(VAS_H2[VAS_H2$manipulation=='CNT' ,], 
        aes(cold_probe, rating, group = ID, colour = VAS)) +
