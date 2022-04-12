@@ -202,6 +202,21 @@ ggsave('COLDplot.png', COLD, device = NULL, path = datPath, width = 8, height = 
 # get mean VAS responses for each condition
 VASresponse <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe, 
                          median, data = df_plot)
+VASIQR <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe, 
+                   IQR, data = df_plot)
+names(VASIQR)[6] <- 'iqr'
+
+VASresponse <- merge(VASresponse,VASIQR)
+
+# identifying labelling conditions
+VASresponse$conditionN[VASresponse$condition == "WIN" & 
+                         VASresponse$cold_probe == "distal"] <- 1
+VASresponse$conditionN[VASresponse$condition == "WIN" & 
+                         VASresponse$cold_probe == "proximal"] <- 2
+VASresponse$conditionN[VASresponse$condition == "ACR" & 
+                         VASresponse$cold_probe == "caudal"] <- 3
+VASresponse$conditionN[VASresponse$condition == "ACR" & 
+                         VASresponse$cold_probe == "rostral"] <- 4
 
 # H1: the effect of dermatome
 VAS_H1 <- aggregate(rating~ID*VAS*manipulation*condition, 
@@ -213,10 +228,10 @@ VAS_H1 <- merge(VAS_H1, VAS_H1_SD)
 # summary stats for participants
 # this is the data we will use to inform the simulation - save
 SUMstats <- summarySEwithin(data = VASresponse, measurevar = 'rating', 
-                            withinvars = c('manipulation','condition','cold_probe'), 
+                            withinvars = c('manipulation','VAS','condition','cold_probe'), 
                             na.rm = TRUE, conf.interval = .95)
 # get min and max median values
-range <- aggregate(rating~manipulation*condition*cold_probe, range, data = VASresponse)
+range <- aggregate(rating~manipulation*VAS*condition*cold_probe, range, data = VASresponse)
 # rename
 names(range)[4] <- 'min'
 names(range)[5] <- 'max'
@@ -224,37 +239,51 @@ names(range)[5] <- 'max'
 SUMstats <- merge(SUMstats, range)
 write.csv(SUMstats, 'pilotSummary.csv', row.names = FALSE)
 
-##### Hypothesis 1 plotting #####
-H1TGI <- ggplot(VAS_H1[VAS_H1$manipulation=='TGI' ,], 
-       aes(condition, rating, group = ID, colour = VAS)) +
+##### Plotting #####
+# recode conditions
+VASresponse <- VASresponse %>%
+  mutate(conditionN = recode(conditionN, '1' = 'distal', '2' = 'proximal',
+                             '3' = 'caudal', '4' = 'rostral'))
+VASresponse$conditionN <- factor(VASresponse$conditionN, 
+                                 levels = c("distal", "proximal", "rostral","caudal"))
+
+COLD <- ggplot(VASresponse[VASresponse$VAS == 'cold' ,], 
+               aes(conditionN, rating, group = ID, colour = manipulation)) +
   geom_point(size = 2.5, position = position_dodge(.3)) +
-  geom_errorbar(aes(ymin=rating-SD, ymax=rating+SD), width=.2, size = .7,
+  geom_errorbar(aes(ymin=rating-iqr, ymax=rating+iqr), width=.2, size = .7,
                 position=position_dodge(.3)) +
-  facet_wrap(~VAS) +
-  scale_color_manual(values = c(blues[5],reds[4],purps[5])) +
-  labs(title = 'TGI', x = 'Condition', y = '') +
-  lims(y = c(-5,75)) +
+  scale_color_manual(values = c(blues[3],blues[6])) +
+  labs(title = 'Cold perception', x = '', y = 'Cold ratings') +
   theme_classic() + 
   theme(legend.position = 'none')
 
 
-# non TGI
-H1NTGI <- ggplot(VAS_H1[VAS_H1$manipulation=='CNT' ,], 
-       aes(condition, rating, group = ID, colour = VAS)) +
+WARM <- ggplot(VASresponse[VASresponse$VAS == 'warm' ,], 
+               aes(conditionN, rating, group = ID, colour = manipulation)) +
   geom_point(size = 2.5, position = position_dodge(.3)) +
-  facet_wrap(~VAS) +
-  geom_errorbar(aes(ymin=rating-SD, ymax=rating+SD), width=.2, size = .7,
-                  position=position_dodge(.3)) +
-  scale_color_manual(values = c(blues[5],reds[4],purps[5])) +
-  labs(title = 'Non TGI', x = 'Condition', y = 'VAS Rating') +
-  lims(y = c(-5,75)) +
+  geom_errorbar(aes(ymin=rating-iqr, ymax=rating+iqr), width=.2, size = .7,
+                position=position_dodge(.3)) +
+  scale_color_manual(values = c(orans[3],orans[6])) +
+  labs(title = 'Warm perception', x = '', y = 'Warm ratings') +
   theme_classic() + 
   theme(legend.position = 'none')
 
-H1 <- ggarrange(H1NTGI, H1TGI,
-                ncol = 2, nrow = 1)
+BURN <- ggplot(VASresponse[VASresponse$VAS == 'burn' ,], 
+               aes(conditionN, rating, group = ID, colour = manipulation)) +
+  geom_point(size = 2.5, position = position_dodge(.3)) +
+  geom_errorbar(aes(ymin=rating-iqr, ymax=rating+iqr), width=.2, size = .7,
+                position=position_dodge(.3)) +
+  scale_color_manual(values = c(purps[4],purps[7])) +
+  labs(title = 'Burn perception', x = '', y = 'Burn ratings') +
+  theme_classic() + 
+  theme(legend.position = 'none')
 
-ggsave('H1plot.png', H1, device = NULL, path = datPath, width = 8, height = 5)
+H1 <- ggarrange(COLD, WARM, BURN,
+                ncol = 3, nrow = 1,
+                common.legend = TRUE,
+                legend = 'bottom')
+
+ggsave('H1plot.png', H1, device = NULL, path = datPath, width = 9, height = 4.5)
    
 ##### Hypothesis 2 plotting #####
 VASSD <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe*dermatome, 
