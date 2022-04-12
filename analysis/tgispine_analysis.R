@@ -78,112 +78,123 @@ df_cold$VAS <- 'cold'
 names(df_cold)[12] <- 'rating'
 # combine
 df_plot <- rbind(df_burn, df_warm, df_cold)
+# recode levels for plotting
 df_plot$VAS <- factor(df_plot$VAS, 
                              levels = c("cold", "warm", "burn"))
 df_plot$condition <- factor(df_plot$condition, 
                       labels = c("ACR", "WIN"))
+df_plot$ID <- factor(df_plot$ID, 
+                            labels = c("P1", "P2", "P3"))
 
 # Define colors
-reds <- brewer.pal(6, "Reds")
-blues <- brewer.pal(6, "Blues")
-purps <- brewer.pal(6, "Purples")
-green <- brewer.pal(6, "Greens")
+reds <- brewer.pal(8, "Reds")
+redpu <- brewer.pal(8, "RdPu")
+orans <- brewer.pal(8, "Oranges")
+blues <- brewer.pal(8, "Blues")
+purps <- brewer.pal(8, "Purples")
+green <- brewer.pal(8, "YlGn")
+blgrn <- brewer.pal(8, "BuGn")
 
-caudal <- blues[6]
-rostral <- blues[3]
-distal <- green[6]
-proximal <- green[3]
-colours <- c(caudal, rostral, distal, proximal)
+# caudal, rostral, distal, proximal colours
+col_burn <- c(purps[4], purps[7], redpu[3], redpu[6])
+col_warm <- c(reds[3], reds[6], orans[3], orans[6])
+col_cold <- c(blues[3], blues[6], blgrn[4], blgrn[7])
 
 ## plot individual participants
 # isolate just my data (for now)
-AGM <- df_plot[df_plot$ID == '0001' ,]
-CEA <- df_plot[df_plot$ID == 'C001' ,]
-DE <- df_plot[df_plot$ID == 'D001' ,]
+P1 <- df_plot[df_plot$ID == 'P1' ,]
+P2 <- df_plot[df_plot$ID == 'P2' ,]
+P3 <- df_plot[df_plot$ID == 'P3' ,]
 
-# AGM - TGI
-P1TGI <- ggplot(AGM[AGM$manipulation=='TGI' ,], aes(group = trial_n, colour = cold_probe)) +
-  geom_point(aes(condition, rating), size = 1.5, position = position_dodge(.2)) +
-  facet_wrap(~VAS) +
-  scale_colour_manual(values = colours) +
+# BURN - TGI
+BTGI <- ggplot(df_plot[df_plot$VAS=='burn' & df_plot$manipulation == 'TGI' ,], 
+                aes(group = trial_n, colour = cold_probe))  +
+  geom_point(aes(condition, rating), size = 1.7, position = position_dodge(.2)) +
+  facet_wrap(~ID) +
+  scale_colour_manual(values = col_burn) +
   lims(y = c(0, 100)) +
   theme_classic() +
-  labs(title = 'TGI', x = 'Condition', y = '') +
+  labs(title = 'TGI', x = 'Condition', y = 'VAS Rating') +
   theme(legend.position = 'none',
         legend.title = element_blank())
 
-# AGM - nonTGI
-P1NTGI <- ggplot(AGM[AGM$manipulation=='CNT' ,], aes(group = trial_n, colour = cold_probe)) +
-  geom_point(aes(condition, rating), size = 1.5, position = position_dodge(.2)) +
-  facet_wrap(~VAS) +
-  scale_colour_manual(values = colours) +
+# BURN - nonTGI
+BNTGI <- ggplot(df_plot[df_plot$VAS=='burn' & df_plot$manipulation == 'CNT' ,], 
+                 aes(group = trial_n, colour = cold_probe)) +
+  geom_point(aes(condition, rating), size = 1.7, position = position_dodge(.2)) +
+  facet_wrap(~ID) +
+  scale_colour_manual(values = col_burn) +
   theme_classic() +
   lims(y = c(0, 100)) +
-  labs(title = 'Non TGI', x = 'Condition', y = 'VAS Rating') +
+  labs(title = 'Non TGI', x = '', y = 'VAS Rating') +
   theme(legend.position = 'bottom',
         legend.title = element_blank())
 
-P1 <- ggarrange(P1NTGI, P1TGI,
+BURN <- ggarrange(BNTGI, BTGI,
                 ncol = 1, nrow = 2,
                 common.legend = TRUE,
                 legend = 'bottom')
-ggsave('P1plot.png', P1, device = NULL, path = datPath, width = 5, height = 8)
+ggsave('BURNplot.png', BURN, device = NULL, path = datPath, width = 5, height = 8)
 
-# CEA - TGI
-P2TGI <- ggplot(CEA[CEA$manipulation=='TGI' ,], aes(group = trial_n, colour = cold_probe)) +
-  geom_point(aes(condition, rating), size = 1.5, position = position_dodge(.2)) +
-  facet_wrap(~VAS) +
-  scale_colour_manual(values = colours) +
+# WARM - TGI
+WTGI <- ggplot(df_plot[df_plot$VAS=='warm' & df_plot$manipulation == 'TGI' ,], 
+               aes(group = trial_n, colour = cold_probe))  +
+  geom_point(aes(condition, rating), size = 1.7, position = position_dodge(.2)) +
+  facet_wrap(~ID) +
+  scale_colour_manual(values = col_warm) +
   lims(y = c(0, 100)) +
   theme_classic() +
-  labs(title = 'TGI', x = 'Condition', y = '') +
+  labs(title = 'TGI', x = 'Condition', y = 'VAS Rating') +
   theme(legend.position = 'none',
         legend.title = element_blank())
 
-# CEA - nonTGI
-P2NTGI <- ggplot(CEA[CEA$manipulation=='CNT' ,], aes(group = trial_n, colour = cold_probe)) +
-  geom_point(aes(condition, rating), size = 1.5, position = position_dodge(.2)) +
-  facet_wrap(~VAS) +
-  scale_colour_manual(values = colours) +
+# WARM - nonTGI
+WNTGI <- ggplot(df_plot[df_plot$VAS=='warm' & df_plot$manipulation == 'CNT' ,], 
+                aes(group = trial_n, colour = cold_probe)) +
+  geom_point(aes(condition, rating), size = 1.7, position = position_dodge(.2)) +
+  facet_wrap(~ID) +
+  scale_colour_manual(values = col_warm) +
   theme_classic() +
   lims(y = c(0, 100)) +
-  labs(title = 'Non TGI', x = 'Condition', y = 'VAS Rating') +
+  labs(title = 'Non TGI', x = '', y = 'VAS Rating') +
   theme(legend.position = 'bottom',
         legend.title = element_blank())
 
-P2 <- ggarrange(P2NTGI, P2TGI,
-                ncol = 1, nrow = 2,
-                common.legend = TRUE,
-                legend = 'bottom')
-ggsave('P2plot.png', P2, device = NULL, path = datPath, width = 5, height = 8)
+WARM <- ggarrange(WNTGI, WTGI,
+                  ncol = 1, nrow = 2,
+                  common.legend = TRUE,
+                  legend = 'bottom')
+ggsave('WARMplot.png', WARM, device = NULL, path = datPath, width = 5, height = 8)
 
-# DE - TGI
-P3TGI <- ggplot(DE[DE$manipulation=='TGI' ,], aes(group = trial_n, colour = cold_probe)) +
-  geom_point(aes(condition, rating), size = 1.5, position = position_dodge(.2)) +
-  facet_wrap(~VAS) +
-  scale_colour_manual(values = colours) +
+# COLD - TGI
+CTGI <- ggplot(df_plot[df_plot$VAS=='cold' & df_plot$manipulation == 'TGI' ,], 
+               aes(group = trial_n, colour = cold_probe))  +
+  geom_point(aes(condition, rating), size = 1.7, position = position_dodge(.2)) +
+  facet_wrap(~ID) +
+  scale_colour_manual(values = col_cold) +
   lims(y = c(0, 100)) +
   theme_classic() +
-  labs(title = 'TGI', x = 'Condition', y = '') +
+  labs(title = 'TGI', x = 'Condition', y = 'VAS Rating') +
   theme(legend.position = 'none',
         legend.title = element_blank())
 
-# CEA - nonTGI
-P3NTGI <- ggplot(DE[DE$manipulation=='CNT' ,], aes(group = trial_n, colour = cold_probe)) +
-  geom_point(aes(condition, rating), size = 1.5, position = position_dodge(.2)) +
-  facet_wrap(~VAS) +
-  scale_colour_manual(values = colours) +
+# COLD - nonTGI
+CNTGI <- ggplot(df_plot[df_plot$VAS=='cold' & df_plot$manipulation == 'CNT' ,], 
+                aes(group = trial_n, colour = cold_probe)) +
+  geom_point(aes(condition, rating), size = 1.7, position = position_dodge(.2)) +
+  facet_wrap(~ID) +
+  scale_colour_manual(values = col_cold) +
   theme_classic() +
   lims(y = c(0, 100)) +
-  labs(title = 'Non TGI', x = 'Condition', y = 'VAS Rating') +
+  labs(title = 'Non TGI', x = '', y = 'VAS Rating') +
   theme(legend.position = 'bottom',
         legend.title = element_blank())
 
-P3 <- ggarrange(P3NTGI, P3TGI,
-                ncol = 1, nrow = 2,
-                common.legend = TRUE,
-                legend = 'bottom')
-ggsave('P3plot.png', P3, device = NULL, path = datPath, width = 5, height = 8)
+COLD <- ggarrange(CNTGI, CTGI,
+                  ncol = 1, nrow = 2,
+                  common.legend = TRUE,
+                  legend = 'bottom')
+ggsave('COLDplot.png', COLD, device = NULL, path = datPath, width = 5, height = 8)
 
 
 ##### Summary statistics & plots #####
