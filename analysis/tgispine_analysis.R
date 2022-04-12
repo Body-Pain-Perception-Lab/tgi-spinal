@@ -7,6 +7,7 @@ library(dplyr)
 library(ggplot2)
 library(RColorBrewer)
 library(ggpubr)
+library(Rmisc)
 
 # paths
 datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
@@ -114,7 +115,7 @@ BTGI <- ggplot(df_plot[df_plot$VAS=='burn' & df_plot$manipulation == 'TGI' ,],
   scale_colour_manual(values = col_burn) +
   lims(y = c(0, 100)) +
   theme_classic() +
-  labs(title = 'TGI', x = 'Condition', y = 'VAS Rating') +
+  labs(title = 'TGI', x = 'Condition', y = '') +
   theme(legend.position = 'none',
         legend.title = element_blank())
 
@@ -126,15 +127,15 @@ BNTGI <- ggplot(df_plot[df_plot$VAS=='burn' & df_plot$manipulation == 'CNT' ,],
   scale_colour_manual(values = col_burn) +
   theme_classic() +
   lims(y = c(0, 100)) +
-  labs(title = 'Non TGI', x = '', y = 'VAS Rating') +
+  labs(title = 'Non TGI', x = 'Condition', y = 'VAS Rating') +
   theme(legend.position = 'bottom',
         legend.title = element_blank())
 
 BURN <- ggarrange(BNTGI, BTGI,
-                ncol = 1, nrow = 2,
+                ncol = 2, nrow = 1,
                 common.legend = TRUE,
                 legend = 'bottom')
-ggsave('BURNplot.png', BURN, device = NULL, path = datPath, width = 5, height = 8)
+ggsave('BURNplot.png', BURN, device = NULL, path = datPath, width = 8, height = 5)
 
 # WARM - TGI
 WTGI <- ggplot(df_plot[df_plot$VAS=='warm' & df_plot$manipulation == 'TGI' ,], 
@@ -144,7 +145,7 @@ WTGI <- ggplot(df_plot[df_plot$VAS=='warm' & df_plot$manipulation == 'TGI' ,],
   scale_colour_manual(values = col_warm) +
   lims(y = c(0, 100)) +
   theme_classic() +
-  labs(title = 'TGI', x = 'Condition', y = 'VAS Rating') +
+  labs(title = 'TGI', x = 'Condition', y = '') +
   theme(legend.position = 'none',
         legend.title = element_blank())
 
@@ -156,15 +157,15 @@ WNTGI <- ggplot(df_plot[df_plot$VAS=='warm' & df_plot$manipulation == 'CNT' ,],
   scale_colour_manual(values = col_warm) +
   theme_classic() +
   lims(y = c(0, 100)) +
-  labs(title = 'Non TGI', x = '', y = 'VAS Rating') +
+  labs(title = 'Non TGI', x = 'Condition', y = 'VAS Rating') +
   theme(legend.position = 'bottom',
         legend.title = element_blank())
 
 WARM <- ggarrange(WNTGI, WTGI,
-                  ncol = 1, nrow = 2,
+                  ncol = 2, nrow = 1,
                   common.legend = TRUE,
                   legend = 'bottom')
-ggsave('WARMplot.png', WARM, device = NULL, path = datPath, width = 5, height = 8)
+ggsave('WARMplot.png', WARM, device = NULL, path = datPath, width = 8, height = 5)
 
 # COLD - TGI
 CTGI <- ggplot(df_plot[df_plot$VAS=='cold' & df_plot$manipulation == 'TGI' ,], 
@@ -174,7 +175,7 @@ CTGI <- ggplot(df_plot[df_plot$VAS=='cold' & df_plot$manipulation == 'TGI' ,],
   scale_colour_manual(values = col_cold) +
   lims(y = c(0, 100)) +
   theme_classic() +
-  labs(title = 'TGI', x = 'Condition', y = 'VAS Rating') +
+  labs(title = 'TGI', x = 'Condition', y = '') +
   theme(legend.position = 'none',
         legend.title = element_blank())
 
@@ -186,20 +187,20 @@ CNTGI <- ggplot(df_plot[df_plot$VAS=='cold' & df_plot$manipulation == 'CNT' ,],
   scale_colour_manual(values = col_cold) +
   theme_classic() +
   lims(y = c(0, 100)) +
-  labs(title = 'Non TGI', x = '', y = 'VAS Rating') +
+  labs(title = 'Non TGI', x = 'Condition', y = 'VAS Rating') +
   theme(legend.position = 'bottom',
         legend.title = element_blank())
 
 COLD <- ggarrange(CNTGI, CTGI,
-                  ncol = 1, nrow = 2,
+                  ncol = 2, nrow = 1,
                   common.legend = TRUE,
                   legend = 'bottom')
-ggsave('COLDplot.png', COLD, device = NULL, path = datPath, width = 5, height = 8)
+ggsave('COLDplot.png', COLD, device = NULL, path = datPath, width = 8, height = 5)
 
 
-##### Summary statistics & plots #####
+##### Summary descriptives #####
 # get mean VAS responses for each condition
-VASresponse <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe*dermatome, 
+VASresponse <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe, 
                          median, data = df_plot)
 
 # H1: the effect of dermatome
@@ -209,16 +210,29 @@ VAS_H1_SD <- aggregate(rating~ID*VAS*manipulation*condition,
                        sd, data = VASresponse)
 names(VAS_H1_SD)[5] <- 'SD'
 VAS_H1 <- merge(VAS_H1, VAS_H1_SD)
+# summary stats for participants
+# this is the data we will use to inform the simulation - save
+SUMstats <- summarySEwithin(data = VASresponse, measurevar = 'rating', 
+                            withinvars = c('manipulation','condition','cold_probe'), 
+                            na.rm = TRUE, conf.interval = .95)
+# get min and max median values
+range <- aggregate(rating~manipulation*condition*cold_probe, range, data = VASresponse)
+# rename
+names(range)[4] <- 'min'
+names(range)[5] <- 'max'
+# merge & save
+SUMstats <- merge(SUMstats, range)
+write.csv(SUMstats, 'pilotSummary.csv', row.names = FALSE)
 
-# plotting - TGI
+##### Hypothesis 1 plotting #####
 H1TGI <- ggplot(VAS_H1[VAS_H1$manipulation=='TGI' ,], 
        aes(condition, rating, group = ID, colour = VAS)) +
-  geom_point(size = 2, position = position_dodge(.3)) +
-  geom_errorbar(aes(ymin=rating-SD, ymax=rating+SD), width=.2,
+  geom_point(size = 2.5, position = position_dodge(.3)) +
+  geom_errorbar(aes(ymin=rating-SD, ymax=rating+SD), width=.2, size = .7,
                 position=position_dodge(.3)) +
   facet_wrap(~VAS) +
-  scale_color_manual(values = c(blues[4],reds[4],purps[5])) +
-  labs(title = 'TGI', x = 'Condition', y = 'VAS Rating') +
+  scale_color_manual(values = c(blues[5],reds[4],purps[5])) +
+  labs(title = 'TGI', x = 'Condition', y = '') +
   lims(y = c(-5,75)) +
   theme_classic() + 
   theme(legend.position = 'none')
@@ -227,22 +241,22 @@ H1TGI <- ggplot(VAS_H1[VAS_H1$manipulation=='TGI' ,],
 # non TGI
 H1NTGI <- ggplot(VAS_H1[VAS_H1$manipulation=='CNT' ,], 
        aes(condition, rating, group = ID, colour = VAS)) +
-  geom_point(size = 2, position = position_dodge(.3)) +
+  geom_point(size = 2.5, position = position_dodge(.3)) +
   facet_wrap(~VAS) +
-  geom_errorbar(aes(ymin=rating-SD, ymax=rating+SD), width=.2,
+  geom_errorbar(aes(ymin=rating-SD, ymax=rating+SD), width=.2, size = .7,
                   position=position_dodge(.3)) +
-  scale_color_manual(values = c(blues[4],reds[4],purps[5])) +
-  labs(title = 'Non TGI', x = '', y = 'VAS Rating') +
+  scale_color_manual(values = c(blues[5],reds[4],purps[5])) +
+  labs(title = 'Non TGI', x = 'Condition', y = 'VAS Rating') +
   lims(y = c(-5,75)) +
   theme_classic() + 
   theme(legend.position = 'none')
 
 H1 <- ggarrange(H1NTGI, H1TGI,
-                ncol = 1, nrow = 2)
+                ncol = 2, nrow = 1)
 
-ggsave('H1plot.png', H1, device = NULL, path = datPath, width = 5, height = 8)
+ggsave('H1plot.png', H1, device = NULL, path = datPath, width = 8, height = 5)
    
-# H2: across dermatome
+##### Hypothesis 2 plotting #####
 VASSD <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe*dermatome, 
                          sd, data = df_plot)
 names(VASSD)[7] <- 'SD'
@@ -273,7 +287,7 @@ ggplot(VAS_H2[VAS_H2$manipulation=='CNT' ,],
   theme_classic() +
   theme(legend.position = 'none')
 
-# H3: within dermatome
+##### Hypothesis 3 plotting #####
 VAS_H3 <- VASresponse[VASresponse$condition == 'WIN' ,]
 # plotting - TGI
 ggplot(VAS_H3[VAS_H3$manipulation=='TGI' ,], 
