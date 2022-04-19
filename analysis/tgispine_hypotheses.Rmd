@@ -8,13 +8,14 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
+library(truncnorm)
 
 ```
 
 ## Simulate results for one participant
 ```{r}
-simulate_subj <- function(subid) {
-trialN = 9
+simulate_subj <- function(subid, llim, ulim) {
+trialN = 10
 conditionN = 8
 ratingN = 3
 df <- data.frame(matrix(ncol = 0, nrow = trialN*conditionN*ratingN))
@@ -26,35 +27,36 @@ df$stimuli <- rep(c(rep("tgi",trialN*conditionN/2), rep("non-tgi",trialN*conditi
 df$quality <- c(rep("cold",trialN*conditionN), rep("warm",trialN*conditionN), rep("burn",trialN*conditionN))
   
 # The following intervals and mean can be changed to reflect hypotheses
-# Cold ratigs: simulation
-w_dr_tgi_cold <- rnorm(trialN, mean=sample(5:25,1), sd=5)
-w_pc_tgi_cold <- rnorm(trialN, mean=sample(5:25,1), sd=5)
-a_dr_tgi_cold <- rnorm(trialN, mean=sample(5:50,1), sd=5)
-a_pc_tgi_cold <- rnorm(trialN, mean=sample(5:40,1), sd=5)
-w_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:60,1), sd=15)
-w_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:60,1), sd=15)
-a_dr_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
-a_pc_nontgi_cold <- rnorm(trialN, mean=sample(10:55,1), sd=15)
+# using normalised data here, so 0-1
+# Cold ratings: simulation
+w_dr_tgi_cold <- rtruncnorm(trialN, llim, ulim, mean=sample(.05:.40,1), sd=.05)
+w_pc_tgi_cold <- rtruncnorm(trialN, llim, ulim, mean=sample(.05:.30,1), sd=.05)
+a_dr_tgi_cold <- rtruncnorm(trialN, llim, ulim, mean=sample(.1:.60,1), sd=.05)
+a_pc_tgi_cold <- rtruncnorm(trialN, llim, ulim, mean=sample(.05:.75,1), sd=.05)
+w_dr_nontgi_cold <- rtruncnorm(trialN, llim, ulim, mean=sample(.20:.95,1), sd=.1)
+w_pc_nontgi_cold <- rtruncnorm(trialN, llim, ulim, mean=sample(.10:.80,1), sd=.1)
+a_dr_nontgi_cold <- rtruncnorm(trialN, llim, ulim, mean=sample(.20:.80,1), sd=.1)
+a_pc_nontgi_cold <- rtruncnorm(trialN, llim, ulim, mean=sample(.25:.95,1), sd=.1)
 
 # Warm ratigs: simulation
-w_dr_tgi_warm <- rnorm(trialN, mean=sample(10:65,1), sd=15)
-w_pc_tgi_warm <- rnorm(trialN, mean=sample(10:70,1), sd=15)
-a_dr_tgi_warm <- rnorm(trialN, mean=sample(5:60,1), sd=15)
-a_pc_tgi_warm <- rnorm(trialN, mean=sample(5:60,1), sd=15)
-w_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
-w_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
-a_dr_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
-a_pc_nontgi_warm <- rnorm(trialN, mean=sample(5:25,1), sd=10)
+w_dr_tgi_warm <- rtruncnorm(trialN, llim, ulim, mean=sample(.20:.70,1), sd=.20)
+w_pc_tgi_warm <- rtruncnorm(trialN, llim, ulim, mean=sample(.10:.70,1), sd=.20)
+a_dr_tgi_warm <- rtruncnorm(trialN, llim, ulim, mean=sample(.10:.95,1), sd=.15)
+a_pc_tgi_warm <- rtruncnorm(trialN, llim, ulim, mean=sample(.10:.60,1), sd=.15)
+w_dr_nontgi_warm <- rtruncnorm(trialN, llim, ulim, mean=sample(.01:.25,1), sd=.05)
+w_pc_nontgi_warm <- rtruncnorm(trialN, llim, ulim, mean=sample(.01:.25,1), sd=.05)
+a_dr_nontgi_warm <- rtruncnorm(trialN, llim, ulim, mean=sample(.01:.25,1), sd=.05)
+a_pc_nontgi_warm <- rtruncnorm(trialN, llim, ulim, mean=sample(.01:.25,1), sd=.05)
 
 # Burning ratings: simulation
- w_dr_tgi_burn <- rnorm(trialN, mean=sample(10:65,1), sd=15)
- w_pc_tgi_burn <- rnorm(trialN, mean=sample(10:60,1), sd=15)
- a_dr_tgi_burn <- rnorm(trialN, mean=sample(10:70,1), sd=15)
- a_pc_tgi_burn <- rnorm(trialN, mean=sample(5:60,1), sd=15)
- w_dr_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
- w_pc_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
- a_dr_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
- a_pc_nontgi_burn <- rnorm(trialN, mean=sample(0:10,1), sd=5)
+ w_dr_tgi_burn <- rtruncnorm(trialN, llim, ulim, mean=sample(.20:.80,1), sd=.10)
+ w_pc_tgi_burn <- rtruncnorm(trialN, llim, ulim, mean=sample(.20:.70,1), sd=.15)
+ a_dr_tgi_burn <- rtruncnorm(trialN, llim, ulim, mean=sample(.25:.95,1), sd=.10)
+ a_pc_tgi_burn <- rtruncnorm(trialN, llim, ulim, mean=sample(.20:.80,1), sd=.10)
+ w_dr_nontgi_burn <- rtruncnorm(trialN, llim, ulim, mean=sample(0:.2,1), sd=.05)
+ w_pc_nontgi_burn <- rtruncnorm(trialN, llim, ulim, mean=sample(0:.2,1), sd=.05)
+ a_dr_nontgi_burn <- rtruncnorm(trialN, llim, ulim, mean=sample(0:.2,1), sd=.05)
+ a_pc_nontgi_burn <- rtruncnorm(trialN, llim, ulim, mean=sample(0:.2,1), sd=.05)
 
 df$rating <- c(w_dr_tgi_cold, w_pc_tgi_cold, a_dr_tgi_cold, a_pc_tgi_cold, w_dr_nontgi_cold, w_pc_nontgi_cold, a_dr_nontgi_cold, a_pc_nontgi_cold,
                w_dr_tgi_warm, w_pc_tgi_warm, a_dr_tgi_warm, a_pc_tgi_warm, w_dr_nontgi_warm, w_pc_nontgi_warm, a_dr_nontgi_warm, a_pc_nontgi_warm,
@@ -66,7 +68,7 @@ return(df)}
 ```{r}
 df30 <- data.frame()
 for (i in 1:60) {
-  df <- simulate_subj(i)
+  df <- simulate_subj(i, 0, 1)
   df30 <- rbind(df30,df)}
 df30
 ```
@@ -411,7 +413,11 @@ names(across)[7] <- 'across'
 H1_df <- merge(within, across, by = c('id','cold_location','stimuli','quality'))
 # difference
 H1_df$diff <- H1_df$within - H1_df$across
-
+# ttest
 H1test <- t.test(H1_df$within, H1_df$across, alternative = 'two.sided', paired = TRUE)
+# effect size
+H1es <- (mean(H1_df$diff))/(sd(H1_df$diff))
+H1test
+H1es
 
 ```
