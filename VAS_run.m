@@ -2,7 +2,7 @@
 %% A.G. Mitchell - 25.02.2022
 % Developed from code by Camila Deolindo & Francesca Fardo
 
-% Last edit - 28.03.22
+% Last edit - 22.04.22
 
 % Helpers required: 
 % VAS_loadParams.m; getVasRatings.m; SetupRand.m; ptbConfig.m; 
@@ -103,6 +103,15 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             % to control when each trial starts - can remove this if VAS questions
             % need to be continuous  
 
+            %% TO DO:
+            % need to change instructions to fit with the different types
+            % of vas ratings - one during peak sensation, one during
+            % sustained TGI (make this clear in instructions, too)
+            % e.g. 'first you will be asked to rate how strong the most
+            % extreme burning sensation is within the first few seconds of
+            % stimulation. Next, you will be asked to rate how cold, warm
+            % or burning the stimulus feels at the specific moment'
+
             DrawFormattedText(scr.win, vars.instructions.StartVas, 'center', 'center', scr.TextColour);
             [~, ~] = Screen('Flip', scr.win);
             KbStrokeWait;
@@ -133,6 +142,12 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
                 results.QuestionType(trial_idx, question_type_idx) = vars.instructions.Question(question_type_idx); 
     
             end 
+
+            %% TO D0
+            % add an audio tone to indicate end of rating for the
+            % experimenter
+            % create psychport audio function
+
             % adding pseudorandomised info from the trial - extracted from
             % counterbalance csv file
             results.trialInfo(trial_idx, 1:6) = procedure(pseudo_idx, 1:6);

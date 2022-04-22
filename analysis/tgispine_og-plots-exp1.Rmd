@@ -55,13 +55,26 @@ for (id_idx in 1:nrow(count(df, id))) {
 # summary
 df_nmedian <- aggregate(list(cold = df_norm$ncold, warm = df_norm$nwarm, pain = df_norm$npain), 
                         by = list(id = df_norm$id, dermatome = df_norm$dermatome, 
-                                  location_cold = df_norm$location_cold), FUN = median)
+                                  location_cold = df_norm$location_cold, arm = df_norm$location_arm),
+                        FUN = median)
+# divide by arm location
+df_upper <- df_nmedian[df_nmedian$arm == 'upperarm' ,]
+df_fore <- df_nmedian[df_nmedian$arm == 'forearm' ,]
 ```
 # Analysis and effect sizes
 ```{r}
 # cold ratings anova
-cold_anova <- ezANOVA(
-  data = df_nmedian
+coldu_anova <- ezANOVA(
+  data = df_upper
+  , dv = .(cold)
+  , wid = .(id)
+  , within = .(dermatome, location_cold),
+  return_aov = TRUE,
+  detailed = TRUE
+)
+
+coldf_anova <- ezANOVA(
+  data = df_fore
   , dv = .(cold)
   , wid = .(id)
   , within = .(dermatome, location_cold),
@@ -71,8 +84,17 @@ cold_anova <- ezANOVA(
 
 # cold ratings linear mixed model
 # warm ratings anova
-warm_anova <- ezANOVA(
-  data = df_nmedian
+warmu_anova <- ezANOVA(
+  data = df_upper
+  , dv = .(warm)
+  , wid = .(id)
+  , within = .(dermatome, location_cold),
+  return_aov = TRUE,
+  detailed = TRUE
+)
+
+warmf_anova <- ezANOVA(
+  data = df_fore
   , dv = .(warm)
   , wid = .(id)
   , within = .(dermatome, location_cold),
