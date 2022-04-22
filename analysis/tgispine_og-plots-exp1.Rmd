@@ -10,6 +10,7 @@ library(ggplot2)
 library(reshape2)
 library(tidyr)
 library(dplyr)
+library(ez)
 ```
 
 # Import data 
@@ -29,13 +30,56 @@ df
 n_stim <- df %>% count(id = df$id, dermatome = df$dermatome, location_cold = df$location_cold, stim = df$stim) # number of stimuli per condition
 df_median <- aggregate(list(cold = df$cold, warm = df$warm, pain = df$pain), by = list(id = df$id, dermatome = df$dermatome, location_cold = df$location_cold), FUN = median)
 df_median
+
+# normalise the vas ratings, then summarise - does this change effect size?
+# create frame for new dataframe
+df_norm <- data.frame(matrix(ncol = 12, nrow = 0))
+# index through each participant
+for (id_idx in 1:nrow(count(df, id))) {
+  id_idx = id_idx+1 # there is no id=1
+  tmp <- df[df$id == id_idx ,]
+  
+  # find the max value for each VAS ratings
+  max_cold <- max(tmp$cold, na.rm = TRUE)
+  max_warm <- max(tmp$warm, na.rm = TRUE)
+  max_pain <- max(tmp$pain, na.rm = TRUE)
+  # then normalise all
+  tmp$ncold <- tmp$cold/max_cold
+  tmp$nwarm <- tmp$warm/max_warm
+  tmp$npain <- tmp$pain/max_pain
+  
+  # compile all into one data-frame
+  df_norm <- rbind(df_norm, tmp)
+}
+
+# summary
+df_nmedian <- aggregate(list(cold = df_norm$ncold, warm = df_norm$nwarm, pain = df_norm$npain), 
+                        by = list(id = df_norm$id, dermatome = df_norm$dermatome, 
+                                  location_cold = df_norm$location_cold), FUN = median)
 ```
 # Analysis and effect sizes
 ```{r}
 # cold ratings anova
+cold_anova <- ezANOVA(
+  data = df_nmedian
+  , dv = .(cold)
+  , wid = .(id)
+  , within = .(dermatome, location_cold),
+  return_aov = TRUE,
+  detailed = TRUE
+)
 
 # cold ratings linear mixed model
 # warm ratings anova
+warm_anova <- ezANOVA(
+  data = df_nmedian
+  , dv = .(warm)
+  , wid = .(id)
+  , within = .(dermatome, location_cold),
+  return_aov = TRUE,
+  detailed = TRUE
+)
+
 # warm ratings linear mixed model
 ```
 
@@ -65,14 +109,14 @@ resolution = 600
 ```
 # Figure 1: cold ratings
 ```{r}
-p1 <-ggplot(df_median, aes(x = interaction(location_cold,dermatome), y = cold, fill = dermatome))+
+p1 <-ggplot(df_nmedian, aes(x = interaction(location_cold,dermatome), y = cold, fill = dermatome))+
    theme_bw()+
    variance_theme+
    #geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5)+
    geom_boxplot(outlier.shape = NA, notch = FALSE)+ 
    geom_point(aes(x = interaction(location_cold,dermatome), fill = dermatome), shape = 21, size = 3)+
    scale_x_discrete(labels=c("Distal", "Proximal", "Caudal", "Rostral"))+
-   scale_y_continuous(limits = c(0,100))+
+   scale_y_continuous(limits = c(0,1))+
    guides(fill = FALSE)+
    scale_fill_brewer(palette = "Blues", direction = 1) +
    theme(legend.position="none")+
@@ -86,14 +130,14 @@ p1
 
 # Figure 2: warm ratings
 ```{r}
-p2 <-ggplot(df_median, aes(x = interaction(location_cold,dermatome), y = warm, fill = dermatome))+
+p2 <-ggplot(df_nmedian, aes(x = interaction(location_cold,dermatome), y = warm, fill = dermatome))+
    theme_bw()+
    variance_theme+
    #geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5)+
    geom_boxplot(outlier.shape = NA, notch = FALSE)+ 
    geom_point(aes(x = interaction(location_cold,dermatome), fill = dermatome), shape = 21, size = 3)+
    scale_x_discrete(labels=c("Distal", "Proximal", "Caudal", "Rostral"))+
-   scale_y_continuous(limits = c(0,100))+
+   scale_y_continuous(limits = c(0,1))+
    guides(fill = FALSE)+
    scale_fill_brewer(palette = "Reds", direction = -1) +
    theme(legend.position="none")+
@@ -106,14 +150,14 @@ p2
 ```
 # Figure 3: pain ratings
 ```{r}
-p3 <-ggplot(df_median, aes(x = interaction(location_cold,dermatome), y = pain, fill = dermatome))+
+p3 <-ggplot(df_nmedian, aes(x = interaction(location_cold,dermatome), y = pain, fill = dermatome))+
    theme_bw()+
    variance_theme+
    #geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5)+
    geom_boxplot(outlier.shape = NA, notch = FALSE)+ 
    geom_point(aes(x = interaction(location_cold,dermatome), fill = dermatome), shape = 21, size = 3)+
    scale_x_discrete(labels=c("Distal", "Proximal", "Caudal", "Rostral"))+
-   scale_y_continuous(limits = c(0,100))+
+   scale_y_continuous(limits = c(0,1))+
    guides(fill = FALSE)+
    scale_fill_brewer(palette = "Purples", direction = -1) +
    theme(legend.position="none")+
