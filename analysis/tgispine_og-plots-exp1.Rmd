@@ -1,0 +1,125 @@
+---
+title: "TGI plots"
+output: html_notebook
+---
+
+# Libraries
+```{r warning = FALSE}
+library(readr)
+library(ggplot2)
+library(reshape2)
+library(tidyr)
+library(dplyr)
+```
+
+# Import data 
+```{r}
+path <- '/Users/au706616/Documents/Experiments/SPINALTGI/PreviousData/'
+filename <- 'tgi-spine2-data-exp1.csv'
+df <- read_delim(file.path(path,filename), ",", col_names = TRUE)
+df$dermatome <- factor(df$dermatome, levels = c('within','across'))
+df$location_arm <- factor(df$location_arm, levels = c('forearm','upperarm'))
+df$location_cold <- factor(df$location_cold, levels = c('dist_caud','prox_rost'))
+df$id <- factor(df$id)
+df
+```
+
+# Summary
+```{r}
+n_stim <- df %>% count(id = df$id, dermatome = df$dermatome, location_cold = df$location_cold, stim = df$stim) # number of stimuli per condition
+df_median <- aggregate(list(cold = df$cold, warm = df$warm, pain = df$pain), by = list(id = df$id, dermatome = df$dermatome, location_cold = df$location_cold), FUN = median)
+df_median
+```
+# Analysis and effect sizes
+```{r}
+# cold ratings anova
+
+# cold ratings linear mixed model
+# warm ratings anova
+# warm ratings linear mixed model
+```
+
+# Theme for plots 
+```{r warning = FALSE}
+variance_theme = theme( 
+    text = element_text(size = 14),
+    #axis.line = element_line(size = 0.7, color = "black"),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    legend.title=element_text(size=12), 
+    legend.text=element_text(size=12),
+    plot.title = element_text(lineheight=.8, face="bold", size = 12),
+    panel.border = element_rect(size=1),
+    panel.grid.minor = element_blank(), 
+    panel.grid.major = element_blank(),
+    axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+    legend.key = element_blank(),
+    axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))
+    # axis.text.x = element_text()
+  
+
+# set a figure directory
+#figdir<-"~/Dropbox/!Projects/2017_TGI_ginty/figure/"
+# dpi resolution
+resolution = 600
+```
+# Figure 1: cold ratings
+```{r}
+p1 <-ggplot(df_median, aes(x = interaction(location_cold,dermatome), y = cold, fill = dermatome))+
+   theme_bw()+
+   variance_theme+
+   #geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5)+
+   geom_boxplot(outlier.shape = NA, notch = FALSE)+ 
+   geom_point(aes(x = interaction(location_cold,dermatome), fill = dermatome), shape = 21, size = 3)+
+   scale_x_discrete(labels=c("Distal", "Proximal", "Caudal", "Rostral"))+
+   scale_y_continuous(limits = c(0,100))+
+   guides(fill = FALSE)+
+   scale_fill_brewer(palette = "Blues", direction = 1) +
+   theme(legend.position="none")+
+   ylab("Cold Ratings")+
+   xlab("")
+p1
+
+# ggsave(file=paste(figdir, "EXP1_tgi_boxplot_cold.pdf"), width=7, height=7, dpi = resolution, units = "cm")
+
+```
+
+# Figure 2: warm ratings
+```{r}
+p2 <-ggplot(df_median, aes(x = interaction(location_cold,dermatome), y = warm, fill = dermatome))+
+   theme_bw()+
+   variance_theme+
+   #geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5)+
+   geom_boxplot(outlier.shape = NA, notch = FALSE)+ 
+   geom_point(aes(x = interaction(location_cold,dermatome), fill = dermatome), shape = 21, size = 3)+
+   scale_x_discrete(labels=c("Distal", "Proximal", "Caudal", "Rostral"))+
+   scale_y_continuous(limits = c(0,100))+
+   guides(fill = FALSE)+
+   scale_fill_brewer(palette = "Reds", direction = -1) +
+   theme(legend.position="none")+
+   ylab("Warm Ratings")+
+   xlab("")
+p2
+
+#ggsave(file=paste(figdir, "EXP1_tgi_boxplot_warm.pdf"), width=7, height=7, dpi = resolution, units = "cm")
+
+```
+# Figure 3: pain ratings
+```{r}
+p3 <-ggplot(df_median, aes(x = interaction(location_cold,dermatome), y = pain, fill = dermatome))+
+   theme_bw()+
+   variance_theme+
+   #geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5)+
+   geom_boxplot(outlier.shape = NA, notch = FALSE)+ 
+   geom_point(aes(x = interaction(location_cold,dermatome), fill = dermatome), shape = 21, size = 3)+
+   scale_x_discrete(labels=c("Distal", "Proximal", "Caudal", "Rostral"))+
+   scale_y_continuous(limits = c(0,100))+
+   guides(fill = FALSE)+
+   scale_fill_brewer(palette = "Purples", direction = -1) +
+   theme(legend.position="none")+
+   ylab("Pain Ratings")+
+   xlab("")
+p3
+
+#ggsave(file=paste(figdir, "EXP1_tgi_boxplot_pain.pdf"), width=7, height=7, dpi = resolution, units = "cm")
+```
