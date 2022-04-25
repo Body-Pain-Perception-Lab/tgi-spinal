@@ -156,8 +156,10 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
         end
         % Repeat audio to signify a thermode change - a higher beep
         myBeep = MakeBeep(400, vars.audio.beepLength, vars.audio.sampRate);
+        playAudio(vars,myBeep)
     end
 end
+PsychPortAudio('Close', pah); % close psychportaudio
 sca; % close VAS
 ListenChar(0); %enable keypress
 

@@ -6,7 +6,7 @@ function [pah] = playAudio(vars, myBeep)
 % AG. Mitchell: 22.04.22
 
 % open PTB audio
-pah = PsychPortAudio('Open', [], 1, 1, sampRate, nrchannels);
+pah = PsychPortAudio('Open', [], 1, 1, vars.audio.sampRate, vars.audio.nrchannels);
 
 % Sound settings
 PsychPortAudio('Volume', pah, 0.5);
@@ -16,8 +16,9 @@ PsychPortAudio('Volume', pah, 0.5);
 PsychPortAudio('FillBuffer', pah, [myBeep; myBeep]);
 
 % Start audio playback #1
-PsychPortAudio('Start', pah, repetitions, startCue, waitForDeviceStart);
-WaitSecs(beepPauseTime)
+PsychPortAudio('Start', pah, vars.audio.repetitions, ...
+    vars.audio.start, vars.audio.waitForDevice);
+WaitSecs(vars.audio.beepPause)
 PsychPortAudio('Stop', pah);
 
 end
