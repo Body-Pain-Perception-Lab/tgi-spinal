@@ -4,9 +4,7 @@
 % will need ptgConfig and a paramater script to run as well
 % AG. Mitchell: 22.04.22
 
-% BEEP DETAILS NEED CHANGING FROM THE TUTORIAL CODE - also add to params
-% script?
-% Initialize Sounddriver
+%% Audio parameters
 InitializePsychSound(1);
 % Number of channels and Frequency of the sound
 nrchannels = 2;

@@ -157,10 +157,6 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
                 results.trialInfo.warmTemp(trial_idx) = vars.filename.ID(5);
             end
         end
-        % display text for thermode location switch
-        %DrawFormattedText(scr.win, vars.instructions.Thermode, 'center', 'center', scr.TextColour);
-        %[~, ~] = Screen('Flip', scr.win);  
-        %KbStrokeWait;
     end
 end
 sca; % close VAS
