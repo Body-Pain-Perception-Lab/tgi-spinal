@@ -6,11 +6,9 @@
 
 %% Key flags
                                                  
-vars.control.inputDevice    =  2;   % Response method for button presses 1 - mouse, 2 - keyboard 
+vars.control.inputDevice =  2;   % Response method for button presses 1 - mouse, 2 - keyboard 
 vars.control.fixedTiming = 0; %add if timing of all trials should be same length, regardless of resp
 vars.control.audio = 1; %is audio input required? 1 - yes, 0 - no
-% Now it works only for MOUSE
-% need to develop keyboard response
 
 %% Paths
 vars.filename.path = "/Users/au706616/Documents/Experiments/SPINALTGI/"; % this should change depending on computer used
@@ -21,9 +19,9 @@ vars.filename.path = "/Users/au706616/Documents/Experiments/SPINALTGI/"; % this 
 vars.ViewDist = 56;
 
 %Trials
-vars.task.NTrialReps         = 2; %number of repeat trials per condition (i.e. thermode in right place)ds
+vars.task.NTrialReps         = 2; %number of repeat trials per condition (i.e. thermode in right place)
 vars.task.NBlocksTotal       = 1; %Total number of blocks per pseudorandom procedure (n x 16 trials)
-vars.task.NTrialsChange      = 4; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
+vars.task.NTrialsChange      = 3; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
 
 %Times
 %vars.task.jitter             = randInRange(1,3,[1,vars.task.NTrialsTotal]); % time between the beginning of the trial and the beginning of the stimulation
@@ -68,4 +66,19 @@ vars.instructions.ConfEndPoints = {'Not at all', 'Extreme'};
 vars.waitStim.text = 'When the countdown ends, please rate your experience. Press SPACE when done.';
 vars.waitStim.secs = 5; %the number of seconds you want to stimulate TGI for
 vars.waitStim.textSize = 65;
+
+%% Audio parameters - for ptb audio
+if vars.control.audio
+    InitializePsychSound(1);
+end
+% Number of channels and Frequency of the sound
+vars.audio.nrchannels = 2;
+vars.audio.sampRate = 48000;
+vars.audio.repetitions = 1; % number of repetitions of the tone
+vars.audio.beepLength = 0.25; %in seconds
+vars.audio.beepPause = 0.5; % Length of the pause between beeps (seconds)
+vars.audio.start = 0; % start delay in secs, start immediately = 0
+% Should we wait for the device to really start (1 = yes)
+vars.audio.waitForDevice = 1;
+
 

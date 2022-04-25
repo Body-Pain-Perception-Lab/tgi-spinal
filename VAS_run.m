@@ -96,7 +96,7 @@ trial_idx = 0 ; %create a seperate index for individual trials
 
 for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
     for pseudo_idx=1:length(procedure.trial_type) %loop through procedure order - 8 different thermode locations
-        for rep_idx = 1:vars.task.NTrialReps %loop through trial repeats, 4 trials per thermode location
+        for rep_idx = 1:vars.task.NTrialReps %loop through trial repeats, 3 trials per thermode location
             % record number of total trials per participant
             trial_idx = trial_idx+1;
             %% Open VAS screen
@@ -142,21 +142,20 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
                 results.QuestionType(trial_idx, question_type_idx) = vars.instructions.Question(question_type_idx); 
     
             end 
-
-            %% TO D0
-            % add an audio tone to indicate end of rating for the
-            % experimenter
-            % create psychport audio function
-
-            % adding pseudorandomised info from the trial - extracted from
-            % counterbalance csv file
             results.trialInfo(trial_idx, 1:6) = procedure(pseudo_idx, 1:6);
             results.trialInfo.trial_n(trial_idx) = trial_idx;
             if vars.control.devFlag == 0
                 results.trialInfo.coolTemp(trial_idx) = vars.filename.ID(4);
                 results.trialInfo.warmTemp(trial_idx) = vars.filename.ID(5);
-            end
+            end            
+            % Play audio to signify the end of vas ratings for the
+            % participant
+            % make a beep
+            myBeep = MakeBeep(500, vars.audio.beepLength, vars.audio.sampRate);
+            playAudio(vars,myBeep)
         end
+        % Repeat audio to signify a thermode change - a higher beep
+        myBeep = MakeBeep(400, vars.audio.beepLength, vars.audio.sampRate);
     end
 end
 sca; % close VAS

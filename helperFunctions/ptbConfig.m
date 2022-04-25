@@ -91,10 +91,4 @@ keys.Three = KbName('3#');
 
 keys.KeyCode = zeros(1,256);
 
-%% Audio
-if vars.control.audio
-    % set up ptb audio to play
-    % add audio parameters
-end
-
 end
