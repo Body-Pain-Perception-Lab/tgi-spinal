@@ -102,19 +102,28 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             %% Open VAS screen
             % to control when each trial starts - can remove this if VAS questions
             % need to be continuous  
-            
+
+            %% TO DO:
+            % need to change instructions to fit with the different types
+            % of vas ratings - one during peak sensation, one during
+            % sustained TGI (make this clear in instructions, too)
+            % e.g. 'first you will be asked to rate how strong the most
+            % extreme burning sensation is within the first few seconds of
+            % stimulation. Next, you will be asked to rate how cold, warm
+            % or burning the stimulus feels at the specific moment'
+
             DrawFormattedText(scr.win, vars.instructions.StartVas, 'center', 'center', scr.TextColour);
             [~, ~] = Screen('Flip', scr.win);
             KbStrokeWait;
         
             % run countdown during TGI stimulation - number of seconds defined in
             % VAS_loadParams.m
-            % StimCount(scr, vars); 
+            StimCount(scr, vars); 
 
-            % run one VAS to rate burning experience
-            initial_question = 4; %indexing the initial question for the VAS rating
-            [results.initVasResponse, results.initVasReactionTime] = ...
-                    getVasRatings(keys, scr, vars, initial_question);  
+            % run one example VAS
+            [results.vasResponse(trial_idx, question_type_idx), ...
+                    results.vasReactionTime(trial_idx, question_type_idx)] = ...
+                    getVasRatings(keys, scr, vars, question_type_idx);  
         
             %% Run VAS
             % Will loop through the number of VAS questions
@@ -122,7 +131,7 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             % Currently set to 3 VAS questions - burning, warm, cold
             % this is used to index which question was addressed in output (see
             % VAS_loadParams.m for details) 
-            randQuestion = vars.instructions.QuestionCode(randperm(length(vars.instructions.whichQuestion:3)));
+            randQuestion = vars.instructions.QuestionCode(randperm(length(vars.instructions.whichQuestion)));
         
             Screen('TextSize', scr.win, scr.TextSize); % resetting text size
             for rand_idx=1:length(randQuestion) %loop through VAS questions

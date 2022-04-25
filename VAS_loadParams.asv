@@ -6,11 +6,9 @@
 
 %% Key flags
                                                  
-vars.control.inputDevice    =  2;   % Response method for button presses 1 - mouse, 2 - keyboard 
+vars.control.inputDevice =  2;   % Response method for button presses 1 - mouse, 2 - keyboard 
 vars.control.fixedTiming = 0; %add if timing of all trials should be same length, regardless of resp
 vars.control.audio = 1; %is audio input required? 1 - yes, 0 - no
-% Now it works only for MOUSE
-% need to develop keyboard response
 
 %% Paths
 vars.filename.path = "/Users/au706616/Documents/Experiments/SPINALTGI/"; % this should change depending on computer used
@@ -21,9 +19,9 @@ vars.filename.path = "/Users/au706616/Documents/Experiments/SPINALTGI/"; % this 
 vars.ViewDist = 56;
 
 %Trials
-vars.task.NTrialReps         = 2; %number of repeat trials per condition (i.e. thermode in right place)ds
+vars.task.NTrialReps         = 3; %number of repeat trials per condition (i.e. thermode in right place)
 vars.task.NBlocksTotal       = 1; %Total number of blocks per pseudorandom procedure (n x 16 trials)
-vars.task.NTrialsChange      = 4; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
+vars.task.NTrialsChange      = 3; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
 
 %Times
 %vars.task.jitter             = randInRange(1,3,[1,vars.task.NTrialsTotal]); % time between the beginning of the trial and the beginning of the stimulation
@@ -49,11 +47,13 @@ vars.instructions.StartScreen = ['For each trial, you will experience thermal st
     'It is important that you only rate the sensation coming from ONE thermode.\n\n' ...
     'When you are ready, press and key to begin.'];
 
-vars.instructions.StartVas = 'When instructed by the experimenter, press a key to start rating';
+vars.instructions.StartVas = ['First, please rate the most intense burning experience that you are feeling.\n' ...
+    'When instructed by the experimenter, press a key to start rating'];
 
 vars.instructions.Question = {'At the moment, how much is the stimulus BURNING?',...
                                'At the moment, how WARM is the stimulus?',...
-                               'At the moment, how COLD is the stimulus?'}; 
+                               'At the moment, how COLD is the stimulus?',...
+                               'At the moment, what is the strongest BURNING sensation you are feeling?'}; 
                            
 vars.instructions.QuestionCode = [1 2 3]; % 1 - burning, 2 - warm, 3 - cold
 vars.instructions.whichQuestion = [1 1 1]; %Enable or disable question (1 = enabled) %% not sure this works, needs fixing!
@@ -77,10 +77,10 @@ end
 vars.audio.nrchannels = 2;
 vars.audio.sampRate = 48000;
 vars.audio.repetitions = 1; % number of repetitions of the tone
-vars.audio.beepLength = 0.25; %in seconds
+vars.audio.beepLength = 0.2; %in seconds
 vars.audio.beepPause = 0.5; % Length of the pause between beeps (seconds)
-vars.audio.start = 0; % delay, start immediately = 0
+vars.audio.start = 0; % start delay in secs, start immediately = 0
 % Should we wait for the device to really start (1 = yes)
-waitForDeviceStart = 1;
+vars.audio.waitForDevice = 1;
 
 
