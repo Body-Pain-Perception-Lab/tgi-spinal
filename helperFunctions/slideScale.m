@@ -204,8 +204,8 @@ elseif strcmp(startPosition, 'left')
 elseif strcmp(startPosition, 'shuffle')
 % Set starting coordinate x to +/- 15% of scalaLength center
     xArray = randInRange(scalaMiddle-(scalaLength_pix*.15),(scalaMiddle+(scalaLength_pix*.15)), [60,1]);
-    x = xArray(secsSeed);
-    
+    idx=randperm(length(xArray),1);
+    x = xArray(idx);    
 else
     error('Only right, center and left are possible start positions');
 end
