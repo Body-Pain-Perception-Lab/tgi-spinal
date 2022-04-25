@@ -15,7 +15,7 @@
 clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 0; 
+vars.control.devFlag  = 1; 
 
 VAS_loadParams;
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
@@ -155,7 +155,8 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             playAudio(vars,myBeep)
         end
         % Repeat audio to signify a thermode change - a higher beep
-        myBeep = MakeBeep(400, vars.audio.beepLength, vars.audio.sampRate);
+        myBeep = MakeBeep(600, vars.audio.beepLength, vars.audio.sampRate);
+        WaitSecs(.1) %wait 100ms to load beep
         playAudio(vars,myBeep)
     end
 end
