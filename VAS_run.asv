@@ -15,7 +15,7 @@
 clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 1; 
+vars.control.devFlag  = 0; 
 
 VAS_loadParams;
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
@@ -113,12 +113,15 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
 
             % run one VAS to rate burning experience
             Screen('TextSize', scr.win, scr.TextSize); % resetting text size
-            initial_question = 4; %indexing the initial question for the VAS rating
-            [results.initVasResponse, results.initVasReactionTime] = ...
+            initial_question = 1; %indexing the initial question for the VAS rating
+            [results.vasResponse(trial_idx, initial_question),...
+                results.vasReactionTime(trial_idx, initial_question)] = ...
                     getVasRatings(keys, scr, vars, initial_question);  
+            results.QuestionType(trial_idx, intial) = vars.instructions.Question(question_type_idx); 
 
-            % Wait a small amount after the first vas rating
-            Screen('Flip')
+            % Wait a small amount of time (1s) after the first vas rating, to
+            % divide up time
+            WaitSecs(1)
         
             %% Run VAS
             % Will loop through the number of VAS questions
@@ -126,15 +129,16 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             % Currently set to 3 VAS questions - burning, warm, cold
             % this is used to index which question was addressed in output (see
             % VAS_loadParams.m for details) 
-            randQuestion = vars.instructions.QuestionCode(randperm(length(vars.instructions.whichQuestion:3)));
+            qCode = vars.instructions.QuestionCode(2:end);
+            randQuestion = qCode(randperm(length(vars.instructions.whichQuestion(2:end))));
             for rand_idx=1:length(randQuestion) %loop through VAS questions
                 question_type_idx = randQuestion(rand_idx);
                 [results.vasResponse(trial_idx, question_type_idx), ...
                     results.vasReactionTime(trial_idx, question_type_idx)] = ...
                     getVasRatings(keys, scr, vars, question_type_idx);  
                 % adding trial numbers to data-frame for later merging
-                results.vasResponse(trial_idx, 4) = trial_idx;
-                results.vasReactionTime(trial_idx, 4) = trial_idx;
+                results.vasResponse(trial_idx, 5) = trial_idx;
+                results.vasReactionTime(trial_idx, 5) = trial_idx;
                 % making sure that VAS ratings are saved in correct column for each
                 % question (sanity check)
                 results.QuestionType(trial_idx, question_type_idx) = vars.instructions.Question(question_type_idx); 
@@ -158,7 +162,6 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
         playAudio(vars,myBeep)
     end
 end
-PsychPortAudio('Close', pah); % close psychportaudio
 sca; % close VAS
 ListenChar(0); %enable keypress
 

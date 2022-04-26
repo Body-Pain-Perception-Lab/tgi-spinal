@@ -21,4 +21,5 @@ PsychPortAudio('Start', pah, vars.audio.repetitions, ...
 WaitSecs(vars.audio.beepPause)
 PsychPortAudio('Stop', pah);
 
+PsychPortAudio('Close', pah); % close psychportaudio
 end
