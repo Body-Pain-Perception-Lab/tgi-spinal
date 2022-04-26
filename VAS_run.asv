@@ -117,9 +117,8 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             [results.initVasResponse, results.initVasReactionTime] = ...
                     getVasRatings(keys, scr, vars, initial_question);  
 
-            % Wait a small amount of time (1s) after the first vas rating, to
-            % divide up time
-            WaitSecs(1)
+            % Wait a small amount after the first vas rating
+            Screen('Flip')
         
             %% Run VAS
             % Will loop through the number of VAS questions
