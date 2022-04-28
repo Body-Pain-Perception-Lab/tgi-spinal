@@ -17,6 +17,13 @@ datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/'
 setwd(datPath)
 
 df_phs <- read.csv(file.choose())
+
+# need to recode levels for cold_probe to reduce number of levels from 4 to 2
+df_phs$cold_location[df_phs$cold_probe == 'distal'] <- 'dist_rostr' 
+df_phs$cold_location[df_phs$cold_probe == 'rostral'] <- 'dist_rostr'
+df_phs$cold_location[df_phs$cold_probe == 'proximal'] <- 'prox_caud'
+df_phs$cold_location[df_phs$cold_probe == 'caudal'] <- 'prox_caud'
+df_phs$cold_location <- as.factor(df_phs$cold_location)
 ```
 
 Create the first model. There is one model for each rating (instead of using rating as a parameter in the model).
@@ -29,6 +36,27 @@ sum_warm <- aggregate(VASwarm~ID*manipulation*condition*cold_probe, median, data
 sum_cold <- aggregate(VAScold~ID*manipulation*condition*cold_probe, median, data = df_phs)
 
 # first try this on just one, simple model. The effect of manipulation on cold rating, with ID as a random effect
-model.cold <- glmer(VAScold ~ manipulation + (1|ID), family = 'poisson', data = df_phs)
-
+model.cold <- lmer(VAScold ~ manipulation + (1+manipulation|ID), data = df_phs)
+summary(model.cold)
 ```
+# View the coefficients for each person (should vary, due to random slope model)
+```{r}
+coef(model.cold)
+```
+
+Now make a second, more complicated model where cold ratings are regressed by both manipulation and dermatome position (condition)
+```{r}
+model.cold2 <- lmer(VAScold ~ manipulation + condition + (1+manipulation|ID), 
+                    data = df_phs)
+summary(model.cold2)
+```
+
+Finally a third model where all predictors are added - manipulation, condition and cold location
+Still just on cold ratings
+```{r}
+model.cold3 <- lmer(VAScold ~ manipulation + condition + cold_location +
+                      (1+manipulation|ID), 
+                    data = df_phs)
+summary(model.cold3)
+```
+
