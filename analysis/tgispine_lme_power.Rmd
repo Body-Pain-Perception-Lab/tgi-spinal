@@ -44,6 +44,19 @@ summary(model.cold)
 coef(model.cold)
 ```
 
+# Running power analysis on simple model
+```{r}
+# extract fixed effects from the model
+tgi_effect <- fixef(model.cold)["manipulationTGI"]
+# need to estimate minimum desired effect from the change in slope - considering values can range from 0-100, it might be simpler to think of these effect sizes as a proportion of 100 instead
+# tgi_effect = -17.05 would perhaps leave an expected effect size of .17
+# change the effect size to effect size of interest
+fixef(model.cold)["manipulationTGI"] <- -17
+
+# then run power analysis
+powerSim(model.cold)
+```
+
 Now make a second, more complicated model where cold ratings are regressed by both manipulation and dermatome position (condition)
 ```{r}
 model.cold2 <- lmer(VAScold ~ manipulation + condition + (1+manipulation|ID), 
