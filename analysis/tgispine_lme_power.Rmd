@@ -11,3 +11,24 @@ library(lme4)
 library(simr)
 ```
 
+# Getting data frame and paths
+```{r}
+datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/'
+setwd(datPath)
+
+df_phs <- read.csv(file.choose())
+```
+
+Create the first model. There is one model for each rating (instead of using rating as a parameter in the model).
+First, going to try this on a very simple model where effect of manipulation (TGI vs. control) will be tested on rating of cold thermode, with subject as random effect
+```{r}
+# Summarise data per rating, per participant
+# although summary not needed!
+sum_pain <- aggregate(VASburning~ID*manipulation*condition*cold_probe, median, data = df_phs)
+sum_warm <- aggregate(VASwarm~ID*manipulation*condition*cold_probe, median, data = df_phs)
+sum_cold <- aggregate(VAScold~ID*manipulation*condition*cold_probe, median, data = df_phs)
+
+# first try this on just one, simple model. The effect of manipulation on cold rating, with ID as a random effect
+model.cold <- glmer(VAScold ~ manipulation + (1|ID), family = 'poisson', data = df_phs)
+
+```
