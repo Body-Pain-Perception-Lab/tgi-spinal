@@ -1,0 +1,13 @@
+---
+title: "TGI-spinal-power"
+author: "A.G. Mitchell"
+date: '2022-04-28'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lme4)
+library(simr)
+```
+

@@ -82,6 +82,9 @@ for (id_idx in 1:3) {
   df_norm <- rbind(df_norm, tmp)
 }
 
+# save new data-frame
+write.csv(df_norm, 'STGI_compiled-data.csv', row.names = FALSE)
+
 ##### Individual participant plots ######
 # first need to make app data frame, isolate specific VAS types then bind by column
 # burning
