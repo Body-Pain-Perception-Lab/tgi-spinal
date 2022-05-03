@@ -97,7 +97,7 @@ print(pc.cold)
 
 # Plot power curve!
 ```{r}
-
+plot(pc.cold) # a good visualisation :)
 ```
 
 
