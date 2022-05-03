@@ -35,8 +35,14 @@ sum_pain <- aggregate(VASburning~ID*manipulation*condition*cold_probe, median, d
 sum_warm <- aggregate(VASwarm~ID*manipulation*condition*cold_probe, median, data = df_phs)
 sum_cold <- aggregate(VAScold~ID*manipulation*condition*cold_probe, median, data = df_phs)
 
+# transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
+df_phs$cold <- df_phs$VAScold/100
+df_phs$warm <- df_phs$VASwarm/100
+df_phs$burn <- df_phs$VASburning/100
+df_phs$ID <- factor(df_phs$ID)
+
 # first try this on just one, simple model. The effect of manipulation on cold rating, with ID as a random effect
-model.cold <- lmer(VAScold ~ manipulation + (1+manipulation|ID), data = df_phs)
+model.cold <- lmer(cold ~ manipulation + (1|ID), data = df_phs)
 summary(model.cold)
 ```
 # View the coefficients for each person (should vary, due to random slope model)
@@ -45,16 +51,19 @@ coef(model.cold)
 ```
 
 # Running power analysis on simple model
-```{r}
+```{r, include = FALSE}
+# add more participants to the model, for simulation
+model.coldN <- extend(model.cold, along ='manipulationTGI', n=10)
+summary(model.coldN)
 # extract fixed effects from the model
-tgi_effect <- fixef(model.cold)["manipulationTGI"]
+tgi_effect <- fixef(model.coldN)["manipulationTGI"]
 # need to estimate minimum desired effect from the change in slope - considering values can range from 0-100, it might be simpler to think of these effect sizes as a proportion of 100 instead
 # tgi_effect = -17.05 would perhaps leave an expected effect size of .17
 # change the effect size to effect size of interest
-fixef(model.cold)["manipulationTGI"] <- -17
+fixef(model.coldN)["manipulationTGI"] <- 10
 
 # then run power analysis
-powerSim(model.cold)
+powerSim(model.coldN)
 ```
 
 Now make a second, more complicated model where cold ratings are regressed by both manipulation and dermatome position (condition)
@@ -67,8 +76,8 @@ summary(model.cold2)
 Finally a third model where all predictors are added - manipulation, condition and cold location
 Still just on cold ratings
 ```{r}
-model.cold3 <- lmer(VAScold ~ manipulation + condition + cold_location +
-                      (1+manipulation|ID), 
+model.cold3 <- lmer(cold ~ manipulation + condition + cold_location +
+                      (1|ID), 
                     data = df_phs)
 summary(model.cold3)
 ```
