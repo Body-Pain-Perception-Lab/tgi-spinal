@@ -91,7 +91,7 @@ Now to run a power curve on the data to find out the optimal number of participa
 ```{r}
 # can run a power curve to determine the point of trade off between N observations and power
 pc.cold <- powerCurve(model.coldN, within='manipulation+condition+cold_location', 
-                      breaks= seq(0, 30, by = 3))
+                      breaks= seq(1, 30, by = 3))
 print(pc.cold)
 ```
 
@@ -100,5 +100,34 @@ print(pc.cold)
 plot(pc.cold) # a good visualisation :)
 ```
 
+Now let's do the same for warm!
+# Warm model
+```{r}
+model.warm <- lmer(rating ~ manipulation + condition + cold_location +
+                     (1|ID),
+                   data = df_sum[df_sum$VAS == 'warm' ,])
+summary(model.warm)
+```
 
+# Extend the model observations to n = 50, and extract smallest effect size of interest
+```{r}
+# using n050 here as expecting smaller effect sizes
+model.warmN <- extend(model.warm, within = 'manipulation+condition+cold_location', n=50)
+# extracting effect sizes from the extended model
+tgi_effect <- fixef(model.warmN)["manipulationTGI"]
+cond_effect <- fixef(model.warmN)["conditionwithin"]
+cold_loc_effect <- fixef(model.warmN)["cold_locationprox_caud"]
+# add smallest effect size - same as cold model
+fixef(model.coldN)["cold_locationprox_caud"] <- cold_loc_effect
 
+# then run power analysis
+pwr.warm <- powerSim(model.warmN)
+print(pwr.warm)
+```
+# Run a power curve on these data with n = 50
+```{r}
+# can run a power curve to determine the point of trade off between N observations and power
+pc.warm <- powerCurve(model.warmN, within='manipulation+condition+cold_location', 
+                      breaks= seq(1, 50, by = 5))
+print(pc.warm)
+```
