@@ -29,20 +29,31 @@ df_phs$cold_location <- as.factor(df_phs$cold_location)
 Create the first model. There is one model for each rating (instead of using rating as a parameter in the model).
 First, going to try this on a very simple model where effect of manipulation (TGI vs. control) will be tested on rating of cold thermode, with subject as random effect
 ```{r}
-# Summarise data per rating, per participant
-# although summary not needed!
-sum_pain <- aggregate(VASburning~ID*manipulation*condition*cold_probe, median, data = df_phs)
-sum_warm <- aggregate(VASwarm~ID*manipulation*condition*cold_probe, median, data = df_phs)
-sum_cold <- aggregate(VAScold~ID*manipulation*condition*cold_probe, median, data = df_phs)
-
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
 df_phs$cold <- df_phs$VAScold/100
 df_phs$warm <- df_phs$VASwarm/100
 df_phs$burn <- df_phs$VASburning/100
 df_phs$ID <- factor(df_phs$ID)
 
+# Summarise data per rating, per participant
+sum_burn <- aggregate(burn~ID*manipulation*condition*cold_location*procedure, median, data = df_phs)
+sum_warm <- aggregate(warm~ID*manipulation*condition*cold_location*procedure, median, data = df_phs)
+sum_cold <- aggregate(cold~ID*manipulation*condition*cold_location*procedure, median, data = df_phs)
+# then compile all data again
+sum_burn$VAS = 'burn'
+names(sum_burn)[6] <- 'rating'
+sum_warm$VAS = 'warm'
+names(sum_warm)[6] <- 'rating'
+sum_cold$VAS = 'cold'
+names(sum_cold)[6] <- 'rating'
+df_sum <- rbind(sum_cold, sum_warm)
+df_sum <- rbind(df_sum, sum_burn)
+
+
 # first try this on just one, simple model. The effect of manipulation on cold rating, with ID as a random effect
-model.cold <- lmer(cold ~ manipulation + (1|ID), data = df_phs)
+model.cold <- lmer(rating ~ manipulation + condition + cold_location +
+                     (1|ID) + (1|procedure), 
+                   data = df_sum[df_sum$VAS == 'cold' ,])
 summary(model.cold)
 ```
 # View the coefficients for each person (should vary, due to random slope model)
@@ -50,20 +61,35 @@ summary(model.cold)
 coef(model.cold)
 ```
 
-# Running power analysis on simple model
+Create a model with more data points per variable, to extract more power
+# First, let's try N = 100
 ```{r, include = FALSE}
 # add more participants to the model, for simulation
-model.coldN <- extend(model.cold, along ='manipulationTGI', n=10)
+model.coldN <- extend(model.cold, within = 'manipulation+condition+cold_location', n=100)
 summary(model.coldN)
-# extract fixed effects from the model
-tgi_effect <- fixef(model.coldN)["manipulationTGI"]
+# check that number of data points per variable does = 30
+dat_model <- xtabs(~ manipulation + condition + cold_location, data=getData(model.coldN))
+print(dat_model)
+```
+
+# Run power analysis!
+````{r}
+# extract fixed effects from the model - take the lowest effect size from the model
+tgi_effect <- fixef(model.coldN)["cold_locationprox_caud"]
 # need to estimate minimum desired effect from the change in slope - considering values can range from 0-100, it might be simpler to think of these effect sizes as a proportion of 100 instead
 # tgi_effect = -17.05 would perhaps leave an expected effect size of .17
 # change the effect size to effect size of interest
-fixef(model.coldN)["manipulationTGI"] <- 10
+fixef(model.cold)["manipulationTGI"] <- tgi_effect
 
 # then run power analysis
-powerSim(model.coldN)
+powerSim(model.cold)
+```
+
+Now to run a power curve on the data to find out the optimal number of participants needed for the effect of interest
+```{r}
+# let's see if this works because it hasn't before
+pc.cold <- powerCurve(model.coldN)
+print(pc.cold)
 ```
 
 Now make a second, more complicated model where cold ratings are regressed by both manipulation and dermatome position (condition)
