@@ -62,10 +62,9 @@ coef(model.cold)
 ```
 
 Create a model with more data points per variable, to extract more power
-# First, let's try N = 100
-```{r, include = FALSE}
-# add more participants to the model, for simulation
-model.coldN <- extend(model.cold, within = 'manipulation+condition+cold_location', n=100)
+```{r}
+# First, let's try to add 30 observations per variable combination, which would mean N = 30
+model.coldN <- extend(model.cold, within = 'manipulation+condition+cold_location', n=30)
 summary(model.coldN)
 # check that number of data points per variable does = 30
 dat_model <- xtabs(~ manipulation + condition + cold_location, data=getData(model.coldN))
@@ -73,38 +72,33 @@ print(dat_model)
 ```
 
 # Run power analysis!
-````{r}
+````{r, results = 'hide'}
 # extract fixed effects from the model - take the lowest effect size from the model
-tgi_effect <- fixef(model.coldN)["cold_locationprox_caud"]
+tgi_effect <- fixef(model.coldN)["manipulationTGI"]
+cond_effect <- fixef(model.coldN)["conditionwithin"]
+cold_loc_effect <- fixef(model.coldN)["cold_locationprox_caud"]
 # need to estimate minimum desired effect from the change in slope - considering values can range from 0-100, it might be simpler to think of these effect sizes as a proportion of 100 instead
 # tgi_effect = -17.05 would perhaps leave an expected effect size of .17
 # change the effect size to effect size of interest
-fixef(model.cold)["manipulationTGI"] <- tgi_effect
+fixef(model.coldN)["cold_locationprox_caud"] <- cold_loc_effect
 
 # then run power analysis
-powerSim(model.cold)
+pwr.cold <- powerSim(model.coldN)
+print(pwr.cold)
 ```
 
 Now to run a power curve on the data to find out the optimal number of participants needed for the effect of interest
 ```{r}
-# let's see if this works because it hasn't before
-pc.cold <- powerCurve(model.coldN)
+# can run a power curve to determine the point of trade off between N observations and power
+pc.cold <- powerCurve(model.coldN, within='manipulation+condition+cold_location', 
+                      breaks= seq(0, 30, by = 3))
 print(pc.cold)
 ```
 
-Now make a second, more complicated model where cold ratings are regressed by both manipulation and dermatome position (condition)
+# Plot power curve!
 ```{r}
-model.cold2 <- lmer(VAScold ~ manipulation + condition + (1+manipulation|ID), 
-                    data = df_phs)
-summary(model.cold2)
+
 ```
 
-Finally a third model where all predictors are added - manipulation, condition and cold location
-Still just on cold ratings
-```{r}
-model.cold3 <- lmer(cold ~ manipulation + condition + cold_location +
-                      (1|ID), 
-                    data = df_phs)
-summary(model.cold3)
-```
+
 
