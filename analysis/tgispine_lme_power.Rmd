@@ -15,6 +15,7 @@ library(modelsummary)
 library(tibble)
 library(DHARMa)
 library(glmmTMB)
+library(reshape2)
 
 set.seed(1234)  # Make everything reproducible
 
@@ -24,57 +25,54 @@ gof_stuff <- tribble(
   "nobs", "N", 0,
   "r.squared", "R²", 3
 )
+
+# setting working directory
+datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
+knitr::opts_knit$set(root.dir = datPath)
 ```
-Need to change this and create two cold models - one with zero inflated and one without
-Also need to check Bayesian
-- Check out Jesper's code
 
-# Getting data frame and paths
+# Getting data and reformatting to fit model
 ```{r}
-datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/'
-setwd(datPath)
-
-df_phs <- read.csv(file.choose())
+df <- read.csv('STGI_compiled-data.csv')
 
 # need to recode levels for cold_probe to reduce number of levels from 4 to 2
-df_phs$cold_location[df_phs$cold_probe == 'distal'] <- 'dist_rostr' 
-df_phs$cold_location[df_phs$cold_probe == 'rostral'] <- 'dist_rostr'
-df_phs$cold_location[df_phs$cold_probe == 'proximal'] <- 'prox_caud'
-df_phs$cold_location[df_phs$cold_probe == 'caudal'] <- 'prox_caud'
-df_phs$cold_location <- as.factor(df_phs$cold_location)
-```
+df$cold_location[df$cold_probe == 'distal'] <- 'dist_rostr' 
+df$cold_location[df$cold_probe == 'rostral'] <- 'dist_rostr'
+df$cold_location[df$cold_probe == 'proximal'] <- 'prox_caud'
+df$cold_location[df$cold_probe == 'caudal'] <- 'prox_caud'
+df$cold_location <- as.factor(df$cold_location)
 
-Create the first model. There is one model for each rating (instead of using rating as a parameter in the model).
-First, going to try this on a very simple model where effect of manipulation (TGI vs. control) will be tested on rating of cold thermode, with subject as random effect
-```{r}
+# reshape data so that there is one rating column per participant, with a VAS column = type of rating
+df_VAS <- melt(df, measure.vars= c("VAScold", "VASwarm","VASburning"), 
+                        id.vars=c("ID","trial_n","manipulation","procedure",
+                                  "trial_type","arm","condition","cold_location"),
+             variable.name = 'VAS', value.name = 'rating')
+# rename the VAS ratings
+df_VAS <- df_VAS %>% 
+  mutate(VAS = revalue(VAS, c("VAScold" = "cold",
+                                    "VASwarm" = "warm",
+                                    "VASburning" = "burning")))
+
+# to run zero inflated regressions need to make sure no values = 100, as cannot model them, so simply minus a very small fraction from those values
+df_VAS$beta <- ifelse(df_VAS$rating==100, df_VAS$beta-0.0001, df_VAS$beta <- df_VAS$rating)
+
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
-df_phs$cold <- df_phs$VAScold/100
-df_phs$warm <- df_phs$VASwarm/100
-df_phs$burn <- df_phs$VASburning/100
-df_phs$ID <- factor(df_phs$ID)
+df_VAS$beta <- df_VAS$beta/100
+df_VAS$ID <- factor(df_VAS$ID)
 
 # Summarise data per rating, per participant
-sum_burn <- aggregate(burn~ID*manipulation*condition*cold_location*procedure, median, data = df_phs)
-sum_warm <- aggregate(warm~ID*manipulation*condition*cold_location*procedure, median, data = df_phs)
-sum_cold <- aggregate(cold~ID*manipulation*condition*cold_location*procedure, median, data = df_phs)
-# then compile all data again
-sum_burn$VAS = 'burn'
-names(sum_burn)[6] <- 'rating'
-sum_warm$VAS = 'warm'
-names(sum_warm)[6] <- 'rating'
-sum_cold$VAS = 'cold'
-names(sum_cold)[6] <- 'rating'
-df_sum <- rbind(sum_cold, sum_warm)
-df_sum <- rbind(df_sum, sum_burn)
+df_sum <- aggregate(rating~ID*manipulation*condition*cold_location*procedure*VAS, 
+                    median, data = df)
 ```
 
 # Now to model effects! Try a zero inflated regression model
 ```{r}
 # First model cold VAS
-model.cold = glmmTMB::glmmTMB(rating ~ manipulation + condition + cold_location + (1|ID),
+model.cold = glmmTMB::glmmTMB(cold ~ manipulation + condition + cold_location + (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df_phs$warm)
+                      data = df)
+summary(model.cold)
 # then model warm VAS
 ```
 # Look at model assumptions
