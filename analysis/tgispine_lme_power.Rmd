@@ -97,37 +97,31 @@ model.warm.assump <- simulateResiduals(model.warm)
 plot(model.warm.assump)
 ```
 
-# Run power analysis - to do this use the simplest model (model.cold)
-# First, Create a model with more data points per variable, to extract more power
+Cold model power analysis
+# Run power analyses!!
+# Cold first, then warm
+# Create a model with more data points per variable, to extract more power
 ```{r}
 # First, let's try to add 30 observations per variable combination, which would mean N = 30
-model.coldN <- extend(model.cold, within = 'manipulation+condition+cold_location', n=30)
-summary(model.coldN)
+model.cold.ex <- extend(model.cold, within = 'manipulation+condition+cold_location', n=30)
+summary(model.cold.ex)
 # check that number of data points per variable does = 30
-dat_model <- xtabs(~ manipulation + condition + cold_location, data=getData(model.coldN))
+dat_model <- xtabs(~ manipulation + condition + cold_location, data=getData(model.cold.ex))
 print(dat_model)
-```
 
-# Run power analysis!
-````{r, results = 'hide'}
-# extract fixed effects from the model - take the lowest effect size from the model
-tgi_effect <- fixef(model.coldN)["manipulationTGI"]
-cond_effect <- fixef(model.coldN)["conditionwithin"]
-cold_loc_effect <- fixef(model.coldN)["cold_locationprox_caud"]
-# need to estimate minimum desired effect from the change in slope - considering values can range from 0-100, it might be simpler to think of these effect sizes as a proportion of 100 instead
-# tgi_effect = -17.05 would perhaps leave an expected effect size of .17
-# change the effect size to effect size of interest
-fixef(model.coldN)["cold_locationprox_caud"] <- cold_loc_effect
+# extract relevant effect sizes
+tgi_effect <- fixef(model.cold.ex)["manipulationTGI"]
+cond_effect <- fixef(model.cold.ex)["conditionwithin"]
+cold_loc_effect <- fixef(model.cold.ex)["cold_locationprox_caud"]
 
-# then run power analysis
-pwr.cold <- powerSim(model.coldN)
-print(pwr.cold)
-```
+# power analysis - using smallest effect size
+fixef(model.cold.ex)["manipulationTGI"] <- cold_loc_effect
+pwr.warm <- powerSim(model.warmN)
+print(pwr.warm)
 
-Now to run a power curve on the data to find out the optimal number of participants needed for the effect of interest
-```{r}
+# power curve
 # can run a power curve to determine the point of trade off between N observations and power
-pc.cold <- powerCurve(model.coldN, within='manipulation+condition+cold_location', 
+pc.cold <- powerCurve(model.cold.ex, within='manipulation+condition+cold_location', 
                       breaks= seq(1, 30, by = 3))
 print(pc.cold)
 ```
