@@ -9,6 +9,19 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(lme4)
 library(simr)
+library(broom)
+library(brms)
+library(modelsummary)
+library(tibble)
+
+set.seed(1234)  # Make everything reproducible
+
+# Define the goodness-of-fit stats to include in modelsummary()
+gof_stuff <- tribble(
+  ~raw, ~clean, ~fmt,
+  "nobs", "N", 0,
+  "r.squared", "R²", 3
+)
 ```
 
 # Getting data frame and paths
@@ -51,17 +64,27 @@ df_sum <- rbind(df_sum, sum_burn)
 
 
 # first try this on just one, simple model. The effect of manipulation on cold rating, with ID as a random effect
+# first the simplest model
 model.cold <- lmer(rating ~ manipulation + condition + cold_location +
+                     (1|ID), 
+                   data = df_sum[df_sum$VAS == 'cold' ,])
+# then adding procedure as a fiexed effect
+model.cold2 <- lmer(rating ~ manipulation + condition + cold_location +
                      (1|ID) + (1|procedure), 
                    data = df_sum[df_sum$VAS == 'cold' ,])
-summary(model.cold)
+# then modelling slope of the subjects
+model.cold3 <- lmer(rating ~ manipulation + condition + cold_location +
+                     (1+manipulation|ID) + (1|procedure), 
+                   data = df_sum[df_sum$VAS == 'cold' ,])
+
+# summarise all 3 models
+modelsummary(list(model.cold, model.cold2, model.cold3),
+             gof_map = gof_stuff)
 ```
 # View the coefficients for each person (should vary, due to random slope model)
-```{r}
-coef(model.cold)
-```
 
-Create a model with more data points per variable, to extract more power
+# Run power analysis - to do this use the simplest model (model.cold)
+# First, Create a model with more data points per variable, to extract more power
 ```{r}
 # First, let's try to add 30 observations per variable combination, which would mean N = 30
 model.coldN <- extend(model.cold, within = 'manipulation+condition+cold_location', n=30)
