@@ -33,6 +33,7 @@ knitr::opts_knit$set(root.dir = datPath)
 
 # Getting data and reformatting to fit model
 ```{r}
+# import compiled data
 df <- read.csv('STGI_compiled-data.csv')
 
 # need to recode levels for cold_probe to reduce number of levels from 4 to 2
@@ -68,20 +69,33 @@ df_sum <- aggregate(rating~ID*manipulation*condition*cold_location*procedure*VAS
 # Now to model effects! Try a zero inflated regression model
 ```{r}
 # First model cold VAS
-model.cold = glmmTMB::glmmTMB(cold ~ manipulation + condition + cold_location + (1|ID),
+model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
+                                (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df)
-summary(model.cold)
+                      data = df_VAS[df_VAS$VAS == 'cold' ,])
 # then model warm VAS
+model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_VAS[df_VAS$VAS == 'warm' ,])
+# model summaries
+summary(model.cold)
+summary(model.warm)
 ```
 # Look at model assumptions
 ```{r}
+# cold assumption
 model.cold.assmup <- simulateResiduals(model.cold)
 plot(model.cold.assmup)
 ```
 
-# View the coefficients for each person (should vary, due to random slope model)
+```{r}
+# warm assumption
+model.warm.assump <- simulateResiduals(model.warm)
+plot(model.warm.assump)
+```
 
 # Run power analysis - to do this use the simplest model (model.cold)
 # First, Create a model with more data points per variable, to extract more power
