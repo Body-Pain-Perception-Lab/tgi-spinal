@@ -16,6 +16,8 @@ library(tibble)
 library(DHARMa)
 library(glmmTMB)
 library(reshape2)
+library(tidyverse)
+library(plyr)
 
 set.seed(1234)  # Make everything reproducible
 
@@ -63,7 +65,14 @@ df_VAS$ID <- factor(df_VAS$ID)
 
 # Summarise data per rating, per participant
 df_sum <- aggregate(rating~ID*manipulation*condition*cold_location*procedure*VAS, 
-                    median, data = df)
+                    median, data = df_VAS)
+```
+
+# Plotting data distributions to see what kind of model family is required
+```{r}
+ggplot(data = df_VAS) +
+  geom_density(aes(beta, fill = manipulation), alpha = .5) +
+  facet_wrap(~VAS)
 ```
 
 # Now to model effects! Try a zero inflated regression model
@@ -77,7 +86,7 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + 
 # then model warm VAS
 model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
                                 (1|ID),
-                      family = glmmTMB::beta_family(),
+                      family = glmmTMB::betabinomial(),
                       ziformula = ~1+manipulation,
                       data = df_VAS[df_VAS$VAS == 'warm' ,])
 # model summaries
@@ -87,13 +96,13 @@ summary(model.warm)
 # Look at model assumptions
 ```{r}
 # cold assumption
-model.cold.assmup <- simulateResiduals(model.cold)
+model.cold.assmup <- simulateResiduals(model.cold, n = 1000)
 plot(model.cold.assmup)
 ```
 
 ```{r}
 # warm assumption
-model.warm.assump <- simulateResiduals(model.warm)
+model.warm.assump <- simulateResiduals(model.warm, n = 1000)
 plot(model.warm.assump)
 ```
 
