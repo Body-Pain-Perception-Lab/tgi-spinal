@@ -82,11 +82,12 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + 
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df_VAS[df_VAS$VAS == 'cold' ,])
+                      data = df_VAS[df_VAS$VAS == 'cold' ,],
+                      na.action = na.omit)
 # then model warm VAS
 model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
                                 (1|ID),
-                      family = glmmTMB::betabinomial(),
+                      family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
                       data = df_VAS[df_VAS$VAS == 'warm' ,])
 # model summaries
@@ -119,14 +120,14 @@ dat_model <- xtabs(~ manipulation + condition + cold_location, data=getData(mode
 print(dat_model)
 
 # extract relevant effect sizes
-tgi_effect <- fixef(model.cold.ex)["manipulationTGI"]
-cond_effect <- fixef(model.cold.ex)["conditionwithin"]
-cold_loc_effect <- fixef(model.cold.ex)["cold_locationprox_caud"]
+tgi_effect <- fixef(model.cold.ex)[['cond']][['manipulationTGI']]
+cond_effect <- fixef(model.cold.ex)[['cond']][['conditionwithin']]
+cold_loc_effect <- fixef(model.cold.ex)[['cond']][['cold_locationprox_caud']]
 
 # power analysis - using smallest effect size
-fixef(model.cold.ex)["manipulationTGI"] <- cold_loc_effect
-pwr.warm <- powerSim(model.warmN)
-print(pwr.warm)
+fixef(model.cold.ex)[['cond']][['cold_locationprox_caud']] <- .2
+pwr.cold <- powerSim(model.cold.ex)
+print(pwr.cold)
 
 # power curve
 # can run a power curve to determine the point of trade off between N observations and power
