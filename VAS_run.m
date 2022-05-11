@@ -153,7 +153,7 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             end 
             results.trialInfo(trial_idx, 1:6) = procedure(pseudo_idx, 1:6);
             results.trialInfo.trial_n(trial_idx) = trial_idx;
-            results.trialInfo.order(trial_idx) = cbl;
+            results.trialInfo.order(trial_idx) = cbl; % adding actual counterbalance code (including stimulus cbl)
             if vars.control.devFlag == 0
                 results.trialInfo.coolTemp(trial_idx) = vars.filename.ID(4);
                 results.trialInfo.warmTemp(trial_idx) = vars.filename.ID(5);
