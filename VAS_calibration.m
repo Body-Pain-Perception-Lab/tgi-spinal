@@ -109,8 +109,9 @@ for rep_idx = 1:vars.task.CalibReps %loop through trial repeats, 3 trials per th
         results.trialInfo.warmTemp(trial_idx) = vars.filename.ID(5);
     end    
 
-    % break the loop if VAS rating is above 15
-    if results.vasResponse(trial_idx, initial_question) > 15
+    % break the loop if VAS rating is above 10, then participant is
+    % experiencing TGI
+    if results.vasResponse(trial_idx, initial_question) > 10
         sca;
         break
     end

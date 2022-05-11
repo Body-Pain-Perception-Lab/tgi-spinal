@@ -15,7 +15,7 @@
 clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 0; 
+vars.control.devFlag  = 1; 
 
 VAS_loadParams;
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
@@ -90,13 +90,13 @@ else
     cbl = 1;
 end
 
-% for counterbalance procedure 5-8, when control is first, change to 1-4 to match procedure file
+% for counterbalance procedure 5-8, change to 1-4 to match procedure file
 if cbl > 4
     order = cbl-4; %recoding back to 1-4
 else
     order = cbl;
 end
-% extract trials associated with specific counterbalancing procedure (1-4)
+% extract trials associated with specific counterbalancing procedure
 procedure = vars.task.randomise(vars.task.randomise.procedure==order, :);
     
 trial_idx = 0 ; %create a seperate index for individual trials
