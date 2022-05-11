@@ -22,6 +22,7 @@ vars.ViewDist = 56;
 vars.task.NTrialReps         = 3; %number of repeat trials per condition (i.e. thermode in right place)
 vars.task.NBlocksTotal       = 1; %Total number of blocks per pseudorandom procedure (n x 16 trials)
 vars.task.NTrialsChange      = 3; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
+vars.task.CalibReps          = 15; % set to the max number of trials required to calibrate temperature for TGI, atm this is a guess
 
 %Times
 %vars.task.jitter             = randInRange(1,3,[1,vars.task.NTrialsTotal]); % time between the beginning of the trial and the beginning of the stimulation

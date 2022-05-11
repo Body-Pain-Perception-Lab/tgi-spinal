@@ -31,11 +31,11 @@ if vars.control.devFlag == 0 %only run if not debugging
     % input participant details for filename
     % task is either TGI or control, participant number is a string of 4 digits
     % (e.g. 0001), counterbalance procedure is index 1,2,3 or 4
-    vars.filename.calib = string(inputdlg({'Participant number:', 'Task:'},...
-        'Participant information', [1 30], [1 10]));
+    vars.filename.ID = string(inputdlg({'Participant number:'},...
+        'Participant information', [1 30]));
     
     % make participant folder in correct path
-    ppPath = fullfile(datPath, vars.filename.calib(1));
+    ppPath = fullfile(datPath, vars.filename.ID(1));
     mkdir(ppPath);
     
     % get date
@@ -43,8 +43,10 @@ if vars.control.devFlag == 0 %only run if not debugging
     vars.filename.date = datestr(now, formatout);
     
     % saving file name with participantID_pseudorandomProcedure_Date
-    matName = sprintf('%s_%s_%s_CALIB_spinalTGI.mat', vars.filename.calib(1,2), vars.filename.date);
-    csv_ratName = sprintf('%s_%s_%s_CALIB_spinalTGI.csv', vars.filename.calib(1,2), vars.filename.date);
+    matName = sprintf('%s_%s_%s_%s_VAS_spinalTGI.mat', vars.filename.ID(1:3), vars.filename.date);
+    csv_ratName = sprintf('%s_%s_%s_%s_VASResponse_spinalTGI.csv', vars.filename.ID(1:3), vars.filename.date);
+    csv_respName = sprintf('%s_%s_%s_%s_VASRespT_spinalTGI.csv', vars.filename.ID(1:3), vars.filename.date);
+    csv_trialName = sprintf('%s_%s_%s_%s_VAStrials_spinalTGI.csv', vars.filename.ID(1:3), vars.filename.date);
 end
 
 %% Psychtoolbox settings
@@ -105,36 +107,40 @@ for rep_idx = 1:vars.task.CalibReps %loop through trial repeats, 3 trials per th
             getVasRatings(keys, scr, vars, initial_question);  
     results.QuestionType(trial_idx, initial_question) = vars.instructions.Question(initial_question); 
 
-    % A mouse click if participants feel burning - breaks the loop
-    [x, y, buttons] = GetMouse(scr.win);
-    if any(buttons)
-        sca;
-        break
-    end
-
     % Wait a small amount of time (1s) after the first vas rating, to
     % divide up time
     WaitSecs(1)
 
-    results.trialInfo(trial_idx, 1) = trial_idx;
+    results.trialInfo(trial_idx, 1:6) = procedure(pseudo_idx, 1:6);
+    results.trialInfo.trial_n(trial_idx) = trial_idx;
     if vars.control.devFlag == 0
         results.trialInfo.coolTemp(trial_idx) = vars.filename.ID(4);
         results.trialInfo.warmTemp(trial_idx) = vars.filename.ID(5);
     end            
+    % Play audio to signify the end of vas ratings for the
+    % participant
+    % make a beep
+    myBeep = MakeBeep(500, vars.audio.beepLength, vars.audio.sampRate);
+    playAudio(vars,myBeep)
 end
-
+        % Repeat audio to signify a thermode change - a higher beep
+        myBeep = MakeBeep(600, vars.audio.beepLength, vars.audio.sampRate);
+        WaitSecs(.1) %wait 100ms to load beep
+        playAudio(vars,myBeep)
 sca; % close VAS
 ListenChar(0); %enable keypress
 
 %% Saving data
-if vars.control.devFlag == 0 %only run if not debugging
-    % to path specified in VAS_loadparams.m
-    % first raw mat files
-    matFile = fullfile(ppPath, matName);
-    save(matFile,'vars', 'results'); % saving raw data files as is
-    
-    % then csv files with key data
-    csvFile1 = fullfile(ppPath, csv_ratName);
-    % saving VAS response and VAS response time as seperate CSVs
-    writematrix(results.vasResponse, csvFile1);
-end
+% to path specified in VAS_loadparams.m
+% first raw mat files
+matFile = fullfile(ppPath, matName);
+save(matFile,'vars', 'results'); % saving raw data files as is
+
+% then csv files with key data
+csvFile1 = fullfile(ppPath, csv_ratName);
+csvFile2 = fullfile(ppPath, csv_respName);
+csvFile3 = fullfile(ppPath, csv_trialName);
+% saving VAS response and VAS response time as seperate CSVs
+writematrix(results.vasResponse, csvFile1);
+writematrix(results.vasReactionTime, csvFile2);
+writetable(results.trialInfo, csvFile3)
