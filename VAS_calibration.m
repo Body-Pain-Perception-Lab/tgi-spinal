@@ -73,12 +73,6 @@ vars.control.thisTrial = 1;
 vars.control.abortFlag = 0;
 [~, ~, keys.KeyCode] = KbCheck;
 
-%% Start screen
-Screen('TextSize', scr.win, scr.TextSize);
-DrawFormattedText(scr.win, vars.instructions.StartScreen, 'center', 'center', scr.TextColour);
-[~, ~] = Screen('Flip', scr.win);
-KbStrokeWait;
-
 %% Preparing to present VAS  
 trial_idx = 0 ; %create a seperate index for individual trials
 for rep_idx = 1:vars.task.CalibReps %loop through trial repeats, 3 trials per thermode location
@@ -105,22 +99,22 @@ for rep_idx = 1:vars.task.CalibReps %loop through trial repeats, 3 trials per th
             getVasRatings(keys, scr, vars, initial_question);  
     results.QuestionType(trial_idx, initial_question) = vars.instructions.Question(initial_question); 
 
-    % A mouse click if participants feel burning - breaks the loop
-    [x, y, buttons] = GetMouse(scr.win);
-    if any(buttons)
-        sca;
-        break
-    end
-
     % Wait a small amount of time (1s) after the first vas rating, to
     % divide up time
-    WaitSecs(1)
+    WaitSecs(.5)
 
     results.trialInfo(trial_idx, 1) = trial_idx;
     if vars.control.devFlag == 0
         results.trialInfo.coolTemp(trial_idx) = vars.filename.ID(4);
         results.trialInfo.warmTemp(trial_idx) = vars.filename.ID(5);
-    end            
+    end    
+
+    % break the loop if VAS rating is above 15
+    if results.vasResponse(trial_idx, initial_question) > 15
+        sca;
+        break
+    end
+        
 end
 
 sca; % close VAS
