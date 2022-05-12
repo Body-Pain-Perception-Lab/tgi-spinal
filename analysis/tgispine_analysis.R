@@ -351,46 +351,48 @@ ggsave('H1plot.png', H1, device = NULL, path = datPath, width = 9, height = 4.5)
    
 ##### Hypothesis 2 plotting #####
 # isolating across
-VAS_H2 <- VASresponse[VASresponse$condition == 'across' ,]
+VAS_H2 <- VASresponse[VASresponse$condition == 'within' ,]
 
 # plotting - TGI
-ggplot(VAS_H2[VAS_H2$manipulation=='TGI' ,], 
-       aes(cold_probe, norm_rating, group = ID, colour = VAS)) +
-  geom_point(position = position_dodge(.3)) +
-  geom_errorbar(aes(ymin=norm_rating-std, ymax=norm_rating+std), width=.2,
-                position=position_dodge(.3)) +
+H2 <- ggplot(VAS_H2, aes(cold_probe, norm_rating, group = ID, colour = VAS)) +
+  geom_point(data = VAS_H2 %>% 
+               filter(manipulation == 'TGI'), size = 2.5, position = position_dodge(.3)) +
+  geom_line(data = VAS_H2 %>% 
+              filter(manipulation == 'TGI'), aes(group = ID), position = position_dodge(.3)) +
+  geom_point(data = VAS_H2 %>% 
+               filter(manipulation == 'CNT'), size = 2.5, position = position_dodge(.3),
+             alpha = .5) +
+  geom_line(data = VAS_H2 %>% 
+              filter(manipulation == 'CNT'), aes(group = ID), position = position_dodge(.3),
+            alpha = .5) +
   facet_wrap(~VAS) +
   scale_color_manual(values = c(blues[4],reds[4],purps[5])) +
-  labs(title = 'TGI', x = '', y = 'VAS Rating') +
+  labs(title = 'Within Dermatome', x = '', y = 'VAS Rating') +
   #lims(y = c(-20,100)) +
   theme_classic() +
   theme(legend.position = 'none')
 
-# non TGI
-ggplot(VAS_H2[VAS_H2$manipulation=='CNT' ,], 
-       aes(cold_probe, rating, group = ID, colour = VAS)) +
-  geom_point(position = position_dodge(.3)) +
+##### Hypothesis 3 plotting #####
+# isolating across
+VAS_H3 <- VASresponse[VASresponse$condition == 'across' ,]
+
+# plotting - TGI
+H3 <- ggplot(VAS_H3, aes(cold_probe, norm_rating, group = ID, colour = VAS)) +
+  geom_point(data = VAS_H3 %>% 
+               filter(manipulation == 'TGI'), size = 2.5, position = position_dodge(.3)) +
+  geom_line(data = VAS_H3 %>% 
+              filter(manipulation == 'TGI'), aes(group = ID), position = position_dodge(.3)) +
+  geom_point(data = VAS_H3 %>% 
+               filter(manipulation == 'CNT'), size = 2.5, position = position_dodge(.3),
+             alpha = .5) +
+  geom_line(data = VAS_H3 %>% 
+              filter(manipulation == 'CNT'), aes(group = ID), position = position_dodge(.3),
+            alpha = .5) +
   facet_wrap(~VAS) +
   scale_color_manual(values = c(blues[4],reds[4],purps[5])) +
-  labs(title = 'Non TGI') +
+  labs(title = 'Across Dermatome', x = '', y = 'VAS Rating') +
+  #lims(y = c(-20,100)) +
   theme_classic() +
   theme(legend.position = 'none')
-
-##### Hypothesis 3 plotting #####
-VAS_H3 <- VASresponse[VASresponse$condition == 'within' ,]
-# plotting - TGI
-ggplot(VAS_H3[VAS_H3$manipulation=='TGI' ,], 
-       aes(cold_probe, norm_rating, group = ID, colour = ID)) +
-  geom_point(position = position_dodge(.3)) +
-  facet_wrap(~VAS) +
-  labs(title = 'TGI') +
-  theme_classic()
-# non TGI
-ggplot(VAS_H3[VAS_H3$manipulation=='CNT' ,], 
-       aes(cold_probe, rating, group = ID, colour = ID)) +
-  geom_point(position = position_dodge(.3)) +
-  facet_wrap(~VAS) +
-  labs(title = 'Non TGI') +
-  theme_classic()
 
 

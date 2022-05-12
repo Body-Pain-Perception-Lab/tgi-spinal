@@ -46,15 +46,15 @@ df$cold_location[df$cold_probe == 'caudal'] <- 'prox_caud'
 df$cold_location <- as.factor(df$cold_location)
 
 # reshape data so that there is one rating column per participant, with a VAS column = type of rating
-df_VAS <- melt(df, measure.vars= c("VAScold", "VASwarm","VASburning"), 
-                        id.vars=c("ID","trial_n","manipulation","procedure",
+df_VAS <- melt(df, measure.vars= c("VAScold", "VASwarm","VASburn"), 
+                        id.vars=c("ID","trial_n","manipulation","order",
                                   "trial_type","arm","condition","cold_location"),
              variable.name = 'VAS', value.name = 'rating')
 # rename the VAS ratings
 df_VAS <- df_VAS %>% 
   mutate(VAS = revalue(VAS, c("VAScold" = "cold",
                                     "VASwarm" = "warm",
-                                    "VASburning" = "burning")))
+                                    "VASburn" = "burn")))
 
 # to run zero inflated regressions need to make sure no values = 100, as cannot model them, so simply minus a very small fraction from those values
 df_VAS$beta <- ifelse(df_VAS$rating==100, df_VAS$beta-0.0001, df_VAS$beta <- df_VAS$rating)
@@ -64,7 +64,7 @@ df_VAS$beta <- df_VAS$beta/100
 df_VAS$ID <- factor(df_VAS$ID)
 
 # Summarise data per rating, per participant
-df_sum <- aggregate(rating~ID*manipulation*condition*cold_location*procedure*VAS, 
+df_sum <- aggregate(rating~ID*manipulation*condition*cold_location*order*VAS, 
                     median, data = df_VAS)
 ```
 
@@ -125,7 +125,7 @@ cond_effect <- fixef(model.cold.ex)[['cond']][['conditionwithin']]
 cold_loc_effect <- fixef(model.cold.ex)[['cond']][['cold_locationprox_caud']]
 
 # power analysis - using smallest effect size
-fixef(model.cold.ex)[['cond']][['cold_locationprox_caud']] <- .2
+fixef(model.cold.ex)[['cond']][['cold_locationprox_caud']] <- cold_loc_effect
 pwr.cold <- powerSim(model.cold.ex)
 print(pwr.cold)
 

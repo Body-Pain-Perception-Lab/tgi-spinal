@@ -15,7 +15,7 @@ library(truncnorm)
 ## Simulate results for one participant
 ```{r}
 simulate_subj <- function(subid, llim, ulim) {
-trialN = 10
+trialN = 12
 conditionN = 8
 ratingN = 3
 df <- data.frame(matrix(ncol = 0, nrow = trialN*conditionN*ratingN))
@@ -359,65 +359,26 @@ b1 <- ggplot(data = df_subj_burn, mapping = aes(x = conditionN, y = x, fill = st
 b1
 ```
 
-# running inferential stats on simulated data - to gain idea of effect size
+# run ZOIB regression on the simulated data - and extract power from chosen effect sizes
 
 ```{r}
-library(ez)
-library(psychReport)
-# isolate just TGI for purposes of determining effect size
-df_tgi <- df_subj[df_subj$stimuli == 'tgi' ,]
+# cold ratings
+model.cold = glmmTMB::glmmTMB(rating ~ stimuli + dermatome + cold_location + trialn +
+                                (1|id),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+stimuli,
+                      data = df30[df30$quality == 'cold' ,],
+                      na.action = na.omit)
+# warm ratings
+model.warm = glmmTMB::glmmTMB(rating ~ stimuli + dermatome + cold_location + trialn +
+                                (1|id),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+stimuli,
+                      data = df30[df30$quality == 'warm' ,],
+                      na.action = na.omit)
 
-# burning VAS
-burn_anova <- ezANOVA(
-  data = df_tgi[df_tgi$quality == 'burn' ,]
-  , dv = .(x)
-  , wid = .(id)
-  , within = .(dermatome, cold_location),
-  return_aov = TRUE,
-  detailed = TRUE
-)
-
-# warm VAS
-warm_anova <- ezANOVA(
-  data = df_tgi[df_tgi$quality == 'warm' ,]
-  , dv = .(x)
-  , wid = .(id)
-  , within = .(dermatome, cold_location),
-  return_aov = TRUE,
-  detailed = TRUE
-)
-
-# cold VAS
-cold_anova <- ezANOVA(
-  data = df_tgi[df_tgi$quality == 'cold' ,]
-  , dv = .(x)
-  , wid = .(id)
-  , within = .(dermatome, cold_location),
-  return_aov = TRUE,
-  detailed = TRUE
-)
-
-## t-test
-# create seperate data-frames to allow for comparison
-within <- df_subj[df_subj$dermatome=='within' ,]
-across <- df_subj[df_subj$dermatome=='across' ,]
-proxc <- within[within$cold_location== 'prox_caud' ,]
-distc <- within[within$cold_location=='dist_rostr' ,]
-caudc <- across[across$cold_location=='prox_caud' ,]
-rostc <- across[across$cold_location=='dist_rostr' ,]
-
-## H1
-names(within)[7] <- 'within'
-names(across)[7] <- 'across'
-# merge
-H1_df <- merge(within, across, by = c('id','cold_location','stimuli','quality'))
-# difference
-H1_df$diff <- H1_df$within - H1_df$across
-# ttest
-H1test <- t.test(H1_df$within, H1_df$across, alternative = 'two.sided', paired = TRUE)
-# effect size
-H1es <- (mean(H1_df$diff))/(sd(H1_df$diff))
-H1test
-H1es
+# model summaries
+summary(model.cold)
+summary(model.warm)
 
 ```
