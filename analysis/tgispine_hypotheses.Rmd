@@ -67,7 +67,7 @@ return(df)}
 # Simulate results for 30 participants
 ```{r}
 df30 <- data.frame()
-for (i in 1:60) {
+for (i in 1:30) {
   df <- simulate_subj(i, 0, 1)
   df30 <- rbind(df30,df)}
 df30
@@ -380,5 +380,17 @@ model.warm = glmmTMB::glmmTMB(rating ~ stimuli + dermatome + cold_location + tri
 # model summaries
 summary(model.cold)
 summary(model.warm)
+```
 
+# next, run model checks
+
+```{r}
+# first check cold
+model.cold.assmup <- simulateResiduals(model.cold, n = 1000)
+plot(model.cold.assmup)
+```
+```{r}
+# then check warm
+model.warm.assmup <- simulateResiduals(model.warm, n = 1000)
+plot(model.warm.assmup)
 ```
