@@ -15,7 +15,7 @@
 clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 1; 
+vars.control.devFlag  = 0; 
 
 VAS_loadParams;
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
@@ -32,7 +32,7 @@ if vars.control.devFlag == 0 %only run if not debugging
     % task is either TGI or control, participant number is a string of 4 digits
     % (e.g. 0001), counterbalance procedure is index 1,2,3 or 4
     vars.filename.calib = string(inputdlg({'Participant number:', 'Task:'},...
-        'Participant information', [1 30], [1 10]));
+        'Participant information', [1 30; 1 10]));
     
     % make participant folder in correct path
     ppPath = fullfile(datPath, vars.filename.calib(1));
@@ -43,8 +43,8 @@ if vars.control.devFlag == 0 %only run if not debugging
     vars.filename.date = datestr(now, formatout);
     
     % saving file name with participantID_pseudorandomProcedure_Date
-    matName = sprintf('%s_%s_%s_CALIB_spinalTGI.mat', vars.filename.calib(1,2), vars.filename.date);
-    csv_ratName = sprintf('%s_%s_%s_CALIB_spinalTGI.csv', vars.filename.calib(1,2), vars.filename.date);
+    matName = sprintf('%s_%s_%s_CALIB_spinalTGI.mat', vars.filename.calib(1,:), vars.filename.date);
+    csv_ratName = sprintf('%s_%s_%s_CALIB_spinalTGI.csv', vars.filename.calib(1,:), vars.filename.date);
 end
 
 %% Psychtoolbox settings
@@ -103,11 +103,7 @@ for rep_idx = 1:vars.task.CalibReps %loop through trial repeats, 3 trials per th
     % divide up time
     WaitSecs(.5)
 
-    results.trialInfo(trial_idx, 1) = trial_idx;
-    if vars.control.devFlag == 0
-        results.trialInfo.coolTemp(trial_idx) = vars.filename.ID(4);
-        results.trialInfo.warmTemp(trial_idx) = vars.filename.ID(5);
-    end    
+    results.trialInfo(trial_idx, 1) = trial_idx;  
 
     % break the loop if VAS rating is above 10, then participant is
     % experiencing TGI
