@@ -16,9 +16,9 @@ setwd(datPath)
 filenames <- dir(datPath, recursive = TRUE, full.names = FALSE, pattern = '.csv')
 # empty dataframes for data
 ## with new data trials file will have changed to include temperature coding!
-df_trials <- read.csv(text='procedure,trial_type,arm,condition,dermatome,cold_probe,trial_n,coolTemp,warmTempID,manipulation')
-df_VAS <- read.csv(text='VASburning,VASwarm,VAScold,trial_n,ID,manipulation')
-df_RT <- read.csv(text='RTburning,RTwarm,RTcold,trial_n,ID,manipulation')
+df_trials <- read.csv(text='procedure,trial_type,arm,condition,dermatome,order,cold_probe,trial_n,coolTemp,warmTempID,manipulation')
+df_VAS <- read.csv(text='VASinit,VASburn,VASwarm,VAScold,trial_n,ID,manipulation')
+df_RT <- read.csv(text='RTinit,RTburn,RTwarm,RTcold,trial_n,ID,manipulation')
 
 ##### Data compiling #####
 # trial files
@@ -33,7 +33,7 @@ for (file in filenames){
   # VAS response files
   if (isTRUE(substr(basename(file), 22, 29)=="Response")){
     tmp <- read.csv(file, header = FALSE)
-    colnames(tmp) <- c('VASburning','VASwarm','VAScold','trial_n')
+    colnames(tmp) <- c('VASinit','VASburn','VASwarm','VAScold','trial_n')
     tmp$ID <- substr(basename(file), 1, 4)
     tmp$manipulation <- substr(basename(file), 8, 10)
     df_VAS <- rbind(df_VAS, tmp)
@@ -41,7 +41,7 @@ for (file in filenames){
   # VAS RT files
   if (isTRUE(substr(basename(file), 22, 26)=="RespT")){
     tmp <- read.csv(file, header = FALSE)
-    colnames(tmp) <- c('RTburning','RTwarm','RTcold','trial_n')
+    colnames(tmp) <- c('RTinit','RTburn','RTwarm','RTcold','trial_n')
     tmp$ID <- substr(basename(file), 1, 4)
     tmp$manipulation <- substr(basename(file), 8, 10)
     df_RT <- rbind(df_RT, tmp)
@@ -60,23 +60,25 @@ df_res <- df_res %>%
 df_res$cold_probe <- factor(df_res$cold_probe, 
                             levels = c("caudal", "rostral", "distal", "proximal"))
 df_res$ID <- factor(df_res$ID, 
-                    labels = c("1", "2", "3"))
+                    labels = c("1", "2", "3", "4"))
 
 ## normalise VAS ratings for each participant
-# just include valid trials < 33
-df_res <- df_res[df_res$trial_n < 33 ,]
+# just include valid trials, trials for ID = 1 are not valid above 32
+test <- df_res[!(df_res$ID == 'P1' & df_res$trial_n > 32) ,]
+
+## normalising the data
 # create frame for new dataframe
-df_norm <- data.frame(matrix(ncol = 20, nrow = 0))
-for (id_idx in 1:3) {
+df_norm <- data.frame(matrix(ncol = 23, nrow = 0))
+for (id_idx in 1:nlevels(df_res$ID)) { #index through each participant
   tmp <- df_res[df_res$ID == id_idx ,]
   # find the max value for each VAS ratings
-  max_burn <- max(tmp$VASburning, na.rm = TRUE)
+  max_burn <- max(tmp$VASburn, na.rm = TRUE)
   max_warm <- max(tmp$VASwarm, na.rm = TRUE)
   max_cold <- max(tmp$VAScold, na.rm = TRUE)
   # then normalise all
-  tmp$norm_VASburn <- tmp$VASburning/max_burn
-  tmp$norm_VASwarm <- tmp$VASwarm/max_warm
-  tmp$norm_VAScold <- tmp$VAScold/max_cold
+  tmp$norm_burn <- tmp$VASburn/max_burn
+  tmp$norm_warm <- tmp$VASwarm/max_warm
+  tmp$norm_cold <- tmp$VAScold/max_cold
     
   # compile all into one data-frame
   df_norm <- rbind(df_norm, tmp)
@@ -88,20 +90,20 @@ write.csv(df_norm, 'STGI_compiled-data.csv', row.names = FALSE)
 ##### Individual participant plots ######
 # first need to make app data frame, isolate specific VAS types then bind by column
 # burning
-df_burn <- df_norm[, c(1:12,18)]
+df_burn <- df_norm[, c(1:12,14,21)]
 df_burn$VAS <- 'burn'
-names(df_burn)[12] <- 'rating'
-names(df_burn)[13] <- 'norm_rating'
+names(df_burn)[13] <- 'rating'
+names(df_burn)[14] <- 'norm_rating'
 # warm
-df_warm <- df_norm[, c(1:11,13,19)]
+df_warm <- df_norm[, c(1:12,15,22)]
 df_warm$VAS <- 'warm'
-names(df_warm)[12] <- 'rating'
-names(df_warm)[13] <- 'norm_rating'
+names(df_warm)[13] <- 'rating'
+names(df_warm)[14] <- 'norm_rating'
 #cold
-df_cold <- df_norm[, c(1:11,14,20)]
+df_cold <- df_norm[, c(1:12,16,23)]
 df_cold$VAS <- 'cold'
-names(df_cold)[12] <- 'rating'
-names(df_cold)[13] <- 'norm_rating'
+names(df_cold)[13] <- 'rating'
+names(df_cold)[14] <- 'norm_rating'
 # combine
 df_plot <- rbind(df_burn, df_warm, df_cold)
 # recode levels for plotting
@@ -124,11 +126,11 @@ col_burn <- c(purps[4], purps[7], redpu[3], redpu[6])
 col_warm <- c(reds[3], reds[6], orans[3], orans[6])
 col_cold <- c(blues[3], blues[6], blgrn[4], blgrn[7])
 
-## plot individual participants
-# isolate just my data (for now)
+## isolate individual participants (unclear why I have done this... might become clear later)
 P1 <- df_plot[df_plot$ID == '1' ,]
 P2 <- df_plot[df_plot$ID == '2' ,]
 P3 <- df_plot[df_plot$ID == '3' ,]
+P4 <- df_plot[df_plot$ID == '4' ,]
 
 # BURN - TGI
 BTGI <- ggplot(df_plot[df_plot$VAS=='burn' & df_plot$manipulation == 'TGI' ,], 
@@ -270,33 +272,72 @@ VASresponse <- VASresponse %>%
 VASresponse$conditionN <- factor(VASresponse$conditionN, 
                                  levels = c("distal", "proximal", "rostral","caudal"))
 
+# cold ratings
 COLD <- ggplot(VASresponse[VASresponse$VAS == 'cold' ,], 
                aes(conditionN, norm_rating, group = ID, colour = manipulation)) +
-  geom_point(size = 2.5, position = position_dodge(.3)) +
-  geom_errorbar(aes(ymin=norm_rating-std, ymax=norm_rating+std), width=.2, size = .7,
-                position=position_dodge(.3)) +
+  # first TGI
+  geom_point(data = VASresponse %>% 
+               filter(VAS == "cold", manipulation == 'TGI'),
+             size = 2.5, position = position_dodge(.3)) +
+  geom_line(data = VASresponse %>% 
+              filter(VAS == "cold", manipulation == 'TGI'),
+            aes(group = ID), position = position_dodge(.3)) +
+  # then control
+  geom_point(data = VASresponse %>% 
+               filter(VAS == "cold", manipulation == 'CNT'),
+             size = 2.5, position = position_dodge(.3)) +
+  geom_line(data = VASresponse %>% 
+              filter(VAS == "cold", manipulation == 'CNT'),
+            aes(group = ID), position = position_dodge(.3)) +
   scale_color_manual(values = c(blues[3],blues[6])) +
+  lims(y = c(0,1)) +
   labs(title = 'Cold perception', x = '', y = 'Cold ratings') +
   theme_classic() + 
   theme(legend.position = 'none')
 
-
+# warm ratings
 WARM <- ggplot(VASresponse[VASresponse$VAS == 'warm' ,], 
                aes(conditionN, norm_rating, group = ID, colour = manipulation)) +
-  geom_point(size = 2.5, position = position_dodge(.3)) +
-  geom_errorbar(aes(ymin=norm_rating-std, ymax=norm_rating+std), width=.2, size = .7,
-                position=position_dodge(.3)) +
+  # first TGI
+  geom_point(data = VASresponse %>% 
+               filter(VAS == "warm", manipulation == 'TGI'),
+             size = 2.5, position = position_dodge(.3)) +
+  geom_line(data = VASresponse %>% 
+              filter(VAS == "warm", manipulation == 'TGI'),
+            aes(group = ID), position = position_dodge(.3)) +
+  # then control
+  geom_point(data = VASresponse %>% 
+               filter(VAS == "warm", manipulation == 'CNT'),
+             size = 2.5, position = position_dodge(.3)) +
+  geom_line(data = VASresponse %>% 
+              filter(VAS == "warm", manipulation == 'CNT'),
+            aes(group = ID), position = position_dodge(.3)) +
   scale_color_manual(values = c(orans[3],orans[6])) +
+  lims(y = c(0,1)) +
   labs(title = 'Warm perception', x = '', y = 'Warm ratings') +
   theme_classic() + 
   theme(legend.position = 'none')
 
+# burn ratings
 BURN <- ggplot(VASresponse[VASresponse$VAS == 'burn' ,], 
                aes(conditionN, norm_rating, group = ID, colour = manipulation)) +
+  # first TGI
+  geom_point(data = VASresponse %>% 
+               filter(VAS == "burn", manipulation == 'TGI'),
+             size = 2.5, position = position_dodge(.3)) +
+  geom_line(data = VASresponse %>% 
+              filter(VAS == "burn", manipulation == 'TGI'),
+            aes(group = ID), position = position_dodge(.3)) +
+  # then control
+  geom_point(data = VASresponse %>% 
+               filter(VAS == "burn", manipulation == 'CNT'),
+             size = 2.5, position = position_dodge(.3)) +
+  geom_line(data = VASresponse %>% 
+              filter(VAS == "burn", manipulation == 'CNT'),
+            aes(group = ID), position = position_dodge(.3)) +
   geom_point(size = 2.5, position = position_dodge(.3)) +
-  geom_errorbar(aes(ymin=norm_rating-std, ymax=norm_rating+std), width=.2, size = .7,
-                position=position_dodge(.3)) +
   scale_color_manual(values = c(purps[4],purps[7])) +
+  lims(y = c(0,1)) +
   labs(title = 'Burn perception', x = '', y = 'Burn ratings') +
   theme_classic() + 
   theme(legend.position = 'none')
