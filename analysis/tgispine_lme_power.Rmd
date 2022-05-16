@@ -72,7 +72,8 @@ df_sum <- aggregate(rating~ID*manipulation*condition*cold_location*order*VAS,
 ```{r}
 ggplot(data = df_VAS) +
   geom_density(aes(beta, fill = manipulation), alpha = .5) +
-  facet_wrap(~VAS)
+  facet_wrap(~VAS) +
+  theme_classic()
 ```
 
 # Now to model effects! Try a zero inflated regression model
