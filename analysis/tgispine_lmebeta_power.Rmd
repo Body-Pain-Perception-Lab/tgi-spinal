@@ -1,0 +1,114 @@
+---
+title: "TGI-spinal-power"
+author: "A.G. Mitchell"
+date: '2022-04-28'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lme4)
+library(simr)
+library(broom)
+library(brms)
+library(modelsummary)
+library(tibble)
+library(DHARMa)
+library(glmmTMB)
+library(reshape2)
+library(tidyverse)
+library(plyr)
+
+set.seed(1234)  # Make everything reproducible
+
+# Define the goodness-of-fit stats to include in modelsummary()
+gof_stuff <- tribble(
+  ~raw, ~clean, ~fmt,
+  "nobs", "N", 0,
+  "r.squared", "R²", 3
+)
+
+# setting working directory
+datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
+knitr::opts_knit$set(root.dir = datPath)
+```
+
+# Getting data and reformatting to fit model
+```{r}
+# import compiled data
+df <- read.csv('STGI_compiled-data.csv')
+
+# need to recode levels for cold_probe to reduce number of levels from 4 to 2
+df$cold_location[df$cold_probe == 'distal'] <- 'dist_rostr' 
+df$cold_location[df$cold_probe == 'rostral'] <- 'dist_rostr'
+df$cold_location[df$cold_probe == 'proximal'] <- 'prox_caud'
+df$cold_location[df$cold_probe == 'caudal'] <- 'prox_caud'
+df$cold_location <- as.factor(df$cold_location)
+
+# reshape data so that there is one rating column per participant, with a VAS column = type of rating
+df_VAS <- melt(df, measure.vars= c("VAScold", "VASwarm","VASburn"), 
+                        id.vars=c("ID","trial_n","manipulation","order",
+                                  "trial_type","arm","condition","cold_location"),
+             variable.name = 'VAS', value.name = 'rating')
+# rename the VAS ratings
+df_VAS <- df_VAS %>% 
+  mutate(VAS = revalue(VAS, c("VAScold" = "cold",
+                                    "VASwarm" = "warm",
+                                    "VASburn" = "burn")))
+
+# to run zero inflated regressions need to make sure no values = 100, as cannot model them, so simply minus a very small fraction from those values
+df_VAS$beta <- ifelse(df_VAS$rating==100, df_VAS$beta-0.0001, df_VAS$beta <- df_VAS$rating)
+
+# transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
+df_VAS$beta <- df_VAS$beta/100
+df_VAS$ID <- factor(df_VAS$ID)
+
+# Summarise data per rating, per participant
+df_sum <- aggregate(rating~ID*manipulation*condition*cold_location*order*VAS, 
+                    median, data = df_VAS)
+```
+
+# Plotting data distributions to see what kind of model family is required
+```{r}
+ggplot(data = df_VAS) +
+  geom_density(aes(beta, fill = manipulation), alpha = .5) +
+  facet_wrap(~VAS) +
+  theme_classic()
+```
+
+# Now to model effects! Try a zero inflated regression model
+```{r}
+# First model cold VAS
+model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_VAS[df_VAS$VAS == 'cold' ,],
+                      na.action = na.omit)
+# then model warm VAS
+model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_VAS[df_VAS$VAS == 'warm' ,])
+# model summaries
+summary(model.cold)
+summary(model.warm)
+```
+# Look at model assumptions
+```{r}
+# cold assumption
+model.cold.assmup <- simulateResiduals(model.cold, n = 1000)
+plot(model.cold.assmup)
+```
+
+```{r}
+# warm assumption
+model.warm.assump <- simulateResiduals(model.warm, n = 1000)
+plot(model.warm.assump)
+```
+
+Cold model power analysis
+# Run power analyses!!
+# Cold first, then warm
+# Create a model with more data points per variable, to extract more power

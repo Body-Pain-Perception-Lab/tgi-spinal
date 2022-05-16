@@ -9,15 +9,18 @@ set.seed(84322)
 
 ## Population Model
 pop <- 100000              ## provides the population size (arbitrary) - just want it big
-n <- 400                   ## change this to what sample size we want to test
-vars <- paste0("x", 1:10)
+n <- 50                    ## change this to what sample size we want to test
+
+vars <- paste0("x", 1:10)  # variables of interest
 preds <- map(vars, ~data.frame(rnorm(pop, sd = 1)) %>% set_names(.x)) %>% 
-  do.call("cbind", .)
+  do.call("cbind", .) # creating data frame based on x with 'pop' number of observations & 10 variables
+
+# creating outcome variable to be partially based on the predictor variables
 data <- preds %>% 
   mutate(outcome = .04*preds$x1 + .04*preds$x2 + .04*preds$x1*preds$x2 + rbeta(pop, 2.1, 3.5)) %>% 
   mutate(outcome = case_when(outcome < 0 ~ 0,
                              TRUE ~ outcome)) %>% 
-  mutate(outcome = outcome/max(outcome)) %>% 
+  mutate(outcome = outcome/max(outcome)) %>% # normalising outcome variable
   mutate(outcome = (outcome * (pop - 1) + .5) / pop) %>% 
   mutate(x1 = scale(x1),
          x2 = scale(x2))
