@@ -84,13 +84,12 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + 
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
                       data = df_VAS[df_VAS$VAS == 'cold' ,],
-                      na.action = na.omit)
+                      na.action = na.omit) 
 # then model warm VAS
 model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df_VAS[df_VAS$VAS == 'warm' ,])
 # model summaries
 summary(model.cold)
 summary(model.warm)
@@ -120,13 +119,17 @@ summary(model.cold.ex)
 dat_model <- xtabs(~ manipulation + condition + cold_location, data=getData(model.cold.ex))
 print(dat_model)
 
+# Extract coefficients (effect sizes) of interest from pilot data model
+modelc.coefs <- model.cold.ex %>% summary() %>% 
+  coef()
+
 # extract relevant effect sizes
 tgi_effect <- fixef(model.cold.ex)[['cond']][['manipulationTGI']]
 cond_effect <- fixef(model.cold.ex)[['cond']][['conditionwithin']]
 cold_loc_effect <- fixef(model.cold.ex)[['cond']][['cold_locationprox_caud']]
 
 # power analysis - using smallest effect size
-fixef(model.cold.ex)[['cond']][['cold_locationprox_caud']] <- cold_loc_effect
+(model.cold.ex)[['cond']][['cold_locationprox_caud']] <- cold_loc_effect
 pwr.cold <- powerSim(model.cold.ex)
 print(pwr.cold)
 

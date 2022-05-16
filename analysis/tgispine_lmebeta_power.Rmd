@@ -18,6 +18,7 @@ library(glmmTMB)
 library(reshape2)
 library(tidyverse)
 library(plyr)
+library(betareg)
 
 set.seed(1234)  # Make everything reproducible
 
@@ -84,7 +85,7 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + 
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
                       data = df_VAS[df_VAS$VAS == 'cold' ,],
-                      na.action = na.omit)
+                      na.action = na.omit) 
 # then model warm VAS
 model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
                                 (1|ID),
@@ -108,7 +109,29 @@ model.warm.assump <- simulateResiduals(model.warm, n = 1000)
 plot(model.warm.assump)
 ```
 
-Cold model power analysis
 # Run power analyses!!
+This code is extracted from [TBD]
 # Cold first, then warm
-# Create a model with more data points per variable, to extract more power
+
+```{r}
+# Extract coefficient sizes
+modelc.coefs
+
+GetHyperparam<-function(x,b=NULL){
+  ## Get the hyperparameters from the mixed effect model
+  fe <- fixef(x)
+  
+  if(is.null(b))
+    b<-fe[2] # use the data effect size if not supplied
+  mu.a <- fe[1] 
+  vc <- VarCorr(x)
+  sigma.y <- as.numeric(vc[5, 2]) # Residual StdDev
+  sigma.a <- as.numeric(vc[2, 2]) # Cobblebar StdDev
+  sigma.g <- as.numeric(vc[4, 2]) # Cobblebar:transect StdDev
+  hp<-c(b, mu.a, sigma.y, sigma.a, sigma.g)
+  names(hp)<-c("b", "mu.a", "sigma.y", "sigma.a", "sigma.g")
+  return(hp)
+}
+```
+
+
