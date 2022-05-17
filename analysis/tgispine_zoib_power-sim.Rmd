@@ -249,29 +249,6 @@ df$rating <- c(w_dr_tgi_cold, w_pc_tgi_cold, a_dr_tgi_cold, a_pc_tgi_cold,
 return(df)}
 ```
 
-# Simulate data for different N (n = 20; n = 30; n = 40)
-```{r}
-# creating individual data-frames from simulated data
-n = 20
-df20 <- data.frame()
-for (i in 1:n) {
-  df <- simulate_subj(i, 0, 1)
-  df20 <- rbind(df20,df)}
-
-n = 30
-df30 <- data.frame()
-for (i in 1:n) {
-  df <- simulate_subj(i, 0, 1)
-  df30 <- rbind(df30,df)}
-
-n = 40
-df40 <- data.frame()
-for (i in 1:n) {
-  df <- simulate_subj(i, 0, 1)
-  df40 <- rbind(df40,df)}
-df20 #just show a sample, to check
-```
-
 # Plotting data distributions to see what kind of model family is required
 ```{r}
 # do this for the largest simulated dataset
@@ -282,6 +259,59 @@ ggplot2::ggplot(data = df40) +
   facet_wrap(~quality) +
   theme_classic()
 ```
+# Model function - Using zero inflated regression model
+```{r}
+# First model cold VAS
+model <- function(x, vas = c('cold','warm','burn')) {
+  if (vas[1] == 'cold'){
+    x1 <- x %>%  filter(quality == 'cold')
+  } else if (vas[1] == 'warm'){
+    
+  } else if (vas[1] == 'burn') {
+    x1 <- x %>%  filter(quality == 'burn')
+  }
+  
+  mod = glmmTMB::glmmTMB(
+    rating ~ stimuli + dermatome + cold_location + trialn + (1|id),
+    family = glmmTMB::beta_family(),
+    ziformula = ~1+stimuli,
+    data = x1,
+    na.action = na.omit) 
+
+return(summary(mod))}
+```
+
+# Extract the power from each model
+```{r}
+# the warm model has the smallest effect size, so should extract power calculation for this model only
+# do this for 40 participants, for 1000 simulations
+nSims <- 1000
+po <- data.frame()
+for (i in 1:nSims){
+  # creating individual data-frames from simulated data
+  n = 40
+  df40 <- data.frame()
+  for (i in 1:n) {
+    df <- simulate_subj(i, 0, 1)
+    df40 <- rbind(df40,df)}
+  # then run the model based on simulated data
+  m <- model(df40, 'warm')
+  # extracting the p-value and effect size
+  tmp <- c(m$coefficients$cond[4,4], m$coefficients$cond[4,1])
+  po <- rbind(po,tmp)
+}
+
+# rename columns
+names(po)[1] <- 'pval'
+names(po)[2] <- 'eff'
+po$sig <- as.numeric(po$pval < .05) #is significant
+po$sig[is.na(po$sig)] <- 0 #removing any NAs (code as unsig)
+
+power <- sum(po$sig)/nSims
+power
+```
+
+# Now plot most recently simulated data
 # Summary statistics for the largest data set - for plotting
 ```{r}
 # define each condition
@@ -574,42 +604,11 @@ b1 <- ggplot(data = df_subj_burn,
 b1
 ```
  
-# Now to model effects! Try a zero inflated regression model
-```{r}
-# First model cold VAS
-model.cold40 = glmmTMB::glmmTMB(rating ~ stimuli + dermatome + cold_location + trialn +
-                                (1|id),
-                      family = glmmTMB::beta_family(),
-                      ziformula = ~1+stimuli,
-                      data = filter(df40, quality == 'cold'),
-                      na.action = na.omit) 
-# then model warm VAS
-model.warm40 = glmmTMB::glmmTMB(rating ~ stimuli + dermatome + cold_location + trialn +
-                                (1|id),
-                      family = glmmTMB::beta_family(),
-                      ziformula = ~1+stimuli,
-                      data = filter(df40, quality == 'warm'),
-                      na.action = na.omit) 
-# model summaries
-summary(model.cold40)
-summary(model.warm40)
-```
+
 # Look at model assumptions
 ```{r}
 # cold assumption - on n = 20
 model.cold.assmup <- simulateResiduals(model.cold40, n = 1000)
 plot(model.cold.assmup)
 ```
-
-```{r}
-# warm assumption - on n = 20
-model.warm.assump <- simulateResiduals(model.warm40, n = 1000)
-plot(model.warm.assump)
-```
-
-# Extract the power from each model
-```{r}
-
-```
-
 
