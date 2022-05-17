@@ -15,7 +15,7 @@
 clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 0; 
+vars.control.devFlag  = 1; 
 
 VAS_loadParams;
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
@@ -142,7 +142,7 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
                 question_type_idx = randQuestion(rand_idx);
                 [results.vasResponse(trial_idx, question_type_idx), ...
                     results.vasReactionTime(trial_idx, question_type_idx)] = ...
-                    getVasRatings(keys, scr, vars, question_type_idx);  
+                    getVasRatings(keys, scr, vars, question_type_idx)  
                 % adding trial numbers to data-frame for later merging
                 results.vasResponse(trial_idx, 5) = trial_idx;
                 results.vasReactionTime(trial_idx, 5) = trial_idx;
