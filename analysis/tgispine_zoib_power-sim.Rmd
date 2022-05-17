@@ -239,35 +239,61 @@ a_pc_cnt_burn <-
     mean=filter(cnt_burn, condition == 'across' & cold_location == 'prox_caud')[, 5], 
     sd=filter(cnt_burn, condition == 'across' & cold_location == 'prox_caud')[, 6])
 
-df$rating <- c(w_dr_tgi_cold, w_pc_tgi_cold, a_dr_tgi_cold, a_pc_tgi_cold, w_dr_nontgi_cold, w_pc_nontgi_cold, a_dr_nontgi_cold, a_pc_nontgi_cold,
-               w_dr_tgi_warm, w_pc_tgi_warm, a_dr_tgi_warm, a_pc_tgi_warm, w_dr_nontgi_warm, w_pc_nontgi_warm, a_dr_nontgi_warm, a_pc_nontgi_warm,
-               w_dr_tgi_burn, w_pc_tgi_burn, a_dr_tgi_burn, a_pc_tgi_burn, w_dr_nontgi_burn, w_pc_nontgi_burn, a_dr_nontgi_burn, a_pc_nontgi_burn)
+# creating rating variable
+df$rating <- c(w_dr_tgi_cold, w_pc_tgi_cold, a_dr_tgi_cold, a_pc_tgi_cold, 
+               w_dr_cnt_cold, w_pc_cnt_cold, a_dr_cnt_cold, a_pc_cnt_cold,
+               w_dr_tgi_warm, w_pc_tgi_warm, a_dr_tgi_warm, a_pc_tgi_warm, 
+               w_dr_cnt_warm, w_pc_cnt_warm, a_dr_cnt_warm, a_pc_cnt_warm,
+               w_dr_tgi_burn, w_pc_tgi_burn, a_dr_tgi_burn, a_pc_tgi_burn, 
+               w_dr_cnt_burn, w_pc_cnt_burn, a_dr_cnt_burn, a_pc_cnt_burn)
 return(df)}
 ```
 
 # Simulate data for different N (n = 20; n = 30; n = 40)
 ```{r}
+# creating individual data-frames from simulated data
+n = 20
+df20 <- data.frame()
+for (i in 1:n) {
+  df <- simulate_subj(i, 0, 1)
+  df20 <- rbind(df20,df)}
+
+n = 30
+df30 <- data.frame()
+for (i in 1:n) {
+  df <- simulate_subj(i, 0, 1)
+  df30 <- rbind(df30,df)}
+
+n = 40
+df40 <- data.frame()
+for (i in 1:n) {
+  df <- simulate_subj(i, 0, 1)
+  df40 <- rbind(df40,df)}
+df20 #just show a sample, to check
 ```
 
 # Plotting data distributions to see what kind of model family is required
 ```{r}
-ggplot(data = df_VAS) +
-  geom_density(aes(beta, fill = manipulation), alpha = .5) +
-  facet_wrap(~VAS) +
+# do this for the largest simulated dataset
+ggplot2::ggplot(data = df40) +
+  geom_density(aes(rating, fill = stimuli), alpha = .5) +
+  facet_wrap(~quality) +
   theme_classic()
 ```
+# Plot effects in largest data set (n = 40)
+
 
 # Now to model effects! Try a zero inflated regression model
 ```{r}
 # First model cold VAS
-model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
-                                (1|ID),
+model.cold40 = glmmTMB::glmmTMB(rating ~ stimuli + dermatome + cold_location + trialn +
+                                (1|id),
                       family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
-                      data = df_VAS[df_VAS$VAS == 'cold' ,],
+                      ziformula = ~1+stimuli,
+                      data = filter(df40, quality == 'cold'),
                       na.action = na.omit) 
 # then model warm VAS
-model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
+model.warm40 = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
