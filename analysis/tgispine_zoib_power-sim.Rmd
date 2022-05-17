@@ -275,14 +275,305 @@ df20 #just show a sample, to check
 # Plotting data distributions to see what kind of model family is required
 ```{r}
 # do this for the largest simulated dataset
+df40$quality <- factor(df40$quality, 
+                             levels = c("cold", "warm", "burn"))
 ggplot2::ggplot(data = df40) +
   geom_density(aes(rating, fill = stimuli), alpha = .5) +
   facet_wrap(~quality) +
   theme_classic()
 ```
-# Plot effects in largest data set (n = 40)
+# Summary statistics for the largest data set - for plotting
+```{r}
+# define each condition
+df40$conditionN[df40$dermatome == "within" & df40$cold_location == "dist_rostr"] <- 1
+df40$conditionN[df40$dermatome == "within" & df40$cold_location == "prox_caud"] <- 2
+df40$conditionN[df40$dermatome == "across" & df40$cold_location == "dist_rostr"] <- 3
+df40$conditionN[df40$dermatome == "across" & df40$cold_location == "prox_caud"] <- 4
+
+# Subject-level summary statistics
+df <- df40
+df_subj <- aggregate(df$rating, by = list(id = df$id, conditionN = df$conditionN, dermatome = df$dermatome, cold_location = df$cold_location, stimuli = df$stimuli, quality = df$quality), FUN = mean)
+#df_subj$dermatome <- factor(df_subj$dermatome, levels = c('within','across')) # re-order conditions
+df_subj
+
+# Group-level stats
+df <- df_subj
+group_mean   <- aggregate(df$x, by = list(conditionN = df$conditionN, dermatome = df$dermatome, cold_location = df$cold_location, stimuli = df$stimuli, quality = df$quality), FUN = mean)
+group_median <- aggregate(df$x, by = list(conditionN = df$conditionN,dermatome = df$dermatome, cold_location = df$cold_location, stimuli = df$stimuli, quality = df$quality), FUN = median)
+group_sd     <- aggregate(df$x, by = list(conditionN = df$conditionN,dermatome = df$dermatome, cold_location = df$cold_location, stimuli = df$stimuli, quality = df$quality), FUN = sd)
+group_se     <- group_sd$x/sqrt(length(unique(df$id)))
 
 
+df_group <- data.frame(group_mean, mean = group_mean$x, median = group_median$x, sd = group_sd$x, se = group_se)
+df_group
+
+# isolating specific data sets for plotting
+df_subj_cold <- df_subj %>% filter(quality == 'cold')
+df_group_cold <- df_group %>% filter(quality == 'cold')
+df_subj_warm <- df_subj %>% filter(quality == 'warm')
+df_group_warm <- df_group %>% filter(quality == 'warm')
+df_subj_burn <- df_subj %>% filter(quality == 'burn')
+df_group_burn <- df_group %>% filter(quality == 'burn')
+
+```
+
+## Settings for plots
+```{r, echo = FALSE}
+# Load libraries
+library("ggplot2")
+library("gghalves")
+library("RColorBrewer")
+
+# Define colors
+reds <- brewer.pal(6, "Reds")
+blues <- brewer.pal(6, "Blues")
+purps <- brewer.pal(6, "Purples")
+
+col_cold_n <- blues[5]
+col_cold_w <- blues[3]
+col_warm_n <- reds[3]
+col_warm_w <- reds[5]
+col_burn_n <- purps[3]
+col_burn_w <- purps[5]
+
+# Parameters for plots
+tgi_theme = theme( 
+    text = element_text(size = 14),
+    axis.title.x = element_text(size = 12),
+    axis.title.y = element_text(size = 12),
+    legend.title=element_text(size=12), 
+    legend.text=element_text(size=12),
+    plot.title = element_text(lineheight=.8, face="bold", size = 12),
+    panel.border = element_rect(size=1),
+    panel.grid.minor = element_blank(), 
+    panel.grid.major = element_blank(),
+    axis.line.x = element_line(colour = 'black', size=0.5, linetype='solid'),
+    legend.key = element_blank(),
+    axis.line.y = element_line(colour = 'black', size=0.5, linetype='solid'))
+    
+
+# Other parameters
+nudge1 = .2
+nudge2 = .3
+nudge3 = .4
+
+# Define how to plot half violins
+tgi_half_violin <- function(
+    df_subj, tgi_dermatome, tgi_cold_location, tgi_stimuli, nudge, color) 
+  {v1 <- geom_half_violin(
+    data = df_subj %>% filter(
+      dermatome == tgi_dermatome & cold_location == tgi_cold_location & stimuli == tgi_stimuli), 
+    aes(x = conditionN, y = x), position = position_nudge(x = nudge), 
+    side = "r", fill = color, alpha = .8)
+return(v1)}
+
+# Define how to plot group means and error bars
+tgi_group_mean <- function(df_group, tgi_dermatome, tgi_cold_location, tgi_stimuli, nudge, color, shape) {
+m1 <- geom_point(
+  data = df_group %>% filter(dermatome == tgi_dermatome & cold_location == tgi_cold_location & stimuli == tgi_stimuli), 
+  aes(x = conditionN, y = mean), position = position_nudge(x = nudge + .05), size = 3, shape = shape)
+return(m1)}
+
+# Define how to plot error bars
+tgi_group_error <- function(df_group, tgi_dermatome, tgi_cold_location, tgi_stimuli, tgi_nudge, tgi_color) {
+e1 <- geom_errorbar(
+  data = df_group %>% filter(dermatome == tgi_dermatome & cold_location == tgi_cold_location & stimuli == tgi_stimuli), 
+  aes(x = conditionN, y = mean, ymin = mean - se, ymax = mean + se), position = position_nudge(tgi_nudge + .05), width = 0)
+return(e1)}
+
+```
+
+# Plotting cold
+```{r}
+set.seed(321)
+df_subj_cold$xj <- jitter(df_subj_cold$conditionN, amount=.1)
+
+# cold plot
+c1 <- ggplot(data = df_subj_cold, 
+             mapping = aes(x = conditionN, y = x, fill = stimuli, shape = stimuli, color = stimuli)) +
+  
+  # Add theme
+   theme_bw() +
+   tgi_theme +
+   geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5) +
+  
+   # Add points (for each subject and condition)
+   geom_point(aes(x = xj), size = 2, alpha = .8) +
+  
+  # Add half violin plots
+   tgi_half_violin(df_subj_cold, "within", "dist_rostr", "non-tgi", nudge2, col_cold_n) +
+   tgi_half_violin(df_subj_cold, "within", "prox_caud", "non-tgi", nudge2, col_cold_n) +
+   tgi_half_violin(df_subj_cold, "across", "dist_rostr", "non-tgi", nudge2, col_cold_n) +
+   tgi_half_violin(df_subj_cold, "across", "prox_caud", "non-tgi", nudge2, col_cold_n) +
+   tgi_half_violin(df_subj_cold, "within", "dist_rostr", "tgi", nudge1, col_cold_w) +
+   tgi_half_violin(df_subj_cold, "within", "prox_caud", "tgi", nudge1, col_cold_w) +
+   tgi_half_violin(df_subj_cold, "across", "dist_rostr", "tgi", nudge1, col_cold_w) +
+   tgi_half_violin(df_subj_cold, "across", "prox_caud", "tgi", nudge1, col_cold_w) +
+  
+   # Add group summary stats (between-condition lines, errors bars, and means)
+   geom_line(data = df_group_cold %>% filter(stimuli == "non-tgi"), 
+             aes(x = conditionN + .45, y = mean)) +
+   geom_line(data = df_group_cold %>% filter(stimuli == "tgi"), 
+             aes(x = conditionN + .35, y = mean)) +
+  
+   tgi_group_error(df_group_cold, "within", "dist_rostr", "non-tgi", nudge3, col_cold_n) +
+   tgi_group_error(df_group_cold, "within", "prox_caud", "non-tgi", nudge3, col_cold_n) +
+   tgi_group_error(df_group_cold, "across", "dist_rostr", "non-tgi", nudge3, col_cold_n) +
+   tgi_group_error(df_group_cold, "across", "prox_caud", "non-tgi", nudge3, col_cold_n) +
+   tgi_group_error(df_group_cold, "within", "dist_rostr", "tgi", nudge2, col_cold_w) +
+   tgi_group_error(df_group_cold, "within", "prox_caud", "tgi", nudge2, col_cold_w) +
+   tgi_group_error(df_group_cold, "across", "dist_rostr", "tgi", nudge2, col_cold_w) +
+   tgi_group_error(df_group_cold, "across", "prox_caud", "tgi", nudge2, col_cold_w) +
+
+   tgi_group_mean(df_group_cold, "within", "dist_rostr", "non-tgi", nudge3, col_cold_n, 22) +
+   tgi_group_mean(df_group_cold, "within", "prox_caud", "non-tgi", nudge3, col_cold_n, 22) +
+   tgi_group_mean(df_group_cold, "across", "dist_rostr", "non-tgi", nudge3, col_cold_n, 22) +
+   tgi_group_mean(df_group_cold, "across", "prox_caud", "non-tgi", nudge3, col_cold_n, 22) +
+   tgi_group_mean(df_group_cold, "within", "dist_rostr", "tgi", nudge2, col_cold_w, 21) +
+   tgi_group_mean(df_group_cold, "within", "prox_caud", "tgi", nudge2, col_cold_w, 21) +
+   tgi_group_mean(df_group_cold, "across", "dist_rostr", "tgi", nudge2, col_cold_w, 21) +
+   tgi_group_mean(df_group_cold, "across", "prox_caud", "tgi", nudge2, col_cold_w, 21) +
+  
+   # Define additional settings
+   scale_shape_manual(values = c(22, 21)) +
+   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), 
+                      labels=c("distal", "proximal", "rostral","caudal"), limits=c(0.6, 5)) +
+   scale_fill_manual(labels = c("non-TGI", "TGI"), values=c(blues[6],blues[3])) +
+   scale_color_manual(labels = c("non-TGI", "TGI"), values=c(blues[6], "gray25")) +
+   guides(shape = FALSE) +
+   labs(title = "", x = "", y = "Cold ratings", fill = "Stimuli", color = "Stimuli") +
+   ggtitle('Figure 1: Cold perception')
+
+c1
+```
+
+# Plotting warm
+```{r}
+set.seed(321)
+df_subj_warm$xj <- jitter(df_subj_warm$conditionN, amount=.1)
+
+# cold plot
+w1 <- ggplot(data = df_subj_warm, 
+             mapping = aes(x = conditionN, y = x, fill = stimuli, shape = stimuli, color = stimuli)) +
+  
+  # Add theme
+   theme_bw() +
+   tgi_theme +
+   geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5) +
+  
+   # Add points (for each subject and condition)
+   geom_point(aes(x = xj), size = 2, alpha = .8) +
+  
+  # Add half violin plots
+   tgi_half_violin(df_subj_warm, "within", "dist_rostr", "non-tgi", nudge2, col_warm_n) +
+   tgi_half_violin(df_subj_warm, "within", "prox_caud", "non-tgi", nudge2, col_warm_n) +
+   tgi_half_violin(df_subj_warm, "across", "dist_rostr", "non-tgi", nudge2, col_warm_n) +
+   tgi_half_violin(df_subj_warm, "across", "prox_caud", "non-tgi", nudge2, col_warm_n) +
+   tgi_half_violin(df_subj_warm, "within", "dist_rostr", "tgi", nudge1, col_warm_w) +
+   tgi_half_violin(df_subj_warm, "within", "prox_caud", "tgi", nudge1, col_warm_w) +
+   tgi_half_violin(df_subj_warm, "across", "dist_rostr", "tgi", nudge1, col_warm_w) +
+   tgi_half_violin(df_subj_warm, "across", "prox_caud", "tgi", nudge1, col_warm_w) +
+  
+   # Add group summary stats (between-condition lines, errors bars, and means)
+   geom_line(data = df_group_warm %>% filter(stimuli == "non-tgi"), 
+             aes(x = conditionN + .45, y = mean)) +
+   geom_line(data = df_group_warm %>% filter(stimuli == "tgi"), 
+             aes(x = conditionN + .35, y = mean)) +
+  
+   tgi_group_error(df_group_warm, "within", "dist_rostr", "non-tgi", nudge3, col_warm_n) +
+   tgi_group_error(df_group_warm, "within", "prox_caud", "non-tgi", nudge3, col_warm_n) +
+   tgi_group_error(df_group_warm, "across", "dist_rostr", "non-tgi", nudge3, col_warm_n) +
+   tgi_group_error(df_group_warm, "across", "prox_caud", "non-tgi", nudge3, col_warm_n) +
+   tgi_group_error(df_group_warm, "within", "dist_rostr", "tgi", nudge2, col_warm_w) +
+   tgi_group_error(df_group_warm, "within", "prox_caud", "tgi", nudge2, col_warm_w) +
+   tgi_group_error(df_group_warm, "across", "dist_rostr", "tgi", nudge2, col_warm_w) +
+   tgi_group_error(df_group_warm, "across", "prox_caud", "tgi", nudge2, col_warm_w) +
+
+   tgi_group_mean(df_group_warm, "within", "dist_rostr", "non-tgi", nudge3, col_warm_n, 22) +
+   tgi_group_mean(df_group_warm, "within", "prox_caud", "non-tgi", nudge3, col_warm_n, 22) +
+   tgi_group_mean(df_group_warm, "across", "dist_rostr", "non-tgi", nudge3, col_warm_n, 22) +
+   tgi_group_mean(df_group_warm, "across", "prox_caud", "non-tgi", nudge3, col_warm_n, 22) +
+   tgi_group_mean(df_group_warm, "within", "dist_rostr", "tgi", nudge2, col_warm_w, 21) +
+   tgi_group_mean(df_group_warm, "within", "prox_caud", "tgi", nudge2, col_warm_w, 21) +
+   tgi_group_mean(df_group_warm, "across", "dist_rostr", "tgi", nudge2, col_warm_w, 21) +
+   tgi_group_mean(df_group_warm, "across", "prox_caud", "tgi", nudge2, col_warm_w, 21) +
+  
+   # Define additional settings
+   scale_shape_manual(values = c(22, 21)) +
+   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), 
+                      labels=c("distal", "proximal", "rostral","caudal"), limits=c(0.6, 5)) +
+   scale_fill_manual(labels = c("non-TGI", "TGI"), values=c(col_warm_n, col_warm_w)) +
+   scale_color_manual(labels = c("non-TGI", "TGI"), values=c("gray25", reds[6])) +
+   guides(shape = FALSE) +
+   labs(title = "", x = "", y = "Warm ratings", fill = "Stimuli", color = "Stimuli") +
+   ggtitle('Figure 2: Warm perception')
+
+w1
+```
+# Plotting burn
+```{r}
+set.seed(321)
+df_subj_burn$xj <- jitter(df_subj_burn$conditionN, amount=.1)
+
+# cold plot
+b1 <- ggplot(data = df_subj_burn, 
+             mapping = aes(x = conditionN, y = x, fill = stimuli, shape = stimuli, color = stimuli)) +
+  
+  # Add theme
+   theme_bw() +
+   tgi_theme +
+   geom_hline(yintercept=0, linetype="dashed", color = "black", size=0.5) +
+  
+   # Add points (for each subject and condition)
+   geom_point(aes(x = xj), size = 2, alpha = .8) +
+  
+  # Add half violin plots
+   tgi_half_violin(df_subj_burn, "within", "dist_rostr", "non-tgi", nudge2, col_burn_n) +
+   tgi_half_violin(df_subj_burn, "within", "prox_caud", "non-tgi", nudge2, col_burn_n) +
+   tgi_half_violin(df_subj_burn, "across", "dist_rostr", "non-tgi", nudge2, col_burn_n) +
+   tgi_half_violin(df_subj_burn, "across", "prox_caud", "non-tgi", nudge2, col_burn_n) +
+   tgi_half_violin(df_subj_burn, "within", "dist_rostr", "tgi", nudge1, col_burn_w) +
+   tgi_half_violin(df_subj_burn, "within", "prox_caud", "tgi", nudge1, col_burn_w) +
+   tgi_half_violin(df_subj_burn, "across", "dist_rostr", "tgi", nudge1, col_burn_w) +
+   tgi_half_violin(df_subj_burn, "across", "prox_caud", "tgi", nudge1, col_burn_w) +
+  
+   # Add group summary stats (between-condition lines, errors bars, and means)
+   geom_line(data = df_group_burn %>% filter(stimuli == "non-tgi"), 
+             aes(x = conditionN + .45, y = mean)) +
+   geom_line(data = df_group_burn %>% filter(stimuli == "tgi"), 
+             aes(x = conditionN + .35, y = mean)) +
+  
+   tgi_group_error(df_group_burn, "within", "dist_rostr", "non-tgi", nudge3, col_burn_n) +
+   tgi_group_error(df_group_burn, "within", "prox_caud", "non-tgi", nudge3, col_burn_n) +
+   tgi_group_error(df_group_burn, "across", "dist_rostr", "non-tgi", nudge3, col_burn_n) +
+   tgi_group_error(df_group_burn, "across", "prox_caud", "non-tgi", nudge3, col_burn_n) +
+   tgi_group_error(df_group_burn, "within", "dist_rostr", "tgi", nudge2, col_burn_w) +
+   tgi_group_error(df_group_burn, "within", "prox_caud", "tgi", nudge2, col_burn_w) +
+   tgi_group_error(df_group_burn, "across", "dist_rostr", "tgi", nudge2, col_burn_w) +
+   tgi_group_error(df_group_burn, "across", "prox_caud", "tgi", nudge2, col_burn_w) +
+
+   tgi_group_mean(df_group_burn, "within", "dist_rostr", "non-tgi", nudge3, col_burn_n, 22) +
+   tgi_group_mean(df_group_burn, "within", "prox_caud", "non-tgi", nudge3, col_burn_n, 22) +
+   tgi_group_mean(df_group_burn, "across", "dist_rostr", "non-tgi", nudge3, col_burn_n, 22) +
+   tgi_group_mean(df_group_burn, "across", "prox_caud", "non-tgi", nudge3, col_burn_n, 22) +
+   tgi_group_mean(df_group_burn, "within", "dist_rostr", "tgi", nudge2, col_burn_w, 21) +
+   tgi_group_mean(df_group_burn, "within", "prox_caud", "tgi", nudge2, col_burn_w, 21) +
+   tgi_group_mean(df_group_burn, "across", "dist_rostr", "tgi", nudge2, col_burn_w, 21) +
+   tgi_group_mean(df_group_burn, "across", "prox_caud", "tgi", nudge2, col_burn_w, 21) +
+  
+   # Define additional settings
+   scale_shape_manual(values = c(22, 21)) +
+   scale_x_continuous(breaks=c(1.2, 2.2, 3.2, 4.2), 
+                      labels=c("distal", "proximal", "rostral","caudal"), limits=c(0.6, 5)) +
+   scale_fill_manual(labels = c("non-TGI", "TGI"), values=c(col_burn_n, col_burn_w)) +
+   scale_color_manual(labels = c("non-TGI", "TGI"), values=c("gray25", purps[6])) +
+   guides(shape = FALSE) +
+   labs(title = "", x = "", y = "Burn ratings", fill = "Stimuli", color = "Stimuli") +
+   ggtitle('Figure 2: Burn perception')
+
+b1
+```
+ 
 # Now to model effects! Try a zero inflated regression model
 ```{r}
 # First model cold VAS
@@ -293,51 +584,32 @@ model.cold40 = glmmTMB::glmmTMB(rating ~ stimuli + dermatome + cold_location + t
                       data = filter(df40, quality == 'cold'),
                       na.action = na.omit) 
 # then model warm VAS
-model.warm40 = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
-                                (1|ID),
+model.warm40 = glmmTMB::glmmTMB(rating ~ stimuli + dermatome + cold_location + trialn +
+                                (1|id),
                       family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
-                      data = df_VAS[df_VAS$VAS == 'warm' ,])
+                      ziformula = ~1+stimuli,
+                      data = filter(df40, quality == 'warm'),
+                      na.action = na.omit) 
 # model summaries
-summary(model.cold)
-summary(model.warm)
+summary(model.cold40)
+summary(model.warm40)
 ```
 # Look at model assumptions
 ```{r}
-# cold assumption
-model.cold.assmup <- simulateResiduals(model.cold, n = 1000)
+# cold assumption - on n = 20
+model.cold.assmup <- simulateResiduals(model.cold40, n = 1000)
 plot(model.cold.assmup)
 ```
 
 ```{r}
-# warm assumption
-model.warm.assump <- simulateResiduals(model.warm, n = 1000)
+# warm assumption - on n = 20
+model.warm.assump <- simulateResiduals(model.warm40, n = 1000)
 plot(model.warm.assump)
 ```
 
-# Run power analyses!!
-This code is extracted from [TBD]
-# Cold first, then warm
-
+# Extract the power from each model
 ```{r}
-# Extract coefficient sizes
-modelc.coefs
 
-GetHyperparam<-function(x,b=NULL){
-  ## Get the hyperparameters from the mixed effect model
-  fe <- fixef(x)
-  
-  if(is.null(b))
-    b<-fe[2] # use the data effect size if not supplied
-  mu.a <- fe[1] 
-  vc <- VarCorr(x)
-  sigma.y <- as.numeric(vc[5, 2]) # Residual StdDev
-  sigma.a <- as.numeric(vc[2, 2]) # Cobblebar StdDev
-  sigma.g <- as.numeric(vc[4, 2]) # Cobblebar:transect StdDev
-  hp<-c(b, mu.a, sigma.y, sigma.a, sigma.g)
-  names(hp)<-c("b", "mu.a", "sigma.y", "sigma.a", "sigma.g")
-  return(hp)
-}
 ```
 
 
