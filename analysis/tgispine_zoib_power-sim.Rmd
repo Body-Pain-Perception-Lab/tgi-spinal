@@ -279,7 +279,7 @@ return(summary(mod))}
 ```{r}
 # the warm model has the smallest effect size, so should extract power calculation for this model only
 # do this for 40 participants, for 1000 simulations
-nSims <- 1000
+nSims <- 500
 n <- 32 # number of participants to simulate
 po <- data.frame()
 for (i in 1:nSims){
@@ -300,9 +300,9 @@ for (i in 1:nSims){
 names(po)[1] <- 'pval'
 names(po)[2] <- 'eff'
 po$sig <- as.numeric(po$pval < .05) #is significant
-po$sig[is.na(po$sig)] <- 0 #removing any NAs (code as unsig)
+po <- po[!is.na(po$sig) ,] #removing any NAs (models that did not converge) from the data frame
 
-power <- sum(po$sig)/nSims # calculating power
+power <- sum(po$sig)/length(po$sig) # calculating power
 
 # some renaming
 po_c <- po
