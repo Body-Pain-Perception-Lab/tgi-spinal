@@ -117,7 +117,7 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
             % run countdown during TGI stimulation - number of seconds defined in
             % VAS_loadParams.m
             % StimCount(scr, vars); 
-
+            vars.initq.start = GetSecs;
             % run one VAS to rate burning experience
             Screen('TextSize', scr.win, scr.TextSize); % resetting text size
             initial_question = 1; %indexing the initial question for the VAS rating
@@ -126,9 +126,12 @@ for block_idx=1:vars.task.NBlocksTotal %loop through blocks (usually 2)
                     getVasRatings(keys, scr, vars, initial_question);  
             results.QuestionType(trial_idx, initial_question) = vars.instructions.Question(initial_question); 
 
-            % Wait a small amount of time (1s) after the first vas rating, to
-            % divide up time
-            WaitSecs(1)
+            % Wait some time to make sure that TGI experience is a full 10s
+            % before starting main task
+            vars.initq.end = GetSecs;
+            vars.initq.length = vars.initq.end - vars.initq.start;
+            WaitSecs(vars.waitStim.secs-vars.initq.length)
+
         
             %% Run VAS
             % Will loop through the number of VAS questions

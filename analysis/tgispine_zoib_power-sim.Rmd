@@ -260,7 +260,7 @@ model <- function(x, vas = c('cold','warm','burn')) {
   if (vas[1] == 'cold'){
     x1 <- x %>%  filter(quality == 'cold')
   } else if (vas[1] == 'warm'){
-    
+    x1 <- x %>%  filter(quality == 'warm')
   } else if (vas[1] == 'burn') {
     x1 <- x %>%  filter(quality == 'burn')
   }
@@ -308,7 +308,7 @@ power <- sum(po$sig)/nSims # calculating power
 po_c <- po
 power_c <- power
 
-power c
+power_c
 ```
 
 # Then warm

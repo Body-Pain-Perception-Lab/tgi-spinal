@@ -15,7 +15,7 @@
 clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 0; 
+vars.control.devFlag  = 1; 
 
 VAS_loadParams;
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
@@ -75,43 +75,43 @@ vars.control.abortFlag = 0;
 
 %% Preparing to present VAS  
 trial_idx = 0 ; %create a seperate index for individual trials
-for rep_idx = 1:vars.task.CalibReps %loop through trial repeats, 3 trials per thermode location
-    % record number of total trials per participant
-    trial_idx = trial_idx+1;
-    %% Open VAS screen
-    % to control when each trial starts - can remove this if VAS questions
-    % need to be continuous  
-    
-    DrawFormattedText(scr.win, vars.instructions.StartVas, 'center', 'center', scr.TextColour);
-    [~, ~] = Screen('Flip', scr.win);
-    KbStrokeWait;
-
-    % run countdown during TGI stimulation - number of seconds defined in
-    % VAS_loadParams.m
-    StimCount(scr, vars); 
-
-    %% Run VAS
-    % run one VAS to rate burning experience
-    Screen('TextSize', scr.win, scr.TextSize); % resetting text size
-    initial_question = 1; %indexing the initial question for the VAS rating
-    [results.vasResponse(trial_idx, initial_question),...
-        results.vasReactionTime(trial_idx, initial_question)] = ...
-            getVasRatings(keys, scr, vars, initial_question);  
-    results.QuestionType(trial_idx, initial_question) = vars.instructions.Question(initial_question); 
-
-    % Wait a small amount of time (1s) after the first vas rating, to
-    % divide up time
-    WaitSecs(.5)
-
-    results.trialInfo(trial_idx, 1) = trial_idx;  
-
-    % break the loop if VAS rating is above 10, then participant is
-    % experiencing TGI
-    if results.vasResponse(trial_idx, initial_question) > 10
-        sca;
-        break
-    end
+for test_idx = 1:4 % loop thorugh the number of calib 'tests' you do (atm, 2 on each arm)
+    for rep_idx = 1:vars.task.CalibReps %loop through trial repeats, 3 trials per thermode location
+        % record number of total trials per participant
+        trial_idx = trial_idx+1;
+        %% Open VAS screen
+        % to control when each trial starts - can remove this if VAS questions
+        % need to be continuous  
         
+        DrawFormattedText(scr.win, vars.instructions.StartVas, 'center', 'center', scr.TextColour);
+        [~, ~] = Screen('Flip', scr.win);
+        KbStrokeWait;
+    
+        % run countdown during TGI stimulation - number of seconds defined in
+        % VAS_loadParams.m
+        StimCount(scr, vars); 
+    
+        %% Run VAS
+        % run one VAS to rate burning experience
+        Screen('TextSize', scr.win, scr.TextSize); % resetting text size
+        initial_question = 1; %indexing the initial question for the VAS rating
+        [results.vasResponse(trial_idx, initial_question),...
+            results.vasReactionTime(trial_idx, initial_question)] = ...
+                getVasRatings(keys, scr, vars, initial_question);  
+        results.QuestionType(trial_idx, initial_question) = vars.instructions.Question(initial_question); 
+    
+        % Wait a small amount of time (1s) after the first vas rating, to
+        % divide up time
+        WaitSecs(.5)
+    
+        results.trialInfo(trial_idx, 1) = trial_idx;  
+    
+        % break the loop if VAS rating is above 10, then participant is
+        % experiencing TGI
+        if results.vasResponse(trial_idx, initial_question) > 15
+            break
+        end
+    end     
 end
 
 sca; % close VAS
