@@ -8,7 +8,7 @@ output: html_document
 Calculating the N required for the TGI spinal experiment, by simulating data frame based on pilot data from N = 4 -- this will change!
 Pre-registration link:
 
-# Last edited: 17.05.2022
+# Last edited: 18.05.2022
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -52,7 +52,7 @@ df$cold_location[df$cold_probe == 'caudal'] <- 'prox_caud'
 df$cold_location <- as.factor(df$cold_location)
 
 # reshape data so that there is one rating column per participant, with a VAS column = type of rating
-df_VAS <- melt(df, measure.vars= c("VAScold", "VASwarm","VASburn"), 
+df_VAS <- reshape2::melt(df, measure.vars= c("VAScold", "VASwarm","VASburn"), 
                         id.vars=c("ID","trial_n","manipulation","order",
                                   "trial_type","arm","condition","cold_location"),
              variable.name = 'VAS', value.name = 'rating')
@@ -249,16 +249,6 @@ df$rating <- c(w_dr_tgi_cold, w_pc_tgi_cold, a_dr_tgi_cold, a_pc_tgi_cold,
 return(df)}
 ```
 
-# Plotting data distributions to see what kind of model family is required
-```{r}
-# do this for the largest simulated dataset
-df40$quality <- factor(df40$quality, 
-                             levels = c("cold", "warm", "burn"))
-ggplot2::ggplot(data = df40) +
-  geom_density(aes(rating, fill = stimuli), alpha = .5) +
-  facet_wrap(~quality) +
-  theme_classic()
-```
 # Model function - Using zero inflated regression model
 ```{r}
 # First model cold VAS
@@ -281,21 +271,56 @@ model <- function(x, vas = c('cold','warm','burn')) {
 return(summary(mod))}
 ```
 
-# Extract the power from each model
+# Extract the power from each model - first cold
 ```{r}
 # the warm model has the smallest effect size, so should extract power calculation for this model only
 # do this for 40 participants, for 1000 simulations
 nSims <- 1000
+n <- 32 # number of participants to simulate
 po <- data.frame()
 for (i in 1:nSims){
   # creating individual data-frames from simulated data
-  n = 40
-  df40 <- data.frame()
+  df_sim <- data.frame()
   for (i in 1:n) {
     df <- simulate_subj(i, 0, 1)
-    df40 <- rbind(df40,df)}
+    df_sim <- rbind(df_sim,df)}
   # then run the model based on simulated data
-  m <- model(df40, 'warm')
+  m <- model(df_csim, 'cold')
+  # extracting the p-value and effect size
+  tmp <- c(m$coefficients$cond[4,4], m$coefficients$cond[4,1])
+  po <- rbind(po,tmp)
+}
+
+# rename columns
+names(po)[1] <- 'pval'
+names(po)[2] <- 'eff'
+po$sig <- as.numeric(po$pval < .05) #is significant
+po$sig[is.na(po$sig)] <- 0 #removing any NAs (code as unsig)
+
+power <- sum(po$sig)/nSims # calculating power
+
+# some renaming
+po_c <- po
+power_c <- power
+
+power c
+```
+
+# Then warm
+```{r}
+# the warm model has the smallest effect size, so should extract power calculation for this model only
+# do this for 40 participants, for 1000 simulations
+nSims <- 1000
+n <- 32 # number of participants to simulate
+po <- data.frame()
+for (i in 1:nSims){
+  # creating individual data-frames from simulated data
+  df_sim <- data.frame()
+  for (i in 1:n) {
+    df <- simulate_subj(i, 0, 1)
+    df_sim <- rbind(df_sim,df)}
+  # then run the model based on simulated data
+  m <- model(df_sim, 'warm')
   # extracting the p-value and effect size
   tmp <- c(m$coefficients$cond[4,4], m$coefficients$cond[4,1])
   po <- rbind(po,tmp)
@@ -308,7 +333,23 @@ po$sig <- as.numeric(po$pval < .05) #is significant
 po$sig[is.na(po$sig)] <- 0 #removing any NAs (code as unsig)
 
 power <- sum(po$sig)/nSims
-power
+# some renaming
+po_w <- po
+power_w <- power
+
+power_w
+```
+
+
+# Plotting data distributions to see what kind of model family is required
+```{r}
+# do this for the largest simulated dataset
+df40$quality <- factor(df40$quality, 
+                             levels = c("cold", "warm", "burn"))
+ggplot2::ggplot(data = df40) +
+  geom_density(aes(rating, fill = stimuli), alpha = .5) +
+  facet_wrap(~quality) +
+  theme_classic()
 ```
 
 # Now plot most recently simulated data
