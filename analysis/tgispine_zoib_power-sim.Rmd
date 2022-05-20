@@ -33,7 +33,7 @@ gof_stuff <- tribble(
 )
 
 # setting working directory
-datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
+datPath <- '/home/alexm/sTGI/'
 knitr::opts_knit$set(root.dir = datPath)
 ```
 
@@ -272,15 +272,56 @@ model <- function(x, vas = c('cold','warm','burn')) {
     data = x1,
     na.action = na.omit) 
 
-return(summary(mod))}
+return(mod)}
 ```
 
+# First, simulate one data-set and run models (warm, cold and burn perception) to take a look at data
+```{r}
+df_sim <- data.frame()
+n = 50 #an example number of participants
+for (i in 1:n) {
+  df <- simulate_subj(i, 0, 1)
+  df_sim <- rbind(df_sim,df)
+}
+df50 <- df_sim
+
+# Plotting data distributions to see what kind of model family is required
+df50$quality <- factor(df50$quality, 
+                             levels = c("cold", "warm", "burn"))
+ggplot2::ggplot(data = df50) +
+  geom_density(aes(rating, fill = stimuli), alpha = .5) +
+  facet_wrap(~quality) +
+  theme_classic()
+```
+
+# running models based on simmed data
+```{r}
+# models for each VAS
+mc <- model(df_sim, 'cold')
+mw <- model(df_sim, 'warm')
+mb <- model(df_sim, 'burn')
+
+# show models
+summary(mc)
+summary(mw)
+summary(mb)
+```
+
+# Look at model assumptions
+```{r}
+# cold assumption - on n = 50
+mc.assump <- simulateResiduals(mc, n = 1000)
+plot(mc.assump)
+```
+
+## SIMULATIONS ##
+# Run through n = 1000 simulations of the pilot data, and extract p-value for the smallest effect (cold_location) of each model
 # Extract the power from each model - first cold
 ```{r}
 # the warm model has the smallest effect size, so should extract power calculation for this model only
 # do this for 40 participants, for 1000 simulations
-nSims <- 500
-n <- 32 # number of participants to simulate
+nSims <- 1000
+n <- 40 # number of participants to simulate
 po <- data.frame()
 for (i in 1:nSims){
   # creating individual data-frames from simulated data
@@ -291,8 +332,9 @@ for (i in 1:nSims){
     }
   # then run the model based on simulated data
   m <- model(df_sim, 'cold')
+  m1 <- summary(m)
   # extracting the p-value and effect size
-  tmp <- c(m$coefficients$cond[4,4], m$coefficients$cond[4,1])
+  tmp <- c(m1$coefficients$cond[4,4], m1$coefficients$cond[4,1])
   po <- rbind(po,tmp)
 }
 
@@ -327,8 +369,9 @@ for (i in 1:nSims){
     }
   # then run the model based on simulated data
   m <- model(df_sim, 'warm')
+  m1 <- summary(m)
   # extracting the p-value and effect size
-  tmp <- c(m$coefficients$cond[4,4], m$coefficients$cond[4,1])
+  tmp <- c(m1$coefficients$cond[4,4], m1$coefficients$cond[4,1])
   po <- rbind(po,tmp)
 }
 
@@ -346,26 +389,14 @@ power_w <- power
 power_w
 ```
 
-
-# Plotting data distributions to see what kind of model family is required
-```{r}
-# do this for the largest simulated dataset
-df40$quality <- factor(df40$quality, 
-                             levels = c("cold", "warm", "burn"))
-ggplot2::ggplot(data = df40) +
-  geom_density(aes(rating, fill = stimuli), alpha = .5) +
-  facet_wrap(~quality) +
-  theme_classic()
-```
-
-# Now plot most recently simulated data
+## PLOTTING - plot simulated data (d50 from earlier)
 # Summary statistics for the largest data set - for plotting
 ```{r}
 # define each condition
-df40$conditionN[df40$dermatome == "within" & df40$cold_location == "dist_rostr"] <- 1
-df40$conditionN[df40$dermatome == "within" & df40$cold_location == "prox_caud"] <- 2
-df40$conditionN[df40$dermatome == "across" & df40$cold_location == "dist_rostr"] <- 3
-df40$conditionN[df40$dermatome == "across" & df40$cold_location == "prox_caud"] <- 4
+df50$conditionN[df50$dermatome == "within" & df50$cold_location == "dist_rostr"] <- 1
+df50$conditionN[df50$dermatome == "within" & df50$cold_location == "prox_caud"] <- 2
+df50$conditionN[df50$dermatome == "across" & df50$cold_location == "dist_rostr"] <- 3
+df50$conditionN[df50$dermatome == "across" & df50$cold_location == "prox_caud"] <- 4
 
 # Subject-level summary statistics
 df <- df40
@@ -650,12 +681,3 @@ b1 <- ggplot(data = df_subj_burn,
 
 b1
 ```
- 
-
-# Look at model assumptions
-```{r}
-# cold assumption - on n = 20
-model.cold.assmup <- simulateResiduals(model.cold40, n = 1000)
-plot(model.cold.assmup)
-```
-
