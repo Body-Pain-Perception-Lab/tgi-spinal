@@ -59,12 +59,13 @@ df_res <- df_res %>%
 # change levels 
 df_res$cold_probe <- factor(df_res$cold_probe, 
                             levels = c("caudal", "rostral", "distal", "proximal"))
-df_res$ID <- factor(df_res$ID, 
-                    labels = c("1", "2", "3", "4"))
+# recode ID
+df_res$ID <- factor(df_res$ID, labels = c(
+  '1','2','3','4','5','6'))
 
 ## normalise VAS ratings for each participant
 # just include valid trials, trials for ID = 1 are not valid above 32
-test <- df_res[!(df_res$ID == 'P1' & df_res$trial_n > 32) ,]
+test <- df_res[!(df_res$ID == '1' & df_res$trial_n > 32) ,]
 
 ## normalising the data
 # create frame for new dataframe
@@ -224,9 +225,13 @@ ggsave('COLDplot.png', COLD, device = NULL, path = datPath, width = 8, height = 
 
 
 ##### Summary stats #####
+# first, plot density to get distribution
+ggplot(df_plot) +
+  geom_density(aes(norm_rating, fill = manipulation)) +
+  facet_wrap(~VAS)
 # get mean VAS responses for each condition
 VASresponse <- aggregate(norm_rating~ID*VAS*manipulation*condition*cold_probe, 
-                         mean, data = df_plot)
+                         median, data = df_plot)
 VASSD <- aggregate(norm_rating~ID*VAS*manipulation*condition*cold_probe, 
                    sd, data = df_plot)
 names(VASSD)[6] <- 'std'
