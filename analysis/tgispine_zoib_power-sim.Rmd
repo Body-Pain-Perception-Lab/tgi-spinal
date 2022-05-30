@@ -33,6 +33,14 @@ gof_stuff <- tribble(
   "r.squared", "R²", 3
 )
 
+# function to estimate beta parameters from mean and variance
+estBetaParams <- function(mu, var) {
+     a <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+     b <- a * (1 / mu - 1)
+     params = c(a,b)
+     return(params)
+}
+
 # setting working directory
 datPath <- '/home/alexm/sTGI/'
 knitr::opts_knit$set(root.dir = datPath)
@@ -88,6 +96,13 @@ df_sd <- aggregate(beta~manipulation*condition*cold_location*VAS,
 setnames(df_sd, "beta", "std")
 # merge
 df_sum <- merge(df_sum, df_sd)
+
+# get estimated beta parameters (shape 1 and shape 2) from means and SD
+for (c_idx in 1:length(df_sum$manipulation)){
+  p <- estBetaParams(df_sum$mean[c_idx], (df_sum$std[c_idx]*df_sum$std[c_idx]))
+  df_sum$alpha[c_idx] <- p[1]
+  df_sum$beta[c_idx] <- p[2]
+}
 
 # creating relevant data-frames for simulation
 tgi_cold <- df_sum %>% 
@@ -157,12 +172,6 @@ summary(mw.og)
 summary(mb.og)
 ```
 
-# Data to use in simulation
-```{r}
-
-```
-
-# Simulating data function - simulate model estimates (mean & sd) into beta distribution
 ```{r}
 simulate_subj <- function(subid, llim, ulim) {
 # trial info
@@ -182,134 +191,155 @@ df$quality <- c(rep("cold",trialN*conditionN), rep("warm",trialN*conditionN), re
 # Cold ratings: simulation
 # tgi
 w_dr_tgi_cold <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_cold, condition == 'within' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(tgi_cold, condition == 'within' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_cold, condition == 'within' & cold_location == 'dist_rostr')[, 7],
+    filter(tgi_cold, condition == 'within' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 w_pc_tgi_cold <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_cold, condition == 'within' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(tgi_cold, condition == 'within' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_cold, condition == 'within' & cold_location == 'prox_caud')[, 7],
+    filter(tgi_cold, condition == 'within' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 a_dr_tgi_cold <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_cold, condition == 'across' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(tgi_cold, condition == 'across' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_cold, condition == 'across' & cold_location == 'dist_rostr')[, 7],
+    filter(tgi_cold, condition == 'across' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 a_pc_tgi_cold <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_cold, condition == 'across' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(tgi_cold, condition == 'across' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_cold, condition == 'across' & cold_location == 'prox_caud')[, 7],
+    filter(tgi_cold, condition == 'across' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 # control
 w_dr_cnt_cold <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_cold, condition == 'within' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(cnt_cold, condition == 'within' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_cold, condition == 'within' & cold_location == 'dist_rostr')[, 7],
+    filter(cnt_cold, condition == 'within' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 w_pc_cnt_cold <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_cold, condition == 'within' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(cnt_cold, condition == 'within' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_cold, condition == 'within' & cold_location == 'prox_caud')[, 7],
+    filter(cnt_cold, condition == 'within' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 a_dr_cnt_cold <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_cold, condition == 'across' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(cnt_cold, condition == 'across' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_cold, condition == 'across' & cold_location == 'dist_rostr')[, 7],
+    filter(cnt_cold, condition == 'across' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 a_pc_cnt_cold <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_cold, condition == 'across' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(cnt_cold, condition == 'across' & cold_location == 'prox_caud')[, 6])
-
+  rbeta(
+    trialN,
+    filter(cnt_cold, condition == 'across' & cold_location == 'prox_caud')[, 7],
+    filter(cnt_cold, condition == 'across' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 # Warm ratings: simulation
 # tgi
 w_dr_tgi_warm <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_warm, condition == 'within' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(tgi_warm, condition == 'within' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_warm, condition == 'within' & cold_location == 'dist_rostr')[, 7],
+    filter(tgi_warm, condition == 'within' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 w_pc_tgi_warm <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_warm, condition == 'within' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(tgi_warm, condition == 'within' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_warm, condition == 'within' & cold_location == 'prox_caud')[, 7],
+    filter(tgi_warm, condition == 'within' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 a_dr_tgi_warm <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_warm, condition == 'across' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(tgi_warm, condition == 'across' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_warm, condition == 'across' & cold_location == 'dist_rostr')[, 7],
+    filter(tgi_warm, condition == 'across' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 a_pc_tgi_warm <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_warm, condition == 'across' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(tgi_warm, condition == 'across' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_warm, condition == 'across' & cold_location == 'prox_caud')[, 7],
+    filter(tgi_warm, condition == 'across' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 # control
 w_dr_cnt_warm <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_warm, condition == 'within' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(cnt_warm, condition == 'within' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_warm, condition == 'within' & cold_location == 'dist_rostr')[, 7],
+    filter(cnt_warm, condition == 'within' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 w_pc_cnt_warm <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_warm, condition == 'within' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(cnt_warm, condition == 'within' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_warm, condition == 'within' & cold_location == 'prox_caud')[, 7],
+    filter(cnt_warm, condition == 'within' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 a_dr_cnt_warm <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_warm, condition == 'across' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(cnt_warm, condition == 'across' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_warm, condition == 'across' & cold_location == 'dist_rostr')[, 7],
+    filter(cnt_warm, condition == 'across' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 a_pc_cnt_warm <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_warm, condition == 'across' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(cnt_warm, condition == 'across' & cold_location == 'prox_caud')[, 6])
-
-# Burning ratings: simulation
-# tgi
+  rbeta(
+    trialN,
+    filter(cnt_warm, condition == 'across' & cold_location == 'prox_caud')[, 7],
+    filter(cnt_warm, condition == 'across' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
+# burn
 w_dr_tgi_burn <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_burn, condition == 'within' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(tgi_burn, condition == 'within' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_burn, condition == 'within' & cold_location == 'dist_rostr')[, 7],
+    filter(tgi_burn, condition == 'within' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 w_pc_tgi_burn <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_burn, condition == 'within' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(tgi_burn, condition == 'within' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_burn, condition == 'within' & cold_location == 'prox_caud')[, 7],
+    filter(tgi_burn, condition == 'within' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 a_dr_tgi_burn <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_burn, condition == 'across' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(tgi_burn, condition == 'across' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_burn, condition == 'across' & cold_location == 'dist_rostr')[, 7],
+    filter(tgi_burn, condition == 'across' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 a_pc_tgi_burn <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(tgi_burn, condition == 'across' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(tgi_burn, condition == 'across' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(tgi_burn, condition == 'across' & cold_location == 'prox_caud')[, 7],
+    filter(tgi_burn, condition == 'across' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 # control
 w_dr_cnt_burn <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_burn, condition == 'within' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(cnt_burn, condition == 'within' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_burn, condition == 'within' & cold_location == 'dist_rostr')[, 7],
+    filter(cnt_burn, condition == 'within' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 w_pc_cnt_burn <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_burn, condition == 'within' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(cnt_burn, condition == 'within' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_burn, condition == 'within' & cold_location == 'prox_caud')[, 7],
+    filter(cnt_burn, condition == 'within' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 a_dr_cnt_burn <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_burn, condition == 'across' & cold_location == 'dist_rostr')[, 5], 
-    sd=filter(cnt_burn, condition == 'across' & cold_location == 'dist_rostr')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_burn, condition == 'across' & cold_location == 'dist_rostr')[, 7],
+    filter(cnt_burn, condition == 'across' & cold_location == 'dist_rostr')[, 8],
+    ncp = 0)
 a_pc_cnt_burn <- 
-  truncnorm::rtruncnorm(
-    trialN, llim, ulim, 
-    mean=filter(cnt_burn, condition == 'across' & cold_location == 'prox_caud')[, 5], 
-    sd=filter(cnt_burn, condition == 'across' & cold_location == 'prox_caud')[, 6])
+  rbeta(
+    trialN,
+    filter(cnt_burn, condition == 'across' & cold_location == 'prox_caud')[, 7],
+    filter(cnt_burn, condition == 'across' & cold_location == 'prox_caud')[, 8],
+    ncp = 0)
 
 # creating rating variable
 df$rating <- c(w_dr_tgi_cold, w_pc_tgi_cold, a_dr_tgi_cold, a_pc_tgi_cold, 
@@ -318,6 +348,7 @@ df$rating <- c(w_dr_tgi_cold, w_pc_tgi_cold, a_dr_tgi_cold, a_pc_tgi_cold,
                w_dr_cnt_warm, w_pc_cnt_warm, a_dr_cnt_warm, a_pc_cnt_warm,
                w_dr_tgi_burn, w_pc_tgi_burn, a_dr_tgi_burn, a_pc_tgi_burn, 
                w_dr_cnt_burn, w_pc_cnt_burn, a_dr_cnt_burn, a_pc_cnt_burn)
+
 return(df)}
 ```
 
