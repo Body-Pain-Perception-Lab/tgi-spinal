@@ -140,7 +140,106 @@ TGIw_zero <- df_VAS %>%
     filter(VAS == 'warm', manipulation == 'TGI') %>% 
     dplyr::count(beta == 0) %>% 
     mutate(prop = n / sum(n))
+# burn cnt
+CNTb_zero <- df_VAS %>% 
+    filter(VAS == 'burn', manipulation == 'CNT') %>% 
+    dplyr::count(beta == 0) %>% 
+    mutate(prop = n / sum(n))
+# burn tgi
+TGIb_zero <- df_VAS %>% 
+    filter(VAS == 'burn', manipulation == 'TGI') %>% 
+    dplyr::count(beta == 0) %>% 
+    mutate(prop = n / sum(n))
 
+```
+
+# Proportion zero function
+Replaces proportion of data with zero, based on proportions for each condition calculated from pilot data - used in the simulation
+```{r}
+set.seed(1)
+prop_zero <- function(x, vas = c('cold','warm','burn')) {
+  x2 <- data.frame()
+  # randomly generate two numbers around a normal distribution of 0, with a standard deviation of .03
+  r <- rnorm(2, mean=0, sd=.05)
+  if (vas[1] == 'cold'){
+    x1 <- x %>%  filter(quality == 'cold')
+    # add this number to the proportion of zeros calculated for each quality & stimuli from pilot data, for each participant
+    zp_cnt <- CNTc_zero$prop[2] + r[1] 
+    zp_tgi <- TGIc_zero$prop[2] + r[2]
+    # adding if loop to make sure zp does not reach 0
+    if (isTRUE(zp_cnt < 0)){
+      zp_cnt = 0
+    }
+    if (isTRUE(zp_tgi < 0)){
+      zp_tgi = 0
+    }
+    # turn zp into the proportion of total columns
+    zp_cnt <- round(zp_cnt*nrow(filter(x1, stimuli == 'non-tgi')))
+    zp_tgi <- round(zp_tgi*nrow(filter(x1, stimuli == 'tgi')))
+    
+    # isolate TGI and non-TGI
+    x_cnt <- x1 %>% filter(stimuli == 'non-tgi')
+    x_tgi <- x1 %>% filter(stimuli == 'tgi')
+    # finally, replace a proportion of the data with zeros! 
+    x_cnt$rating[sample(nrow(x_cnt),zp_cnt)] <- 0
+    x_tgi$rating[sample(nrow(x_tgi),zp_tgi)] <- 0
+    
+    #compile both data-sets again
+    x2 <- rbind(x_cnt, x_tgi)
+    
+  } else if (vas[1] == 'warm'){
+    x1 <- x %>%  filter(quality == 'warm')
+    # add this number to the proportion of zeros calculated for each quality & stimuli from pilot data, for each       participant
+    zp_cnt <- CNTw_zero$prop[2] + r[1] 
+    zp_tgi <- TGIw_zero$prop[2] + r[2]
+    # adding if loop to make sure zp does not reach 0
+    if (isTRUE(zp_cnt < 0)){
+      zp_cnt = 0
+    }
+    if (isTRUE(zp_tgi < 0)){
+      zp_tgi = 0
+    }
+    # turn zp into the proportion of total columns
+    zp_cnt <- round(zp_cnt*nrow(filter(x1, stimuli == 'non-tgi')))
+    zp_tgi <- round(zp_tgi*nrow(filter(x1, stimuli == 'tgi')))
+    # isolate TGI and non-TGI
+    x_cnt <- x1 %>% filter(stimuli == 'non-tgi')
+    x_tgi <- x1 %>% filter(stimuli == 'tgi')
+    # finally, replace a proportion of the data with zeros! 
+    x_cnt$rating[sample(nrow(x_cnt),zp_cnt)] <- 0
+    x_tgi$rating[sample(nrow(x_tgi),zp_tgi)] <- 0
+    
+    #compile both data-sets again
+    x2 <- rbind(x_cnt, x_tgi)
+    
+  } else if (vas[1] == 'burn') {
+    x1 <- x %>%  filter(quality == 'burn')
+    # add this number to the proportion of zeros calculated for each quality & stimuli from pilot data, for each participant
+    zp_cnt <- CNTb_zero$prop[2] + r[1] 
+    zp_tgi <- TGIb_zero$prop[2] + r[2]
+    # adding if loop to make sure zp does not reach 0
+    if (isTRUE(zp_cnt < 0)){
+      zp_cnt = 0
+    }
+    if (isTRUE(zp_tgi < 0)){
+      zp_tgi = 0
+    }
+    # turn zp into the proportion of total columns
+    zp_cnt <- round(zp_cnt*nrow(filter(x1, stimuli == 'non-tgi')))
+    zp_tgi <- round(zp_tgi*nrow(filter(x1, stimuli == 'tgi')))
+    
+    # isolate TGI and non-TGI
+    x_cnt <- x1 %>% filter(stimuli == 'non-tgi')
+    x_tgi <- x1 %>% filter(stimuli == 'tgi')
+    # finally, replace a proportion of the data with zeros! 
+    x_cnt$rating[sample(nrow(x_cnt),zp_cnt)] <- 0
+    x_tgi$rating[sample(nrow(x_tgi),zp_tgi)] <- 0
+    
+    #compile both data-sets again
+    x2 <- rbind(x_cnt, x_tgi)
+  }
+  return(x2)
+}
 ```
 
 # First, run a model on the pilot data, one for each VAS, to use for simulation
@@ -171,9 +270,9 @@ summary(mc.og)
 summary(mw.og)
 summary(mb.og)
 ```
-
+# Simulation of data function
 ```{r}
-simulate_subj <- function(subid, llim, ulim) {
+simulate_subj <- function(subid) {
 # trial info
 trialN = 12
 conditionN = 8
@@ -365,7 +464,8 @@ model <- function(x, vas = c('cold','warm','burn')) {
   }
   
   mod = glmmTMB::glmmTMB(
-    rating ~ stimuli + dermatome + cold_location + trialn + (1|id),
+    rating ~ stimuli + dermatome + cold_location +
+      trialn + (1|id),
     family = glmmTMB::beta_family(),
     ziformula = ~1+stimuli,
     data = x1,
@@ -379,16 +479,29 @@ return(mod)}
 df_sim <- data.frame()
 n = 50 #an example number of participants
 for (i in 1:n) {
-  df <- simulate_subj(i, 0, 1)
-  df_sim <- rbind(df_sim,df)
+  df <- simulate_subj(i)
+  # simulating proportion of zero responses into the data using prop_zero (defined above)
+  # this is a bit raw, but works!
+  df_c <- prop_zero(df, 'cold')
+  df_w <- prop_zero(df, 'warm')
+  df_b <- prop_zero(df, 'burn')
+  # bind all
+  df_z <- rbind(df_c, df_w)
+  df_z <- rbind(df_z, df_b)
+  
+  df_sim <- rbind(df_sim, df_z)
+  
+  #rm(df_c, df_w, df_b, df_z, df) #making sure these data-frames don't overlap
 }
 df50 <- df_sim
+# sanity check that all simulations are different
+sc <- aggregate(rating~id*stimuli, mean, data = df50)
 
 # Plotting data distributions to see what kind of model family is required
 df50$quality <- factor(df50$quality, 
                              levels = c("cold", "warm", "burn"))
 ggplot2::ggplot(data = df50) +
-  geom_density(aes(rating, fill = stimuli), alpha = .5) +
+  geom_histogram(aes(rating, fill = stimuli), alpha = .5, binwidth = .05) +
   facet_wrap(~quality) +
   theme_classic()
 ```
@@ -411,83 +524,78 @@ summary(mb)
 # cold assumption - on n = 50
 mc.assump <- simulateResiduals(mc, n = 1000)
 plot(mc.assump)
+# warm assumption - on n = 50
+mw.assump <- simulateResiduals(mw, n = 1000)
+plot(mw.assump)
+# warm assumption - on n = 50
+mb.assump <- simulateResiduals(mb, n = 1000)
+plot(mb.assump)
 ```
 
 ## SIMULATIONS ##
 # Run through n = 1000 simulations of the pilot data, and extract p-value for the smallest effect (cold_location) of each model
 # Extract the power from each model - first cold
 ```{r}
-# the warm model has the smallest effect size, so should extract power calculation for this model only
+# the warm model has the smallest effect size, so should extract power calculation for both the cold and warm only
 # do this for 40 participants, for 1000 simulations
 nSims <- 1000
-n <- 40 # number of participants to simulate
-po <- data.frame()
+n <- 32 # number of participants to simulate
+po_c <- data.frame()
+po_w <- data.frame()
 for (i in 1:nSims){
   # creating individual data-frames from simulated data
   df_sim <- data.frame()
   for (i in 1:n) {
-    df <- simulate_subj(i, 0, 1)
-    df_sim <- rbind(df_sim,df)
-    }
-  # then run the model based on simulated data
+    df <- simulate_subj(i)
+    # simulating proportion of zero responses into the data using prop_zero (defined above)
+    # this is a bit raw, but works!
+    df_c <- prop_zero(df, 'cold')
+    df_w <- prop_zero(df, 'warm')
+    df_b <- prop_zero(df, 'burn')
+    # bind all
+    df_z <- rbind(df_c, df_w)
+    df_z <- rbind(df_z, df_b)
+  
+    df_sim <- rbind(df_sim, df_z)
+  }
+  # then run the cold model based on simulated data
   m <- model(df_sim, 'cold')
   m1 <- summary(m)
-  # extracting the p-value and effect size
+  # extracting the p-value and effect size of cold location (our effect of interest)
   tmp <- c(m1$coefficients$cond[4,4], m1$coefficients$cond[4,1])
-  po <- rbind(po,tmp)
-}
-
-# rename columns
-names(po)[1] <- 'pval'
-names(po)[2] <- 'eff'
-po$sig <- as.numeric(po$pval < .05) #is significant
-po <- po[!is.na(po$sig) ,] #removing any NAs (models that did not converge) from the data frame
-
-power <- sum(po$sig)/length(po$sig) # calculating power
-
-# some renaming
-po_c <- po
-power_c <- power
-
-power_c
-write.csv(po_c, 'simulation_model_cold.csv', row.names = FALSE)
-```
-
-# Then warm
-```{r}
-# the warm model has the smallest effect size, so should extract power calculation for this model only
-# do this for 40 participants, for 1000 simulations
-nSims <- 1000
-n <- 40 # number of participants to simulate
-po <- data.frame()
-for (i in 1:nSims){
-  # creating individual data-frames from simulated data
-  df_sim <- data.frame()
-  for (i in 1:n) {
-    df <- simulate_subj(i, 0, 1)
-    df_sim <- rbind(df_sim,df)
-    }
-  # then run the model based on simulated data
+  po_c <- rbind(po_c,tmp)
+  
+  # and the warm model based on simulated data
   m <- model(df_sim, 'warm')
-  m1 <- summary(m)
+  m2 <- summary(m)
   # extracting the p-value and effect size
-  tmp <- c(m1$coefficients$cond[4,4], m1$coefficients$cond[4,1])
-  po <- rbind(po,tmp)
+  tmp1 <- c(m2$coefficients$cond[4,4], m2$coefficients$cond[4,1])
+  po_w <- rbind(po_w,tmp1)
 }
 
+# first get cold power
 # rename columns
-names(po)[1] <- 'pval'
-names(po)[2] <- 'eff'
-po$sig <- as.numeric(po$pval < .05) #is significant
-po <- po[!is.na(po$sig) ,] #removing any NAs (models that did not converge) from the data frame
+names(po_c)[1] <- 'pval'
+names(po_c)[2] <- 'eff'
+po_c$sig <- as.numeric(po_c$pval < .05) #is significant
+po_c <- po_c[!is.na(po_c$sig) ,] #removing any NAs (models that did not converge) from the data frame
 
-power <- sum(po$sig)/nSims
+power_c <- sum(po_c$sig)/length(po_c$sig) # calculating power
+
+write.csv(po_c, 'simulation_model_cold.csv', row.names = FALSE)
+print(paste0('Cold power: ', round(power_c,2)))
+
+# then for warm
 # some renaming
-po_w <- po
-write.csv(po_w, 'simulation_model_warm.csv', row.names = FALSE)
-power_w <- power
+names(po_w)[1] <- 'pval'
+names(po_w)[2] <- 'eff'
+po_w$sig <- as.numeric(po_w$pval < .05) #is significant
+po_w <- po_w[!is.na(po_w$sig) ,] #removing any NAs (models that did not converge) from the data frame
 
-power_w
+power_w <- sum(po_w$sig)/length(po_w$sig) # calculating power
+
+write.csv(po_w, 'simulation_model_warm.csv', row.names = FALSE)
+print(paste0('Warm power: ', round(power_w,2)))
 ```
 
 ## PLOTTING - plot simulated data (d50 from earlier)
