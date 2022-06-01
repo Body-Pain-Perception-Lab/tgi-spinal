@@ -51,7 +51,8 @@ vars.instructions.StartScreen = ['For each trial, you will experience thermal st
     'as instructed by the experimenter.\n\n' ...
     'When you are ready, press and key to begin.'];
 
-vars.instructions.StartVas = 'When instructed by the experimenter, press a key to start rating';
+vars.instructions.StartVas = ['When instructed by the experimenter, press a key to start rating.\n\n' ...
+    'Once done, press SPACE to move to the next scale.'];
 
 vas.instructions.Calib = ['At this stage, you simply need to rate how the stimulus is BURNING.\n\n' ...
     'Please be honest, and provide any feedback about your experience to the experimenter.'];
