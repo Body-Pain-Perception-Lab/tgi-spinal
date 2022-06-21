@@ -42,7 +42,7 @@ estBetaParams <- function(mu, var) {
 }
 
 # setting working directory
-datPath <- '/home/alexm/sTGI/'
+datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw'
 knitr::opts_knit$set(root.dir = datPath)
 ```
 
@@ -72,7 +72,7 @@ df_VAS <- df_VAS %>%
                                     "VASburn" = "burn")))
 
 # to run zero inflated regressions need to make sure no values = 100, as cannot model them, so simply minus a very small fraction from those values
-df_VAS$beta <- ifelse(df_VAS$rating==100, df_VAS$beta-0.0001, df_VAS$beta <- df_VAS$rating)
+df_VAS$beta <- ifelse(df_VAS$rating==100, df_VAS$rating-0.0001, df_VAS$rating)
 
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
 df_VAS$beta <- df_VAS$beta/100
@@ -156,10 +156,10 @@ TGIb_zero <- df_VAS %>%
 # Proportion zero function
 Replaces proportion of data with zero, based on proportions for each condition calculated from pilot data - used in the simulation
 ```{r}
-set.seed(1)
+set.seed(326) #is this needed?
 prop_zero <- function(x, vas = c('cold','warm','burn')) {
   x2 <- data.frame()
-  # randomly generate two numbers around a normal distribution of 0, with a standard deviation of .03
+  # randomly generate two numbers around a normal distribution of 0, with a standard deviation of .05
   r <- rnorm(2, mean=0, sd=.05)
   if (vas[1] == 'cold'){
     x1 <- x %>%  filter(quality == 'cold')
