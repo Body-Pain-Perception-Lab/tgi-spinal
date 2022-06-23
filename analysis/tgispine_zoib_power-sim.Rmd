@@ -501,7 +501,7 @@ sc <- aggregate(rating~id*stimuli, mean, data = df50)
 df50$quality <- factor(df50$quality, 
                              levels = c("cold", "warm", "burn"))
 ggplot2::ggplot(data = df50) +
-  geom_histogram(aes(rating, fill = stimuli), alpha = .5, binwidth = .05) +
+  geom_histogram(aes(rating, fill = stimuli), alpha = .5, binwidth = .05, position = "identity") +
   facet_wrap(~quality) +
   theme_classic()
 ```
@@ -532,7 +532,7 @@ mb.assump <- simulateResiduals(mb, n = 1000)
 plot(mb.assump)
 ```
 
-## SIMULATIONS ##
+## SIMULATIONS
 # Run through n = 1000 simulations of the pilot data, and extract p-value for the smallest effect (cold_location) of each model
 # Extract the power from each model - first cold
 ```{r}
