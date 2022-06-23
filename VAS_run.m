@@ -2,7 +2,7 @@
 %% A.G. Mitchell - 25.02.2022
 % Developed from code by Camila Deolindo & Francesca Fardo
 
-% Last edit - 22.04.22
+% Last edit - 23.06.22
 
 % Helpers required: 
 % VAS_loadParams.m; getVasRatings.m; SetupRand.m; ptbConfig.m; 
@@ -16,6 +16,7 @@ clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
 vars.control.devFlag  = 1; 
+vars.control.language = 2;  %1 for English 2 for Danish
 
 VAS_loadParams;
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)

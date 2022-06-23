@@ -5,13 +5,13 @@
 % Last edit: 17/03/2022
 
 %% Key flags
-                                                 
+
 vars.control.inputDevice =  2;   % Response method for button presses 1 - mouse, 2 - keyboard 
 vars.control.fixedTiming = 0; %add if timing of all trials should be same length, regardless of resp
 vars.control.audio = 1; %is audio input required? 1 - yes, 0 - no
 
 %% Paths
-vars.filename.path = "/Users/au706616/Documents/Experiments/SPINALTGI/"; % this should change depending on computer used
+vars.filename.path = "C:\Users\Jespe\OneDrive\Skrivebord\spinalTGI\SpinalTGI-main"; % this should change depending on computer used
 
 %% Task parameters
 
@@ -39,42 +39,11 @@ vars.task.randomise = readtable('counterbalancing.csv');
 
 %% Instructions
 vars.instructions.textSize = 28;
-
-vars.instructions.StartScreen = ['For each trial, you will experience thermal stimulation on your skin.\n\n' ...
-    'At the beginning of the trial, please rate the most intense burning sensation you are experiencing from\n' ...
-    'either probe A or B at the beginning of stimulation on a scale of 0 - 100.\n\n' ...
-    'After this you will then be asked how much probe A or B\n' ...
-    'is BURNING, feels WARM or feels COLD on a scale of 0 - 100.\n\n' ...
-    '0 represents no burning/warm/cold sensation, and 100 an extreme burning/warm/cold sensation.\n'...
-    'Please use the entire length of the scale and rate 0 if you experience none of the associated sensation.\n\n'...
-    'It is important that you rate the sensation you are experiencing AT THE MOMENT coming from ONE probe\n'...
-    'as instructed by the experimenter.\n\n' ...
-    'When you are ready, press and key to begin.'];
-
-vars.instructions.StartVas = ['When instructed by the experimenter, press a key to start rating.\n\n' ...
-    'Once done, press SPACE to move to the next scale.'];
-
-vas.instructions.Calib = ['At this stage, you simply need to rate how the stimulus is BURNING.\n\n' ...
-    'Please be honest, and provide any feedback about your experience to the experimenter.'];
-
-vars.instructions.Question = {'At the moment, what is the strongest BURNING sensation you are feeling?',...
-                               'At the moment, how much is the stimulus BURNING?',...
-                               'At the moment, how WARM is the stimulus?',...
-                               'At the moment, how COLD is the stimulus?' }; 
-                           
-vars.instructions.QuestionCode = [1 2 3 4]; % 1 - initial burn, 2 - burning, 3 - warm, 4 - cold
-vars.instructions.whichQuestion = [1 1 1 1]; %Enable or disable question (1 = enabled) %% not sure this works, needs fixing!
-
-vars.instructions.whichKey = {'LR','UD'}; % Left/Right. Up/Down. If you are using the mouse as an input device let this entirely as LR
-      
-vars.instructions.ThermodeSwitch = 2:vars.task.NTrialsChange:(vars.task.NBlocksTotal*16); %When to ask participant to change thermode position (starting from 2)
-vars.instructions.Thermode = 'Please wait whilst we change the location of the thermode. Press a key when done.';
-
-vars.instructions.ConfEndPoints = {'Not at all', 'Extreme'};    
-%% Waiting during stimulation
-vars.waitStim.text = 'When the countdown ends, please rate your experience. Press SPACE when done.';
-vars.waitStim.secs = 10; %the number of seconds you want to stimulate TGI for
-vars.waitStim.textSize = 65;
+if vars.control.language == 1
+    English_instructions;
+elseif vars.control.language == 2
+    Danish_instructions;
+end
 
 %% Audio parameters - for ptb audio
 if vars.control.audio
