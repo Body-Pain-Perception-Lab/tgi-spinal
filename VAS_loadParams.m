@@ -11,7 +11,7 @@ vars.control.fixedTiming = 0; %add if timing of all trials should be same length
 vars.control.audio = 1; %is audio input required? 1 - yes, 0 - no
 
 %% Paths
-vars.filename.path = "C:\Users\Jespe\OneDrive\Skrivebord\spinalTGI\SpinalTGI-main"; % this should change depending on computer used
+vars.filename.path = "/Users/au706616/Documents/Experiments/SPINALTGI/"; % this should change depending on computer used
 
 %% Task parameters
 
@@ -39,6 +39,8 @@ vars.task.randomise = readtable('counterbalancing.csv');
 
 %% Instructions
 vars.instructions.textSize = 28;
+vars.waitStim.secs = 10;
+
 if vars.control.language == 1
     English_instructions;
 elseif vars.control.language == 2

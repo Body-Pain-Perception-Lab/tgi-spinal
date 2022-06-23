@@ -33,7 +33,6 @@ vars.instructions.ThermodeSwitch = 2:vars.task.NTrialsChange:(vars.task.NBlocksT
 vars.instructions.Thermode = 'Please wait whilst we change the location of the thermode. Press a key when done.';
 
 vars.instructions.ConfEndPoints = {'Not at all', 'Extreme'};    
-%% Waiting during stimulation
+
 vars.waitStim.text = 'When the countdown ends, please rate your experience. Press SPACE when done.';
-vars.waitStim.secs = 10; %the number of seconds you want to stimulate TGI for
-vars.waitStim.textSize = 65;
+
