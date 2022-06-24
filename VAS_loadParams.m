@@ -6,6 +6,7 @@
 
 %% Key flags
 
+vars.control.language = 2;  %1 for English 2 for Danish
 vars.control.inputDevice =  2;   % Response method for button presses 1 - mouse, 2 - keyboard 
 vars.control.fixedTiming = 0; %add if timing of all trials should be same length, regardless of resp
 vars.control.audio = 1; %is audio input required? 1 - yes, 0 - no

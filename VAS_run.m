@@ -17,7 +17,6 @@ addpath helperFunctions % getting helper functions to path, just incase they are
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
 vars.control.devFlag  = 1; 
-vars.control.language = 2;  %1 for English 2 for Danish
 % load other relevant parameters
 VAS_loadParams;
 
