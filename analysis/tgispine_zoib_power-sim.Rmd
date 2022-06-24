@@ -501,7 +501,7 @@ sc <- aggregate(rating~id*stimuli, mean, data = df50)
 df50$quality <- factor(df50$quality, 
                              levels = c("cold", "warm", "burn"))
 ggplot2::ggplot(data = df50) +
-  geom_histogram(aes(rating, fill = stimuli), alpha = .5, binwidth = .05, position = "identity") +
+  geom_histogram(aes(rating, fill = stimuli), alpha = .5, binwidth = .05) +
   facet_wrap(~quality) +
   theme_classic()
 ```
@@ -532,7 +532,7 @@ mb.assump <- simulateResiduals(mb, n = 1000)
 plot(mb.assump)
 ```
 
-## SIMULATIONS
+## SIMULATIONS ##
 # Run through n = 1000 simulations of the pilot data, and extract p-value for the smallest effect (cold_location) of each model
 # Extract the power from each model - first cold
 ```{r}
@@ -542,6 +542,7 @@ nSims <- 1000
 n <- 32 # number of participants to simulate
 po_c <- data.frame()
 po_w <- data.frame()
+po_b <- data.frame()
 for (i in 1:nSims){
   # creating individual data-frames from simulated data
   df_sim <- data.frame()
@@ -571,6 +572,13 @@ for (i in 1:nSims){
   # extracting the p-value and effect size
   tmp1 <- c(m2$coefficients$cond[4,4], m2$coefficients$cond[4,1])
   po_w <- rbind(po_w,tmp1)
+  
+  # then run the burn model based on simulated data
+  m <- model(df_sim, 'burn')
+  m1 <- summary(m)
+  # extracting the p-value and effect size of cold location (our effect of interest)
+  tmp <- c(m1$coefficients$cond[4,4], m1$coefficients$cond[4,1])
+  po_b <- rbind(po_b,tmp)
 }
 
 # first get cold power
@@ -596,6 +604,18 @@ power_w <- sum(po_w$sig)/length(po_w$sig) # calculating power
 
 write.csv(po_w, 'simulation_model_warm.csv', row.names = FALSE)
 print(paste0('Warm power: ', round(power_w,2)))
+
+# then for burn
+# some renaming
+names(po_b)[1] <- 'pval'
+names(po_b)[2] <- 'eff'
+po_b$sig <- as.numeric(po_b$pval < .05) #is significant
+po_b <- po_b[!is.na(po_b$sig) ,] #removing any NAs (models that did not converge) from the data frame
+
+power_b <- sum(po_b$sig)/length(po_b$sig) # calculating power
+
+write.csv(po_b, 'simulation_model_warm.csv', row.names = FALSE)
+print(paste0('Burn power: ', round(power_b,2)))
 ```
 
 ## PLOTTING - plot simulated data (d50 from earlier)
