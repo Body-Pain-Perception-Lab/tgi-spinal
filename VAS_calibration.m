@@ -15,10 +15,11 @@
 clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 0; 
+vars.control.devFlag  = 1; 
 
+addpath helperFunctions 
 VAS_loadParams;
-addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
+% getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
 % path to save data to - should be changed depending on laptop (VAS_loadParams.m)
 datPath = vars.filename.path;
 runPath = pwd;
@@ -106,9 +107,12 @@ for test_idx = 1:4 % loop thorugh the number of calib 'tests' you do (atm, 2 on 
     
         results.trialInfo(trial_idx, 1) = trial_idx;  
     
-        % break the loop if VAS rating is above 10, then participant is
+        % break the loop if VAS rating is above 15, then participant is
         % experiencing TGI
         if results.vasResponse(trial_idx, initial_question) > 15
+            % Play audio to signify that the participant has rated above 15
+            myBeep = MakeBeep(500, vars.audio.beepLength, vars.audio.sampRate);
+            playAudio(vars,myBeep)
             break
         end
     end     

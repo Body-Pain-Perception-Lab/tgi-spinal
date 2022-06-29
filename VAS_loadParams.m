@@ -6,7 +6,7 @@
 
 %% Key flags
 
-vars.control.language = 2;  %1 for English 2 for Danish
+vars.control.language = 1;  %1 for English 2 for Danish
 vars.control.inputDevice =  2;   % Response method for button presses 1 - mouse, 2 - keyboard 
 vars.control.fixedTiming = 0; %add if timing of all trials should be same length, regardless of resp
 vars.control.audio = 1; %is audio input required? 1 - yes, 0 - no
@@ -23,7 +23,7 @@ vars.ViewDist = 56;
 vars.task.NTrialReps         = 3; %number of repeat trials per condition (i.e. thermode in right place)
 vars.task.NBlocksTotal       = 2; %Total number of blocks per pseudorandom procedure (n x 16 trials)
 vars.task.NTrialsChange      = 3; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
-vars.task.CalibReps          = 15; % set to the max number of trials required to calibrate temperature for TGI, atm this is a guess
+vars.task.CalibReps          = 20; % set to the max number of trials required to calibrate temperature for TGI, atm this is a guess
 
 %Times
 %vars.task.jitter             = randInRange(1,3,[1,vars.task.NTrialsTotal]); % time between the beginning of the trial and the beginning of the stimulation
@@ -39,8 +39,9 @@ vars.task.device = 'keyboard';
 vars.task.randomise = readtable('counterbalancing.csv'); 
 
 %% Instructions
-vars.instructions.textSize = 28;
+vars.instructions.textSize = 32;
 vars.waitStim.secs = 10;
+vars.waitStim.textSize = 40;
 
 if vars.control.language == 1
     English_instructions;
