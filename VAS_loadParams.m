@@ -6,7 +6,7 @@
 
 %% Key flags
 
-vars.control.language = 1;  %1 for English 2 for Danish
+vars.control.language = 2;  %1 for English 2 for Danish
 vars.control.inputDevice =  2;   % Response method for button presses 1 - mouse, 2 - keyboard 
 vars.control.fixedTiming = 0; %add if timing of all trials should be same length, regardless of resp
 vars.control.audio = 1; %is audio input required? 1 - yes, 0 - no
@@ -23,6 +23,7 @@ vars.ViewDist = 56;
 vars.task.NTrialReps         = 3; %number of repeat trials per condition (i.e. thermode in right place)
 vars.task.NBlocksTotal       = 2; %Total number of blocks per pseudorandom procedure (n x 16 trials)
 vars.task.NTrialsChange      = 3; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
+vars.task.practiceReps       = 2; % number of repetitions of three ratings (cold/warm/burning) during practice trials
 vars.task.CalibReps          = 20; % set to the max number of trials required to calibrate temperature for TGI, atm this is a guess
 
 %Times
