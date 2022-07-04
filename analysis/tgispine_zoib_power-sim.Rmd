@@ -157,88 +157,63 @@ TGIb_zero <- df_VAS %>%
 Replaces proportion of data with zero, based on proportions for each condition calculated from pilot data - used in the simulation
 ```{r}
 set.seed(326) #is this needed?
-prop_zero <- function(x, vas = c('cold','warm','burn')) {
-  x2 <- data.frame()
-  # randomly generate two numbers around a normal distribution of 0, with a standard deviation of .05
-  r <- rnorm(2, mean=0, sd=.05)
-  if (vas[1] == 'cold'){
-    x1 <- x %>%  filter(quality == 'cold')
-    # add this number to the proportion of zeros calculated for each quality & stimuli from pilot data, for each participant
-    zp_cnt <- CNTc_zero$prop[2] + r[1] 
-    zp_tgi <- TGIc_zero$prop[2] + r[2]
-    # adding if loop to make sure zp does not reach 0
-    if (isTRUE(zp_cnt < 0)){
-      zp_cnt = 0
-    }
-    if (isTRUE(zp_tgi < 0)){
-      zp_tgi = 0
-    }
-    # turn zp into the proportion of total columns
-    zp_cnt <- round(zp_cnt*nrow(filter(x1, stimuli == 'non-tgi')))
-    zp_tgi <- round(zp_tgi*nrow(filter(x1, stimuli == 'tgi')))
-    
-    # isolate TGI and non-TGI
-    x_cnt <- x1 %>% filter(stimuli == 'non-tgi')
-    x_tgi <- x1 %>% filter(stimuli == 'tgi')
-    # finally, replace a proportion of the data with zeros! 
-    x_cnt$rating[sample(nrow(x_cnt),zp_cnt)] <- 0
-    x_tgi$rating[sample(nrow(x_tgi),zp_tgi)] <- 0
-    
-    #compile both data-sets again
-    x2 <- rbind(x_cnt, x_tgi)
-    
-  } else if (vas[1] == 'warm'){
-    x1 <- x %>%  filter(quality == 'warm')
-    # add this number to the proportion of zeros calculated for each quality & stimuli from pilot data, for each       participant
-    zp_cnt <- CNTw_zero$prop[2] + r[1] 
-    zp_tgi <- TGIw_zero$prop[2] + r[2]
-    # adding if loop to make sure zp does not reach 0
-    if (isTRUE(zp_cnt < 0)){
-      zp_cnt = 0
-    }
-    if (isTRUE(zp_tgi < 0)){
-      zp_tgi = 0
-    }
-    # turn zp into the proportion of total columns
-    zp_cnt <- round(zp_cnt*nrow(filter(x1, stimuli == 'non-tgi')))
-    zp_tgi <- round(zp_tgi*nrow(filter(x1, stimuli == 'tgi')))
-    # isolate TGI and non-TGI
-    x_cnt <- x1 %>% filter(stimuli == 'non-tgi')
-    x_tgi <- x1 %>% filter(stimuli == 'tgi')
-    # finally, replace a proportion of the data with zeros! 
-    x_cnt$rating[sample(nrow(x_cnt),zp_cnt)] <- 0
-    x_tgi$rating[sample(nrow(x_tgi),zp_tgi)] <- 0
-    
-    #compile both data-sets again
-    x2 <- rbind(x_cnt, x_tgi)
-    
-  } else if (vas[1] == 'burn') {
-    x1 <- x %>%  filter(quality == 'burn')
-    # add this number to the proportion of zeros calculated for each quality & stimuli from pilot data, for each participant
-    zp_cnt <- CNTb_zero$prop[2] + r[1] 
-    zp_tgi <- TGIb_zero$prop[2] + r[2]
-    # adding if loop to make sure zp does not reach 0
-    if (isTRUE(zp_cnt < 0)){
-      zp_cnt = 0
-    }
-    if (isTRUE(zp_tgi < 0)){
-      zp_tgi = 0
-    }
-    # turn zp into the proportion of total columns
-    zp_cnt <- round(zp_cnt*nrow(filter(x1, stimuli == 'non-tgi')))
-    zp_tgi <- round(zp_tgi*nrow(filter(x1, stimuli == 'tgi')))
-    
-    # isolate TGI and non-TGI
-    x_cnt <- x1 %>% filter(stimuli == 'non-tgi')
-    x_tgi <- x1 %>% filter(stimuli == 'tgi')
-    # finally, replace a proportion of the data with zeros! 
-    x_cnt$rating[sample(nrow(x_cnt),zp_cnt)] <- 0
-    x_tgi$rating[sample(nrow(x_tgi),zp_tgi)] <- 0
-    
-    #compile both data-sets again
-    x2 <- rbind(x_cnt, x_tgi)
+prop_zero <- function(x, vas) {
+  # check if a correct vas parameter is provided
+  if (!vas %in% c("cold", "warm", "burn")) {
+    stop("Only cold / warm / burn parameters allowed", .call = TRUE)
   }
-  return(x2)
+  if (length(vas) > 1) {
+    stop("VAS parameter should have length = 1", .call = TRUE)
+  }
+
+  # sellect subset of x
+  x1 <- x %>%  filter(quality == vas)
+
+  # sellect dfs with info about zero proportions
+  # switch function allows to select a value based on a condition
+  # a statement specified as the first parameter may be tested for many conditions # nolint
+  # conditions are specified as the next arguments
+  # returned value for a contition is given after = sign
+    df_CNT <- switch(vas,
+    cold = CNTc_zero,
+    warm = CNTw_zero,
+    burn = CNTb_zero)
+    df_TGI <- switch(vas,
+    cold = TGIc_zero,
+    warm = TGIw_zero,
+    burn = TGIb_zero)
+
+    # get info abut zero proportion and add some variablity
+    # first randomly generate two numbers around a normal distribution of 0,
+    # with a standard deviation of .05
+    r <- rnorm(2, mean=0, sd=.05)
+    # then retrieve the relevant data and add generated random number
+    zp_cnt <- df_CNT$prop[2] + r[1]
+    zp_tgi <- df_TGI$prop[2] + r[2]
+    # make sure that zp does not reach 0
+    if (isTRUE(zp_cnt < 0)) {
+      zp_cnt = 0
+    }
+    if (isTRUE(zp_tgi < 0)) {
+      zp_tgi = 0
+    }
+
+    # isolate TGI and non-TGI
+    x_cnt <- x1 %>% filter(stimuli == "non-tgi")
+    x_tgi <- x1 %>% filter(stimuli == "tgi")
+
+    # turn zp into the number of total columns
+    zp_cnt <- round(zp_cnt * nrow(x_cnt))
+    zp_tgi <- round(zp_tgi * nrow(x_tgi))
+
+    # finally, replace a proportion of the data with zeros!
+    x_cnt$rating[sample(nrow(x_cnt), zp_cnt)] <- 0
+    x_tgi$rating[sample(nrow(x_tgi), zp_tgi)] <- 0
+
+    #compile both data-sets again
+    x2 <- rbind(x_cnt, x_tgi)
+
+    return(x2)
 }
 ```
 
@@ -532,7 +507,7 @@ mb.assump <- simulateResiduals(mb, n = 1000)
 plot(mb.assump)
 ```
 
-## SIMULATIONS ##
+## SIMULATIONS
 # Run through n = 1000 simulations of the pilot data, and extract p-value for the smallest effect (cold_location) of each model
 # Extract the power from each model - first cold
 ```{r}
