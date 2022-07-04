@@ -35,7 +35,7 @@ scr.ViewDist = vars.ViewDist; % viewing distance
 
 %% Prepare to start
 %  try
-% Set text size, dependent on screen resolution
+% Set text size, dependent on screen reso  luti on  
 if any(logical(scr.winRect(:)>3000))       % 4K resolution
     scr.TextSize = 65;
 else
