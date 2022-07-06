@@ -115,11 +115,9 @@ count_idx = 0;
             playAudio(vars,myBeep)
 
             count_idx = count_idx + 1;
-        else 
-            % resetting count idx back to 0 if participants rate
-            % vas.response > 15
-            count_idx = 0;
         end
+        if results.vasResponse(trial_idx, initial_question) > 15
+            
         % breaking the loop if participants experience burning > 15 4 times
         % in a row
         if count_idx > 3
