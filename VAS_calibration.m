@@ -15,7 +15,7 @@
 clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 1; 
+vars.control.devFlag  = 0; 
 
 addpath helperFunctions 
 VAS_loadParams;
@@ -123,6 +123,9 @@ count_idx = 0;
         % breaking the loop if participants experience burning > 15 4 times
         % in a row
         if count_idx > 3
+            % Play audio to signify that the participant has rated above 15
+            myBeep = MakeBeep(300, vars.audio.beepLength, vars.audio.sampRate);
+            playAudio(vars,myBeep)
             break
         end
     end     

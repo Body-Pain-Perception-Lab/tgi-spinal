@@ -38,7 +38,8 @@ vars.instructions.Thermode = 'Vent venligst, imens vi rykker rundt paa apparatet
 
 vars.instructions.ConfEndPoints = {'Overhovedet ikke', 'Ekstremt'};    
 
-vars.waitStim.text = 'Naar nedtaellingen slutter, bedes du vurdere din oplevelse/følelse. Tryk MELLEMRUM, naar det er gjort.';
+vars.waitStim.text = ['Naar nedtaellingen slutter, bedes du vurdere din oplevelse/følelse.\n' ...
+    'Tryk MELLEMRUM, naar det er gjort.'];
 
 vars.instructions.PracticeStart = ['Under eksperimentet kommer du til at benytte en skala fra 0 - 100\n' ...
     'til at vurdere de fornemmelser du opfatter.\n\n' ...
