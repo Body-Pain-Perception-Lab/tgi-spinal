@@ -16,7 +16,7 @@ clear all % clearing all old data
 addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 1; 
+vars.control.devFlag  = 0; 
 % load other relevant parameters
 VAS_loadParams;
 
@@ -33,8 +33,8 @@ if vars.control.devFlag == 0 %only run if not debugging
     % task is either TGI or control, participant number is a string of 4 digits
     % (e.g. 0001), counterbalance procedure is index 1,2,3 or 4
     vars.filename.ID = string(inputdlg({'Participant number:','Conterbalance procedure:','Task:',...
-        'Cold Temp (ºC):', 'Warm/Neutral Temp (ºC):'},...
-        'Participant information', [1 30; 1 30; 1 10; 1 30; 1 30]));
+        'Session:', 'Cold Temp (ºC):', 'Warm/Neutral Temp (ºC):'},...
+        'Participant information', [1 30; 1 30; 1 10; 1 30; 1 30; 1 30]));
     
     % make participant folder in correct path
     ppPath = fullfile(datPath, vars.filename.ID(1));
@@ -45,10 +45,14 @@ if vars.control.devFlag == 0 %only run if not debugging
     vars.filename.date = datestr(now, formatout);
     
     % saving file name with participantID_pseudorandomProcedure_Date
-    matName = sprintf('%s_%s_%s_%s_VAS_spinalTGI.mat', vars.filename.ID(1:3), vars.filename.date);
-    csv_ratName = sprintf('%s_%s_%s_%s_VASResponse_spinalTGI.csv', vars.filename.ID(1:3), vars.filename.date);
-    csv_respName = sprintf('%s_%s_%s_%s_VASRespT_spinalTGI.csv', vars.filename.ID(1:3), vars.filename.date);
-    csv_trialName = sprintf('%s_%s_%s_%s_VAStrials_spinalTGI.csv', vars.filename.ID(1:3), vars.filename.date);
+    matName = sprintf('sub%s_ses%s_task%s_VAS_%s.mat', ...
+        vars.filename.ID(1), vars.filename.ID(4), vars.filename.ID(3), vars.filename.date);
+    csv_ratName = sprintf('sub%s_ses%s_task%s_VASrating_%s.csv', ...
+        vars.filename.ID(1), vars.filename.ID(4), vars.filename.ID(3), vars.filename.date);
+    csv_respName = sprintf('sub%s_ses%s_task%s_VASresptime_%s.csv', ...
+        vars.filename.ID(1), vars.filename.ID(4), vars.filename.ID(3), vars.filename.date);
+    csv_trialName = sprintf('sub%s_ses%s_task%s_VAStrials_%s.csv', ...
+        vars.filename.ID(1), vars.filename.ID(4), vars.filename.ID(3), vars.filename.date);
 end
 %% Psychtoolbox settings
 PsychDefaultSetup(2);
