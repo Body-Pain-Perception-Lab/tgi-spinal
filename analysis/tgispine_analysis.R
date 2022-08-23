@@ -24,26 +24,26 @@ df_RT <- read.csv(text='RTinit,RTburn,RTwarm,RTcold,trial_n,ID,manipulation')
 # trial files
 for (file in filenames){
   # trial files
-  if (isTRUE(substr(basename(file), 22, 22)=="t")){
+  if (isTRUE(substr(basename(file), 24, 24)=="t")){
     tmp <- read.csv(file)
-    tmp$ID <- substr(basename(file), 1, 4)
-    tmp$manipulation <- substr(basename(file), 8, 10)
+    tmp$ID <- substr(basename(file), 4, 6)
+    tmp$manipulation <- substr(basename(file), 17, 19)
     df_trials <- rbind(df_trials, tmp)
   }
   # VAS response files
-  if (isTRUE(substr(basename(file), 22, 29)=="Response")){
+  if (isTRUE(substr(basename(file), 24, 29)=="rating")){
     tmp <- read.csv(file, header = FALSE)
     colnames(tmp) <- c('VASinit','VASburn','VASwarm','VAScold','trial_n')
-    tmp$ID <- substr(basename(file), 1, 4)
-    tmp$manipulation <- substr(basename(file), 8, 10)
+    tmp$ID <- substr(basename(file), 4, 6)
+    tmp$manipulation <- substr(basename(file), 17, 19)
     df_VAS <- rbind(df_VAS, tmp)
   }
   # VAS RT files
-  if (isTRUE(substr(basename(file), 22, 26)=="RespT")){
+  if (isTRUE(substr(basename(file), 24, 29)=="respti")){
     tmp <- read.csv(file, header = FALSE)
     colnames(tmp) <- c('RTinit','RTburn','RTwarm','RTcold','trial_n')
-    tmp$ID <- substr(basename(file), 1, 4)
-    tmp$manipulation <- substr(basename(file), 8, 10)
+    tmp$ID <- substr(basename(file), 4, 6)
+    tmp$manipulation <- substr(basename(file), 17, 19)
     df_RT <- rbind(df_RT, tmp)
   }
 }
@@ -59,13 +59,11 @@ df_res <- df_res %>%
 # change levels 
 df_res$cold_probe <- factor(df_res$cold_probe, 
                             levels = c("caudal", "rostral", "distal", "proximal"))
-# recode ID
-df_res$ID <- factor(df_res$ID, labels = c(
-  '1','2','3','4','5','6'))
 
-## normalise VAS ratings for each participant
-# just include valid trials, trials for ID = 1 are not valid above 32
-test <- df_res[!(df_res$ID == '1' & df_res$trial_n > 32) ,]
+## Calculating median burning rating for all participants
+# TGI trials only
+
+
 
 ## normalising the data
 # create frame for new dataframe
@@ -230,9 +228,9 @@ ggplot(df_plot) +
   geom_density(aes(norm_rating, fill = manipulation)) +
   facet_wrap(~VAS)
 # get mean VAS responses for each condition
-VASresponse <- aggregate(norm_rating~ID*VAS*manipulation*condition*cold_probe, 
+VASresponse <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe, 
                          median, data = df_plot)
-VASSD <- aggregate(norm_rating~ID*VAS*manipulation*condition*cold_probe, 
+VASSD <- aggregate(rating~ID*VAS*manipulation*condition*cold_probe, 
                    sd, data = df_plot)
 names(VASSD)[6] <- 'std'
 
@@ -249,19 +247,19 @@ VASresponse$conditionN[VASresponse$condition == "across" &
                          VASresponse$cold_probe == "rostral"] <- 4
 
 # H1: the effect of dermatome
-VAS_H1 <- aggregate(norm_rating~ID*VAS*manipulation*condition, 
+VAS_H1 <- aggregate(rating~ID*VAS*manipulation*condition, 
                     mean, data = VASresponse)
-VAS_H1_SD <- aggregate(norm_rating~ID*VAS*manipulation*condition, 
+VAS_H1_SD <- aggregate(rating~ID*VAS*manipulation*condition, 
                        sd, data = VASresponse)
 names(VAS_H1_SD)[5] <- 'SD'
 VAS_H1 <- merge(VAS_H1, VAS_H1_SD)
 # summary stats for participants
 # this is the data we will use to inform the simulation - save
-SUMstats <- summarySEwithin(data = VASresponse, measurevar = 'norm_rating', 
+SUMstats <- summarySEwithin(data = VASresponse, measurevar = 'rating', 
                             withinvars = c('manipulation','VAS','condition','cold_probe'), 
                             na.rm = TRUE, conf.interval = .95)
 # get min and max median values
-VASrange <- aggregate(norm_rating~manipulation*VAS*condition*cold_probe, range,
+VASrange <- aggregate(rating~manipulation*VAS*condition*cold_probe, range,
                    data = VASresponse)
 names(VASrange)[5] <- 'norm_range'
 
@@ -279,7 +277,7 @@ VASresponse$conditionN <- factor(VASresponse$conditionN,
 
 # cold ratings
 COLD <- ggplot(VASresponse[VASresponse$VAS == 'cold' ,], 
-               aes(conditionN, norm_rating, group = ID, colour = manipulation)) +
+               aes(conditionN, rating, group = ID, colour = manipulation)) +
   # first TGI
   geom_point(data = VASresponse %>% 
                filter(VAS == "cold", manipulation == 'TGI'),
@@ -295,14 +293,14 @@ COLD <- ggplot(VASresponse[VASresponse$VAS == 'cold' ,],
               filter(VAS == "cold", manipulation == 'CNT'),
             aes(group = ID), position = position_dodge(.3)) +
   scale_color_manual(values = c(blues[3],blues[6])) +
-  lims(y = c(0,1)) +
+  lims(y = c(0,100)) +
   labs(title = 'Cold perception', x = '', y = 'Cold ratings') +
   theme_classic() + 
   theme(legend.position = 'none')
 
 # warm ratings
 WARM <- ggplot(VASresponse[VASresponse$VAS == 'warm' ,], 
-               aes(conditionN, norm_rating, group = ID, colour = manipulation)) +
+               aes(conditionN, rating, group = ID, colour = manipulation)) +
   # first TGI
   geom_point(data = VASresponse %>% 
                filter(VAS == "warm", manipulation == 'TGI'),
@@ -318,14 +316,14 @@ WARM <- ggplot(VASresponse[VASresponse$VAS == 'warm' ,],
               filter(VAS == "warm", manipulation == 'CNT'),
             aes(group = ID), position = position_dodge(.3)) +
   scale_color_manual(values = c(orans[3],orans[6])) +
-  lims(y = c(0,1)) +
+  lims(y = c(0,100)) +
   labs(title = 'Warm perception', x = '', y = 'Warm ratings') +
   theme_classic() + 
   theme(legend.position = 'none')
 
 # burn ratings
 BURN <- ggplot(VASresponse[VASresponse$VAS == 'burn' ,], 
-               aes(conditionN, norm_rating, group = ID, colour = manipulation)) +
+               aes(conditionN, rating, group = ID, colour = manipulation)) +
   # first TGI
   geom_point(data = VASresponse %>% 
                filter(VAS == "burn", manipulation == 'TGI'),
@@ -342,7 +340,7 @@ BURN <- ggplot(VASresponse[VASresponse$VAS == 'burn' ,],
             aes(group = ID), position = position_dodge(.3)) +
   geom_point(size = 2.5, position = position_dodge(.3)) +
   scale_color_manual(values = c(purps[4],purps[7])) +
-  lims(y = c(0,1)) +
+  lims(y = c(0,100)) +
   labs(title = 'Burn perception', x = '', y = 'Burn ratings') +
   theme_classic() + 
   theme(legend.position = 'none')
@@ -359,7 +357,7 @@ ggsave('H1plot.png', H1, device = NULL, path = datPath, width = 9, height = 4.5)
 VAS_H2 <- VASresponse[VASresponse$condition == 'within' ,]
 
 # plotting - TGI
-H2 <- ggplot(VAS_H2, aes(cold_probe, norm_rating, group = ID, colour = VAS)) +
+H2 <- ggplot(VAS_H2, aes(cold_probe, rating, group = ID, colour = VAS)) +
   geom_point(data = VAS_H2 %>% 
                filter(manipulation == 'TGI'), size = 2.5, position = position_dodge(.3)) +
   geom_line(data = VAS_H2 %>% 
