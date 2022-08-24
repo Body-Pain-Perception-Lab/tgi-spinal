@@ -60,12 +60,38 @@ df_res <- df_res %>%
 df_res$cold_probe <- factor(df_res$cold_probe, 
                             levels = c("caudal", "rostral", "distal", "proximal"))
 
-## Calculating median burning rating for all participants
+# save new data-frame
+write.csv(df_res, 'STGI_compiled-data.csv', row.names = FALSE)
+
+##### MEDIAN BURNING #####
+# Calculate median burning rating for all participants
 # TGI trials only
+# Then flag how many are not sig > 0
+df_med <- aggregate(VASburn~ID*manipulation*cold_probe*trial_type, median, data = df_res)
+df_id <- aggregate(VASburn~ID, median, data = df_res)
+tgi <-  df_med %>% 
+  filter(manipulation == 'TGI')
+
+# identify test results where pvalue is < .05
+i = 0
+test = data.frame(matrix(nrow = 10, ncol = 3))
+colnames(test) <- c('ID','pval','responder')
+for (id in df_id$ID){
+  i = i+1
+  tmp1 <- tgi[tgi$ID == id ,]
+  test$ID[i] <- id
+  test$pval[i] <- (t.test(tmp1$VASburn, mu = 0, alternative = 'greater'))$p.value
+  test$responder[i] <- isTRUE(test$pval[i] < .05)
+}
+  
+# count the number of false responses
+nNONRESP <- sum(test$responder == FALSE)
+# print
+print(paste0('Non responders: ', nNONRESP, '/', length(test$ID)))
 
 
-
-## normalising the data
+## normalising the data - INCLUDE??
+# if so, need to find another way of doing this
 # create frame for new dataframe
 df_norm <- data.frame(matrix(ncol = 23, nrow = 0))
 for (id_idx in 1:nlevels(df_res$ID)) { #index through each participant
@@ -78,13 +104,10 @@ for (id_idx in 1:nlevels(df_res$ID)) { #index through each participant
   tmp$norm_burn <- tmp$VASburn/max_burn
   tmp$norm_warm <- tmp$VASwarm/max_warm
   tmp$norm_cold <- tmp$VAScold/max_cold
-    
+  
   # compile all into one data-frame
   df_norm <- rbind(df_norm, tmp)
 }
-
-# save new data-frame
-write.csv(df_norm, 'STGI_compiled-data.csv', row.names = FALSE)
 
 ##### Individual participant plots ######
 # first need to make app data frame, isolate specific VAS types then bind by column
