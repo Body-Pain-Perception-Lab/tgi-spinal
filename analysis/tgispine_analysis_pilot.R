@@ -64,12 +64,16 @@ ggplot(all_dat) +
   geom_boxplot(data = all_dat %>% filter(manipulation == 'CNT'),
     aes(cold_probe, VAS, colour = quality, fill = quality)) +
   facet_wrap(~quality) +
-  scale_color_manual(values = c(blues[4],reds[4],purps[4])) +
+  scale_color_manual(values = c(blues[5],reds[5],purps[5])) +
   scale_fill_manual(values = c(blues[1],reds[1],purps[1])) +
   ylim(0,100) +
   labs(title = 'No TGI', y = 'VAS Rating', x= '') +
   theme_classic() +
-  theme(legend.position = 'none') -> nTGIplot 
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 11),
+        title = element_text(size = 12)) -> nTGIplot 
 
 ggplot(all_dat) +
   geom_boxplot(data = all_dat %>% filter(manipulation == 'TGI'),
@@ -80,13 +84,18 @@ ggplot(all_dat) +
   ylim(0,100) +
   labs(title = 'TGI', y = 'VAS Rating', x= 'Location of Cold Probe') +
   theme_classic() +
-  theme(legend.position = 'none') -> TGIplot 
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 11),
+        title = element_text(size = 12)) -> TGIplot 
 
 H1plot <- ggarrange(nTGIplot, TGIplot,
                     ncol = 1, nrow = 2)
 
 ggsave('PILOT_plot.png', H1plot, device = NULL, path = datPath,
-       width = 6, height = 10, dpi = 699)
+       width = 8, height = 8, dpi = 600)
+
    
 ##### Hypothesis 2 plotting #####
 # isolating across
