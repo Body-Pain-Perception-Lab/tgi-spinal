@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(lme4)
+#library(lme4)
 library(simr)
 library(broom)
 library(brms)
@@ -89,7 +89,7 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + 
 model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
                                 (1|ID),
                       family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
+                      ziformula = ~1+manipulation)
 # model summaries
 summary(model.cold)
 summary(model.warm)

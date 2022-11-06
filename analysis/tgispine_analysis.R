@@ -51,6 +51,11 @@ for (file in filenames){
 # merge all files
 df_res <- merge(df_trials, df_VAS, by = c('ID','trial_n','manipulation'))
 df_res <- merge(df_res, df_RT, by = c('ID','trial_n','manipulation'))
+
+# remove participant 019, stopped testing halfway
+df_res <- df_res[df_res$ID != '019' ,]
+
+
 # recode conditions
 df_res <- df_res %>%
   mutate(condition = recode(condition, '1' = 'within', '2' = 'across'),
@@ -71,10 +76,12 @@ df_med <- aggregate(VASburn~ID*manipulation*cold_probe*trial_type, median, data 
 df_id <- aggregate(VASburn~ID, median, data = df_res)
 tgi <-  df_med %>% 
   filter(manipulation == 'TGI')
+cnt <-  df_med %>% 
+  filter(manipulation == 'CNT')
 
 # identify test results where pvalue is < .05
 i = 0
-test = data.frame(matrix(nrow = 10, ncol = 3))
+test = data.frame(matrix(nrow = 31, ncol = 3))
 colnames(test) <- c('ID','pval','responder')
 for (id in df_id$ID){
   i = i+1
