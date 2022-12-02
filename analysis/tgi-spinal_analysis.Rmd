@@ -19,12 +19,9 @@ library(Rmisc)
 ```{r}
 # paths
 datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
-setwd(datPath)
-```
+anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Analysis/'
 
 # Extract all .csv files and compile
-```{r}
-# load in all csv files
 filenames <- dir(datPath, recursive = TRUE, full.names = FALSE, pattern = '.csv')
 # empty dataframes for data
 ## with new data trials file will have changed to include temperature coding!
@@ -32,4 +29,110 @@ df_trials <- read.csv(text='procedure,trial_type,arm,condition,dermatome,order,c
 df_VAS <- read.csv(text='VASinit,VASburn,VASwarm,VAScold,trial_n,ID,manipulation')
 df_RT <- read.csv(text='RTinit,RTburn,RTwarm,RTcold,trial_n,ID,manipulation')
 
+## Data compiling
+# trial files
+setwd(datPath)
+for (file in filenames){
+  # trial files
+  if (isTRUE(substr(basename(file), 24, 24)=="t")){
+    tmp <- read.csv(file)
+    tmp$ID <- substr(basename(file), 4, 6)
+    tmp$manipulation <- substr(basename(file), 17, 19)
+    df_trials <- rbind(df_trials, tmp)
+  }
+  # VAS response files
+  if (isTRUE(substr(basename(file), 24, 29)=="rating")){
+    tmp <- read.csv(file, header = FALSE)
+    colnames(tmp) <- c('VASinit','VASburn','VASwarm','VAScold','trial_n')
+    tmp$ID <- substr(basename(file), 4, 6)
+    tmp$manipulation <- substr(basename(file), 17, 19)
+    df_VAS <- rbind(df_VAS, tmp)
+  }
+  # VAS RT files
+  if (isTRUE(substr(basename(file), 24, 29)=="respti")){
+    tmp <- read.csv(file, header = FALSE)
+    colnames(tmp) <- c('RTinit','RTburn','RTwarm','RTcold','trial_n')
+    tmp$ID <- substr(basename(file), 4, 6)
+    tmp$manipulation <- substr(basename(file), 17, 19)
+    df_RT <- rbind(df_RT, tmp)
+  }
+}
+
+# merge all files
+df_res <- merge(df_trials, df_VAS, by = c('ID','trial_n','manipulation'))
+df_res <- merge(df_res, df_RT, by = c('ID','trial_n','manipulation'))
+
+# remove participant 019, stopped testing halfway
+df_res <- df_res[df_res$ID != '019' ,]
 ```
+
+# Data organisation
+```{r}
+# recode conditions
+df_res <- df_res %>%
+  mutate(condition = recode(condition, '1' = 'within', '2' = 'across'),
+         cold_probe = recode(cold_probe, 'C6' = 'rostral', 'T1' = 'caudal',
+                             'dist' = 'distal', 'prox' = 'proximal'))
+# change levels 
+df_res$cold_probe <- factor(df_res$cold_probe, 
+                            levels = c("caudal", "rostral", "distal", "proximal"))
+
+# save new data-frame
+fileName = paste(anaPath, 'STGI_compiled-data.csv', sep = '')
+write.csv(df_res, fileName, row.names = FALSE)
+
+# check we have 40 participants with 96 trials
+id_check <- count(df_res, 'ID')
+id_check
+```
+
+# Responder check
+Check whether participants median burning ratings for TGI is significantly above 0
+If not, flag them as a 'non-responder'
+```{r}
+# Calculate median burning rating for all participants
+# TGI trials only
+# Then flag how many are not sig > 0
+df_med <- aggregate(VASburn~ID*manipulation*cold_probe*trial_type, median, data = df_res)
+tgi <-  df_med %>% 
+  filter(manipulation == 'TGI')
+cnt <-  df_med %>% 
+  filter(manipulation == 'CNT')
+
+# identify test results where pvalue is < .05
+i = 0
+test = data.frame(matrix(nrow = 40, ncol = 3))
+colnames(test) <- c('ID','pval','responder')
+for (id in df_id$ID){
+  i = i+1
+  tmp1 <- tgi[tgi$ID == id ,]
+  test$ID[i] <- id
+  test$pval[i] <- (t.test(tmp1$VASburn, mu = 0, alternative = 'greater'))$p.value
+  test$responder[i] <- isTRUE(test$pval[i] < .05)
+}
+
+# combine responder logic with main data-frame
+test$responder <- ifelse(test$responder == TRUE, 1, 0)
+test <- test[, c(1,3)]
+df_res <- merge(df_res, test, by = 'ID')
+  
+# count the number of false responses
+nNONRESP <- sum(test$responder == FALSE)
+# print
+print(paste0('Non responders: ', nNONRESP, '/', length(test$ID)))
+```
+
+# Let's look at the data!
+```{r}
+# Reorganise data-frame 
+# pivot longer the VAS response by each quality of sensation
+# do this for both RT and VAS
+df_long <- 
+
+
+# then remove NaNs for burning
+
+# then plot :D
+```
+
+
