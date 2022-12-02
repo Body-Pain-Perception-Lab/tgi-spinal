@@ -1,0 +1,35 @@
+---
+title: "TGI Spinal Analysis Code"
+author: "A.G. Mitchell"
+date: "2022-12-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+## Loading libraries
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(ggpubr)
+library(Rmisc)
+```
+
+# Loading data
+```{r}
+# paths
+datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
+setwd(datPath)
+```
+
+# Extract all .csv files and compile
+```{r}
+# load in all csv files
+filenames <- dir(datPath, recursive = TRUE, full.names = FALSE, pattern = '.csv')
+# empty dataframes for data
+## with new data trials file will have changed to include temperature coding!
+df_trials <- read.csv(text='procedure,trial_type,arm,condition,dermatome,order,cold_probe,trial_n,coolTemp,warmTempID,manipulation')
+df_VAS <- read.csv(text='VASinit,VASburn,VASwarm,VAScold,trial_n,ID,manipulation')
+df_RT <- read.csv(text='RTinit,RTburn,RTwarm,RTcold,trial_n,ID,manipulation')
+
+```

@@ -81,7 +81,7 @@ cnt <-  df_med %>%
 
 # identify test results where pvalue is < .05
 i = 0
-test = data.frame(matrix(nrow = 31, ncol = 3))
+test = data.frame(matrix(nrow = 40, ncol = 3))
 colnames(test) <- c('ID','pval','responder')
 for (id in df_id$ID){
   i = i+1
