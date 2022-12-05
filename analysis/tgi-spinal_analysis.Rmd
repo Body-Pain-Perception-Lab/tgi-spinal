@@ -172,7 +172,7 @@ ggplot(df_long) +
 # Plot descriptives for each hypotheses
 Hypothesis 1: within vs. across dermatomes
 
-```{r}
+```{r h1}
 # calculate means
 vas_meds <- aggregate(VAS ~ quality*manipulation*condition*cold_probe*ID, 
                       median, data = all_vas)
@@ -192,7 +192,10 @@ purp <- brewer.pal(6, "Purples")
 oran <- brewer.pal(6, "Oranges")
 gren <- brewer.pal(6, "Greens")
 
+```
 
+# Hypothesis 1: plot difference across conditions of interest
+```{r h1diff}
 # then pivot wider and calculate difference
 vas_h1_diff <- vas_h1 %>% 
   pivot_wider(names_from = condition, values_from = VAS) %>% 
@@ -224,6 +227,8 @@ ggplot(data = vas_h1_diff, aes(colour = quality)) +
   theme(legend.position = 'none') -> h1_diff_plot
 
 h1_diff_plot
+ggsave('h1_difference.png', h1_diff_plot, path = anaPath, device = NULL, 
+       width = 7, height = 4.5, dpi = 1000)
 ```
 
 Hypothesis 2 a & b: relative location of warm and cold
