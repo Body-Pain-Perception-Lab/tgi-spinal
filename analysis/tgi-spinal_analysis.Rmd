@@ -209,8 +209,10 @@ ggplot(data = vas_h1, aes(colour = condition, group = ID)) +
   geom_point(data = vas_h1 %>% 
                filter(manipulation == 'CNT', condition == 'across'),
                aes(xj, VAS), position = position_nudge(.1)) +
-  scale_colour_manual(values = c(purp[6], purp[3])) +
+  scale_colour_manual(values = c(blue[6], blue[3])) +
   scale_x_continuous(breaks=c(1,2,3), labels=c("cold", "warm", "burn")) +
+  labs(title = 'Non TGI', y = 'Visual Analogue Scale 0 - 100', 
+       x = 'Sensation') +
   theme_classic() -> h1_cnt_plot
 
 ggplot(data = vas_h1, aes(colour = condition)) +
@@ -222,12 +224,24 @@ ggplot(data = vas_h1, aes(colour = condition)) +
                aes(xj, VAS), position = position_nudge(.1)) +
   scale_colour_manual(values = c(purp[6], purp[3])) +
   scale_x_continuous(breaks=c(1,2,3), labels=c("cold", "warm", "burn")) +
+  labs(title = 'TGI', y = NULL, 
+       x = 'Sensation') +
   theme_classic() -> h1_tgi_plot
 
 h1_plot <- ggarrange(h1_cnt_plot, h1_tgi_plot,
                      ncol = 2, nrow = 1,
                      common.legend = TRUE)
 h1_plot
+
+# difference between across and within 
+# first remove jitter
+vas_h1 <- vas_h1[, c(1:7)]
+# then pivot wider and calculate difference
+vas_h1_diff <- vas_h1 %>% 
+  pivot_wider(names_from = manipulation, values_from = VAS) %>% 
+  mutate(difference = TGI - CNT)
+
+# now plot the difference
 ```
 
 Hypothesis 2 a & b: relative location of warm and cold
