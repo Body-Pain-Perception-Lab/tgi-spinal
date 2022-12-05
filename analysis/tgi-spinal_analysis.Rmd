@@ -148,18 +148,31 @@ df_long <- df_long %>% filter(!is.na(VAS))
 # remove the initial trials - not important for now
 init_burn <- filter(df_long, quality == 'init')
 all_vas <- filter(df_long, quality != 'init')
+# order the labelling of quality so it is cold, warm, burn
 
+# plot distribution of data
+ggplot(all_vas) +
+  geom_density(aes(VAS, colour = manipulation)) +
+  facet_wrap(~quality, scales = "free") +
+  theme_bw()
+```
+# MAIN HYPOTHESES
+# Plot descriptives for each hypotheses
+Hypothesis 1: within vs. across dermatomes
+
+```{r}
 # calculate means
 vas_meds <- aggregate(VAS ~ quality*manipulation*cold_probe*ID, median, data = all_vas)
+vas_h1 <- aggregate(VAS)
 # then plot :D
 blue <- brewer.pal(6, "Blues")
 grey <- brewer.pal(6, "Greys")
 
 ggplot(vas_meds, aes(cold_probe, VAS, colour = manipulation, group = ID)) +
   geom_point(position = position_dodge(.2)) +
-  facet_wrap(~quality) +
+  facet_grid(~quality*manipulation) +
   scale_colour_manual(values = c(grey[3], blue[4])) +
   theme_bw()
 ```
 
-
+Hypothesis 2 a & b: relative location of warm and cold
