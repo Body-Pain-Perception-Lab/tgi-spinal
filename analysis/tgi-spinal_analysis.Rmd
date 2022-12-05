@@ -68,6 +68,8 @@ df_res <- df_res[df_res$ID != '019' ,]
 
 # Data organisation
 ```{r}
+# transform the ID of participants to remove 0
+
 # recode conditions
 df_res <- df_res %>%
   mutate(condition = recode(condition, '1' = 'within', '2' = 'across'),
@@ -76,6 +78,15 @@ df_res <- df_res %>%
 # change levels 
 df_res$cold_probe <- factor(df_res$cold_probe, 
                             levels = c("caudal", "rostral", "distal", "proximal"))
+
+# incorporate demographics
+# the warm and cold TGI and CNT temperatures did not code properly on the trial .csv
+# have saved these in the demo .csv as well, so will add these in
+demoFile <- 'STGI_participant-demographics.csv'
+fileName = paste(datPath, demoFile, sep = '')
+df_demo <- read.csv(fileName)
+# merge
+test <- merge(df_res, df_demo)
 
 # save new data-frame
 fileName = paste(anaPath, 'STGI_compiled-data.csv', sep = '')
@@ -148,12 +159,11 @@ df_long <- df_long %>% filter(!is.na(VAS))
 # remove the initial trials - not important for now
 init_burn <- filter(df_long, quality == 'init')
 all_vas <- filter(df_long, quality != 'init')
-# order the labelling of quality so it is cold, warm, burn
 
 # plot distribution of data
-ggplot(all_vas) +
+ggplot(df_long) +
   geom_density(aes(VAS, colour = manipulation)) +
-  facet_wrap(~quality, scales = "free") +
+  facet_wrap(~quality, scales = "free_y") +
   theme_bw()
 ```
 # MAIN HYPOTHESES
@@ -162,7 +172,8 @@ Hypothesis 1: within vs. across dermatomes
 
 ```{r}
 # calculate means
-vas_meds <- aggregate(VAS ~ quality*manipulation*cold_probe*ID, median, data = all_vas)
+vas_meds <- aggregate(VAS ~ quality*manipulation*condition*cold_probe*ID, 
+                      median, data = all_vas)
 vas_h1 <- aggregate(VAS)
 # then plot :D
 blue <- brewer.pal(6, "Blues")
