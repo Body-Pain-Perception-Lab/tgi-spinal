@@ -69,7 +69,7 @@ df_res <- df_res[df_res$ID != '019' ,]
 # Data organisation
 ```{r}
 # transform the ID of participants to remove 0
-
+df_res$ID <- as.numeric(df_res$ID)
 # recode conditions
 df_res <- df_res %>%
   mutate(condition = recode(condition, '1' = 'within', '2' = 'across'),
@@ -114,7 +114,7 @@ cnt <-  df_med %>%
 i = 0
 test = data.frame(matrix(nrow = 40, ncol = 3))
 colnames(test) <- c('ID','pval','responder')
-for (id in df_id$ID){
+for (id in tgi$ID){
   i = i+1
   tmp1 <- tgi[tgi$ID == id ,]
   test$ID[i] <- id
