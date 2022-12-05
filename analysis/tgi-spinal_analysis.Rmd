@@ -127,12 +127,39 @@ print(paste0('Non responders: ', nNONRESP, '/', length(test$ID)))
 # Reorganise data-frame 
 # pivot longer the VAS response by each quality of sensation
 # do this for both RT and VAS
-df_long <- 
+df_long <- df_res %>% 
+  pivot_longer(cols = c(VASinit, VASburn, VASwarm, VAScold),
+               names_to = 'quality',
+               values_to = 'VAS')
+df_long2 <- df_res %>% 
+  pivot_longer(cols = c(RTinit, RTburn, RTwarm, RTcold),
+               names_to = 'quality',
+               values_to = 'RT')
+# remove the VAS & RT from quality column
+df_long$quality <- substr(df_long$quality, 4, 7)
+df_long2$quality <- substr(df_long2$quality, 3, 6)
+# remove columns from both then merge
+df_long <- df_long[, c(1:12,17:19)]
+df_long2 <- df_long2[, c(1:12,17:19)]
+df_long <- merge(df_long, df_long2)
 
+# then remove NaNs
+df_long <- df_long %>% filter(!is.na(VAS))
+# remove the initial trials - not important for now
+init_burn <- filter(df_long, quality == 'init')
+all_vas <- filter(df_long, quality != 'init')
 
-# then remove NaNs for burning
-
+# calculate means
+vas_meds <- aggregate(VAS ~ quality*manipulation*cold_probe*ID, median, data = all_vas)
 # then plot :D
+blue <- brewer.pal(6, "Blues")
+grey <- brewer.pal(6, "Greys")
+
+ggplot(vas_meds, aes(cold_probe, VAS, colour = manipulation, group = ID)) +
+  geom_point(position = position_dodge(.2)) +
+  facet_wrap(~quality) +
+  scale_colour_manual(values = c(grey[3], blue[4])) +
+  theme_bw()
 ```
 
 
