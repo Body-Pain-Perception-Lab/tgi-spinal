@@ -111,6 +111,7 @@ cnt <-  df_med %>%
   filter(manipulation == 'CNT')
 
 # identify test results where pvalue is < .05
+tgi$ID <- as.factor(tgi$ID)
 i = 0
 test = data.frame(matrix(nrow = 40, ncol = 3))
 colnames(test) <- c('ID','pval','responder')
