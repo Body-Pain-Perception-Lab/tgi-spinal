@@ -177,11 +177,14 @@ Hypothesis 1: within vs. across dermatomes
 vas_meds <- aggregate(VAS ~ quality*manipulation*condition*cold_probe*ID, 
                       median, data = all_vas)
 vas_h1 <- aggregate(VAS ~ quality*manipulation*condition*ID, mean, data = vas_meds)
-
+# change name of manipulation
+vas_h1$manipulation <- factor(vas_h1$manipulation,
+                           labels = c('Non-TGI', 'TGI'))
 # summary means for h1
+h1_sum <- summarySEwithin(data = vas_h1, measurevar = 'VAS',
+                               withinvars = c('manipulation', 'quality', 'condition'))
 
-
-# then plot :D
+# plot the summary statistics
 # first colours
 blue <- brewer.pal(6, "Blues")
 grey <- brewer.pal(6, "Greys")
@@ -189,59 +192,38 @@ purp <- brewer.pal(6, "Purples")
 oran <- brewer.pal(6, "Oranges")
 gren <- brewer.pal(6, "Greens")
 
-# nudge and jitter
-nudge1 = -0.1
-nudge2 = 0.1
-vas_h1$dermatome <- ifelse(vas_h1$condition == 'within', 1, 2)  # recode within and across
-vas_h1$condition <- factor(vas_h1$condition, labels = c('within', 'across'),
-                           levels = c('within', 'across'))
-# recode quality for this plot
-vas_h1$quality1[vas_h1$quality == 'cold'] <- 1
-vas_h1$quality1[vas_h1$quality == 'warm'] <- 2
-vas_h1$quality1[vas_h1$quality == 'burn'] <- 3
 
-vas_h1$xj <- jitter(vas_h1$quality1, 0.2)
-
-ggplot(data = vas_h1, aes(colour = condition, group = ID)) +
-  geom_point(data = vas_h1 %>% 
-               filter(manipulation == 'CNT', condition == 'within'),
-               aes(xj, VAS), position = position_nudge(-.1)) +
-  geom_point(data = vas_h1 %>% 
-               filter(manipulation == 'CNT', condition == 'across'),
-               aes(xj, VAS), position = position_nudge(.1)) +
-  scale_colour_manual(values = c(blue[6], blue[3])) +
-  scale_x_continuous(breaks=c(1,2,3), labels=c("cold", "warm", "burn")) +
-  labs(title = 'Non TGI', y = 'Visual Analogue Scale 0 - 100', 
-       x = 'Sensation') +
-  theme_classic() -> h1_cnt_plot
-
-ggplot(data = vas_h1, aes(colour = condition)) +
-  geom_point(data = vas_h1 %>% 
-               filter(manipulation == 'TGI', condition == 'within'),
-               aes(xj, VAS), position = position_nudge(-.1)) +
-  geom_point(data = vas_h1 %>% 
-               filter(manipulation == 'TGI', condition == 'across'),
-               aes(xj, VAS), position = position_nudge(.1)) +
-  scale_colour_manual(values = c(purp[6], purp[3])) +
-  scale_x_continuous(breaks=c(1,2,3), labels=c("cold", "warm", "burn")) +
-  labs(title = 'TGI', y = NULL, 
-       x = 'Sensation') +
-  theme_classic() -> h1_tgi_plot
-
-h1_plot <- ggarrange(h1_cnt_plot, h1_tgi_plot,
-                     ncol = 2, nrow = 1,
-                     common.legend = TRUE)
-h1_plot
-
-# difference between across and within 
-# first remove jitter
-vas_h1 <- vas_h1[, c(1:7)]
 # then pivot wider and calculate difference
 vas_h1_diff <- vas_h1 %>% 
-  pivot_wider(names_from = manipulation, values_from = VAS) %>% 
-  mutate(difference = TGI - CNT)
+  pivot_wider(names_from = condition, values_from = VAS) %>% 
+  mutate(difference = within - across)
+# recode quality
+vas_h1_diff$quality <- factor(vas_h1_diff$quality,
+                           levels = c('cold', 'warm', 'burn'))
+
+# summary statistics
+h1_diff_sum <- summarySEwithin(data = vas_h1_diff, measurevar = 'difference',
+                               withinvars = c('manipulation', 'quality'))
 
 # now plot the difference
+ggplot(data = vas_h1_diff, aes(colour = quality)) +
+  geom_hline(yintercept = 0, colour = 'grey50') +
+  geom_point(aes(manipulation, difference, group = ID), position = position_dodge(.2),
+             alpha = .5) +
+  geom_point(data = h1_diff_sum, aes(manipulation, difference), colour = 'grey15',
+             fill = 'grey15',
+             shape = 21, size = 3) +
+  geom_errorbar(data = h1_diff_sum, aes(manipulation, ymin = difference-ci,
+                                        ymax = difference+ci), 
+                width = .1, size = .7, colour = 'grey15') +
+  facet_wrap(~quality) +
+  scale_colour_manual(values = c(blue[4], oran[4], purp[4])) +
+  labs(title = 'Hypothesis 1: Segmental Distance',
+       y = 'Within - Across VAS Ratings', x = NULL) +
+  theme_classic() +
+  theme(legend.position = 'none') -> h1_diff_plot
+
+h1_diff_plot
 ```
 
 Hypothesis 2 a & b: relative location of warm and cold
