@@ -16,7 +16,7 @@ library(Rmisc)
 ```
 
 # Loading data
-```{r}
+```{r paths, echo = FALSE}
 # paths
 datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
 anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Analysis/'
