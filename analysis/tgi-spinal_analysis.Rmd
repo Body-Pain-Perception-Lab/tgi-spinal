@@ -14,6 +14,13 @@ library(Rmisc)
 library(tidyverse)
 library(gghalves)
 library(ggpol)
+library(simr)
+library(broom)
+library(brms)
+library(modelsummary)
+library(tibble)
+library(DHARMa)
+library(glmmTMB)
 ```
 
 # Loading data
@@ -440,9 +447,44 @@ Running main analysis of a zero inflated beta regression
 Outcome: VAS
 Predictors: manipulation (CNT, TGI), cold probe location ()
 Run a seperate regression for each quality
+
+```{r model_prep}
+set.seed(1234)  # Make everything reproducible
+
+# Define the goodness-of-fit stats to include in modelsummary()
+gof_stuff <- tribble(
+  ~raw, ~clean, ~fmt,
+  "nobs", "N", 0,
+  "r.squared", "R²", 3
+)
+
+# recode cold_location and condition to reduce levels in regression
+df_long$cold_cond[df_long$cold_probe == 'distal'] <- 'dist_rostr' 
+df_long$cold_cond[df_long$cold_probe == 'rostral'] <- 'dist_rostr' 
+df_long$cold_cond[df_long$cold_probe == 'proximal'] <- 'prox_caud' 
+df_long$cold_cond[df_long$cold_probe == 'caudal'] <- 'prox_caud' 
+
+# to run zero inflated regressions need to make sure no values = 100, 
+# as cannot model them, so simply minus a very small fraction from those values
+df_long$beta <- ifelse(df_long$VAS==100, df_long$beta-0.0001, df_long$beta <- df_long$VAS)
+
+# transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
+df_long$beta <- df_long$beta/100
+df_long$ID <- factor(df_long$ID)
+```
 # Cold
 # Warm
 # Burn
 
 # Run one regression including quality as a predictor
+```{r}
+# Try and model all with ratings
+model.all = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_cond + quality + trial_n +
+                                quality*manipulation*condition + (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_long,
+                      na.action = na.omit) 
+summary(model.all)
+```
 
