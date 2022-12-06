@@ -94,9 +94,10 @@ fileName = paste(anaPath, 'STGI_compiled-data.csv', sep = '')
 write.csv(df_res, fileName, row.names = FALSE)
 
 # check we have 40 participants with 96 trials
-id_check <- count(df_res, 'ID')
+id_check <- count(df_res, ID)
 id_check
 ```
+
 
 # Responder check
 Check whether participants median burning ratings for TGI is significantly above 0
@@ -116,6 +117,7 @@ tgi$ID <- as.factor(tgi$ID)
 i = 0
 test = data.frame(matrix(nrow = 40, ncol = 3))
 colnames(test) <- c('ID','pval','responder')
+
 for (id in tgi$ID){
   i = i+1
   tmp1 <- tgi[tgi$ID == id ,]
@@ -192,6 +194,21 @@ purp <- brewer.pal(6, "Purples")
 oran <- brewer.pal(6, "Oranges")
 gren <- brewer.pal(6, "Greens")
 
+# order conditions
+h1_sum$condition <- factor(h1_sum$condition, levels = c('within', 'across'))
+h1_sum$quality <- factor(h1_sum$quality, levels = c('cold', 'warm', 'burn'))
+
+# plot
+ggplot(h1_sum, aes(colour = quality, group = manipulation, alpha = manipulation)) + 
+  geom_point(aes(condition, VAS), size = 2, position = position_dodge(-.3)) +
+  geom_errorbar(aes(condition, ymin = VAS-ci, ymax = VAS+ci), width = .1, size = .7,
+                position = position_dodge(-.3)) +
+  geom_line(aes(condition, VAS), size = .7, position = position_dodge(-.3)) +
+  facet_wrap(~quality) +
+  scale_colour_manual(values = c(blue[4], oran[4], purp[4])) +
+  scale_alpha_discrete(range = c(0.6, 1)) +
+  ylim(0,50) +
+  theme_bw() 
 ```
 
 # Hypothesis 1: plot difference across conditions of interest
@@ -232,6 +249,16 @@ ggsave('h1_difference.png', h1_diff_plot, path = anaPath, device = NULL,
 ```
 
 Hypothesis 2 a & b: relative location of warm and cold
+```{r h2}
+# Summary statistics
+h2_sum <- summarySEwithin(data = vas_meds, measurevar = 'VAS', 
+                          withinvars = c('quality','manipulation','cold_probe'))
+
+# organise data for plotting
+
+# plot all data - half-violins
+
+```
 
 # ZOIB regression
 Running main analysis of a zero inflated beta regression
