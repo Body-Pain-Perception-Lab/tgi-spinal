@@ -472,19 +472,30 @@ df_long$beta <- ifelse(df_long$VAS==100, df_long$beta-0.0001, df_long$beta <- df
 df_long$beta <- df_long$beta/100
 df_long$ID <- factor(df_long$ID)
 ```
+
 # Cold
+```{r coldmod}
+# Try and model all with ratings
+model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_cond + trial_n +
+                                manipulation*condition*cold_cond + (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation + (1|ID),
+                      data = df_long %>% filter(quality == 'cold'),
+                      na.action = na.omit) 
+summary(model.cold)
+```
 # Warm
+```{r coldmod}
+# Try and model all with ratings
+model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_cond + trial_n +
+                                manipulation*condition*cold_cond + (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation + (1|ID),
+                      data = df_long %>% filter(quality == 'warm'),
+                      na.action = na.omit) 
+summary(model.warm)
+```
+
 # Burn
 
 # Run one regression including quality as a predictor
-```{r}
-# Try and model all with ratings
-model.all = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_cond + quality + trial_n +
-                                quality*manipulation*condition + (1|ID),
-                      family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
-                      data = df_long,
-                      na.action = na.omit) 
-summary(model.all)
-```
-
