@@ -8,27 +8,23 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ## Loading libraries
-library(RColorBrewer)
-library(ggpubr)
-library(Rmisc)
-library(tidyverse)
-library(gghalves)
-library(ggpol)
-library(simr)
-library(broom)
-library(brms)
-library(modelsummary)
-library(tibble)
-library(DHARMa)
-library(glmmTMB)
+# check for pacman package and install if not found
+if (!require("pacman")) install.packages("pacman")
+  pacman::p_load(boot, broom, broom.mixed, brms, caret, DHARMa, 
+                 gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmertest, 
+                 modelsummary, RColorBrewer, rcompanion, reshape2, Rmisc,
+                 rsample, simr, tibble, tidyverse, wesanderson
+                 )
 ```
 
-# Loading data
-```{r paths, echo = FALSE}
+```{r paths}
 # paths
 datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
 anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Analysis/'
+```
 
+# Loading data
+```{r data, echo = FALSE}
 # Extract all .csv files and compile
 filenames <- dir(datPath, recursive = TRUE, full.names = FALSE, pattern = '.csv')
 # empty dataframes for data
@@ -70,7 +66,7 @@ for (file in filenames){
 df_res <- merge(df_trials, df_VAS, by = c('ID','trial_n','manipulation'))
 df_res <- merge(df_res, df_RT, by = c('ID','trial_n','manipulation'))
 
-# remove participant 019, stopped testing halfway
+# remove participant 019, stopped testing halfway due to broken thermal probe
 df_res <- df_res[df_res$ID != '019' ,]
 ```
 
@@ -101,7 +97,7 @@ fileName = paste(anaPath, 'STGI_compiled-data.csv', sep = '')
 write.csv(df_res, fileName, row.names = FALSE)
 
 # check we have 40 participants with 96 trials
-id_check <- count(df_res, ID)
+id_check <- count(df_res, 'ID')
 id_check
 ```
 
@@ -125,7 +121,7 @@ i = 0
 test = data.frame(matrix(nrow = 40, ncol = 3))
 colnames(test) <- c('ID','pval','responder')
 
-for (id in tgi$ID){
+for (id in levels(tgi$ID)){
   i = i+1
   tmp1 <- tgi[tgi$ID == id ,]
   test$ID[i] <- id
@@ -278,6 +274,8 @@ vas_meds$xj <- jitter(as.numeric(vas_meds$cold_code), amount = .05)
 
 nudge1 = -.1
 nudge2 = .1
+
+# TRY THESE PLOTS WITH BOX JITTER? gghalves may be too messy
 
 # plot all data - half-violins
 # COLD
@@ -471,31 +469,70 @@ df_long$beta <- ifelse(df_long$VAS==100, df_long$beta-0.0001, df_long$beta <- df
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
 df_long$beta <- df_long$beta/100
 df_long$ID <- factor(df_long$ID)
+
+# normalised VAS ratings - just incase?
 ```
 
+Running models as pre-registered: 
 # Cold
 ```{r coldmod}
 # Try and model all with ratings
-model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_cond + trial_n +
-                                manipulation*condition*cold_cond + (1|ID),
+model.cold = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + procedure + trial_n +
+                                (1|ID),
                       family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation + (1|ID),
+                      ziformula = ~1+manipulation,
                       data = df_long %>% filter(quality == 'cold'),
                       na.action = na.omit) 
-summary(model.cold)
+mc <- summary(model.cold)
+mc
 ```
 # Warm
-```{r coldmod}
+```{r warmmod}
 # Try and model all with ratings
-model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_cond + trial_n +
-                                manipulation*condition*cold_cond + (1|ID),
+model.warm = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + procedure +
+                                trial_n + (1|ID),
                       family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation + (1|ID),
+                      ziformula = ~1+manipulation,
                       data = df_long %>% filter(quality == 'warm'),
                       na.action = na.omit) 
-summary(model.warm)
+mw <- summary(model.warm)
+mw
 ```
 
 # Burn
+The burning hypothesis is only for participants that experience burning TGI 
+(aka are responders)
+```{r burnmod}
+# First, remove non-responders
+df_resp <- df_long %>% 
+  filter(responder == 1)
+# check n
+n <- count(df_resp, 'ID')
+length(n$ID)
+# Try and model all with ratings
+model.burn = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + procedure +
+                                trial_n +(1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation + (1|ID),
+                      data = df_resp %>% filter(quality == 'burn'),
+                      na.action = na.omit) 
+mb <- summary(model.burn)
+mb
+```
 
+# Run model checks on all
+```{r checks}
+# cold assumption - on n = 50
+mc.assump <- simulateResiduals(model.cold, n = 1000)
+plot(mc.assump)
+# warm assumption - on n = 50
+mw.assump <- simulateResiduals(model.warm, n = 1000)
+plot(mw.assump)
+# warm assumption - on n = 50
+mb.assump <- simulateResiduals(model.burn, n = 1000)
+plot(mb.assump)
+```
+# Plot 32 burn responders seperately
+```{r burn32}
+```
 # Run one regression including quality as a predictor
