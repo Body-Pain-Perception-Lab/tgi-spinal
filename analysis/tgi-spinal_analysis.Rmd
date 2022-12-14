@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # check for pacman package and install if not found
 if (!require("pacman")) install.packages("pacman")
   pacman::p_load(boot, broom, broom.mixed, brms, caret, DHARMa, 
-                 gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmertest, 
+                 gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
                  modelsummary, RColorBrewer, rcompanion, reshape2, Rmisc,
                  rsample, simr, tibble, tidyverse, wesanderson
                  )
@@ -97,7 +97,7 @@ fileName = paste(anaPath, 'STGI_compiled-data.csv', sep = '')
 write.csv(df_res, fileName, row.names = FALSE)
 
 # check we have 40 participants with 96 trials
-id_check <- count(df_res, 'ID')
+id_check <- count(df_res, ID)
 id_check
 ```
 
@@ -439,6 +439,9 @@ h2_plot
 ggsave('h2_alldat_plot.png', h2_plot, device = NULL, path = anaPath,
        width = 10, height = 6.5, dpi = 600)
 ```
+# Plot 32 burn responders seperately
+```{r burn32}
+```
 
 # ZOIB regression
 Running main analysis of a zero inflated beta regression
@@ -469,8 +472,6 @@ df_long$beta <- ifelse(df_long$VAS==100, df_long$beta-0.0001, df_long$beta <- df
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
 df_long$beta <- df_long$beta/100
 df_long$ID <- factor(df_long$ID)
-
-# normalised VAS ratings - just incase?
 ```
 
 Running models as pre-registered: 
@@ -521,7 +522,7 @@ mb
 ```
 
 # Run model checks on all
-```{r checks}
+```{r checks, warning=FALSE}
 # cold assumption - on n = 50
 mc.assump <- simulateResiduals(model.cold, n = 1000)
 plot(mc.assump)
@@ -532,7 +533,86 @@ plot(mw.assump)
 mb.assump <- simulateResiduals(model.burn, n = 1000)
 plot(mb.assump)
 ```
-# Plot 32 burn responders seperately
-```{r burn32}
+# Run individual models on within and across dermatomes for H2
+Directly compare proximal-distal and rostral-caudal results for each quality
+
+# Cold - within and across
+```{r cold_indiv}
+# seperate data-frames
+within <- df_long %>% 
+  filter(condition == 'within')
+across <-  df_long %>% 
+  filter(condition == 'across')
+
+# within
+model.wcold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = within %>% filter(quality == 'cold'),
+                      na.action = na.omit) 
+mwc <- summary(model.wcold)
+mwc
+
+# across
+model.acold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = across %>% filter(quality == 'cold'),
+                      na.action = na.omit) 
+mac <- summary(model.acold)
+mac
 ```
-# Run one regression including quality as a predictor
+
+# Warm - within and across
+```{r warm_indiv}
+# within
+model.wwarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = within %>% filter(quality == 'warm'),
+                      na.action = na.omit) 
+mww <- summary(model.wwarm)
+mww
+
+# across
+model.awarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = across %>% filter(quality == 'warm'),
+                      na.action = na.omit) 
+maw <- summary(model.awarm)
+maw
+```
+
+# Burn - within and across
+```{r burn_indiv}
+# isolate responders only
+within <- df_long %>% 
+  filter(condition == 'within' & responder == 1)
+across <-  df_long %>% 
+  filter(condition == 'across' & responder == 1)
+
+# within
+model.wburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = within %>% filter(quality == 'burn'),
+                      na.action = na.omit) 
+mwb <- summary(model.wburn)
+mwb
+
+# across
+model.aburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = across %>% filter(quality == 'burn'),
+                      na.action = na.omit) 
+mab <- summary(model.aburn)
+mab
+```
