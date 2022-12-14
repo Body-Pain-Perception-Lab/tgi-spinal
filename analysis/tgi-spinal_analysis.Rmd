@@ -10,9 +10,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Loading libraries
 # check for pacman package and install if not found
 if (!require("pacman")) install.packages("pacman")
-  pacman::p_load(boot, broom, broom.mixed, brms, caret, DHARMa, 
+  pacman::p_load(boot, broom, broom.mixed, brms, caret, corrplot, DHARMa, 
                  gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
-                 modelsummary, RColorBrewer, rcompanion, reshape2, Rmisc,
+                 modelsummary, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
                  rsample, simr, tibble, tidyverse, wesanderson
                  )
 ```
@@ -616,3 +616,39 @@ model.aburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
 mab <- summary(model.aburn)
 mab
 ```
+
+# EXPLORATORY HYPOTHESES
+# Correlation between quality (cold/warm/burn)
+
+```{r corr}
+# remove columns
+df_corr <- df_res[, c(1:9,14:16,21)]
+df_corr <- df_corr %>% 
+  pivot_wider(names_from = 'manipulation', values_from = c('VAScold','VASwarm','VASburn')) %>% 
+  select(c(ID,VAScold_CNT,VAScold_TGI,VASwarm_CNT,VASwarm_TGI,VASburn_CNT,VASburn_TGI)) %>% 
+  rename(NonTGI_cold = VAScold_CNT,
+         TGI_cold = VAScold_TGI,
+         NonTGI_warm = VASwarm_CNT,
+         TGI_warm = VASwarm_TGI,
+         NonTGI_burn = VASburn_CNT,
+         TGI_burn = VASburn_TGI)
+
+# average values within participants
+df_corr <- aggregate(. ~ID, mean, data = df_corr)
+# remove ID
+df_corr <- select(df_corr, -ID)
+
+# correlate
+cormat <- hetcor(df_corr, type = 'pearson')$correlations
+cormat
+
+# significance values
+
+
+# correlation matrix
+# plotting correlations between variables
+corrplot(cormat, method="circle", addrect = 0,
+         title = "VAS rating correlation matrix", mar = c(0,0,1,0), 
+         tl.cex=0.9) 
+```
+
