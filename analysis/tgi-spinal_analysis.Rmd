@@ -172,6 +172,8 @@ ggplot(df_long) +
   geom_density(aes(VAS, colour = manipulation)) +
   facet_wrap(~quality, scales = "free_y") +
   theme_bw()
+
+# summary statistics
 ```
 # MAIN HYPOTHESES
 # Plot descriptives for each hypotheses
@@ -638,6 +640,12 @@ df_corr <- aggregate(. ~ID, mean, data = df_corr)
 # remove ID
 df_corr <- select(df_corr, -ID)
 
+# check distribution of data
+df_means <- aggregate(VAS ~ ID*quality*manipulation, mean, data = vas_meds)
+ggplot(df_means, aes(colour = quality)) +
+  geom_density(aes(VAS)) +
+  theme_bw()
+
 # correlate
 qual_cor <- hetcor(df_corr, type = 'spearman')
 cormat <- qual_cor$correlations
@@ -659,6 +667,9 @@ corrplot(cormat, type = 'lower',
 ggplot(df_corr, aes(x = CNTcold, y =CNTwarm)) +
   geom_smooth(method='lm', colour = 'black', alpha = .5) +
   geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[1,3], 2))),
+            x=8, y=90, size = 5) +
   labs(x = 'Cold Ratings', y = 'Warm Ratings') +
   xlim(0,100) + ylim(-15,100) +
   theme_bw() -> CNT_cw_plot
@@ -666,6 +677,9 @@ ggplot(df_corr, aes(x = CNTcold, y =CNTwarm)) +
 ggplot(df_corr, aes(x = CNTcold, y = CNTburn)) +
   geom_smooth(method='lm', colour = 'black', alpha = .5) +
   geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[1,5], 2))),
+            x=8, y=90, size = 5) +
   labs(x = 'Cold Ratings', y = 'Burn Ratings') +
   xlim(0,100) + ylim(-15,100) +
   theme_bw() -> CNT_cb_plot
@@ -673,6 +687,9 @@ ggplot(df_corr, aes(x = CNTcold, y = CNTburn)) +
 ggplot(df_corr, aes(x = CNTwarm, y = CNTburn)) +
   geom_smooth(method='lm', colour = 'black', alpha = .5) +
   geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[3,5], 2))),
+            x=8, y=90, size = 5) +
   labs(x = 'Warm Ratings', y = 'Burn Ratings') +
   xlim(0,100) + ylim(-15,100) +
   theme_bw() -> CNT_wb_plot
@@ -680,30 +697,58 @@ ggplot(df_corr, aes(x = CNTwarm, y = CNTburn)) +
 # combine non TGI
 CNT_corr_plot <- ggarrange(CNT_cw_plot, CNT_cb_plot, CNT_wb_plot,
                            nrow = 1, ncol = 3,
-                           labels = c('A.','B.','C.'))
+                           labels = c('A','B','C'))
 CNT_corr_plot <- annotate_figure(CNT_corr_plot, 
                                  top = text_grob("Non-TGI", 
                                                  size = 12))
-CNT_corr_plot 
 
 
 # TGI plots
 ggplot(df_corr, aes(x = TGIcold, y = TGIwarm)) +
-  geom_point() +
-  geom_smooth(method='lm') +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[2,4], 2))),
+            x=8, y=90, size = 5) +
+  labs(x = 'Cold Ratings', y = 'Warm Ratings') +
+  xlim(0,100) + ylim(-15,100) +
   theme_bw() -> TGI_cw_plot
 
 ggplot(df_corr, aes(x = TGIcold, y = TGIburn)) +
-  geom_point() +
-  geom_smooth(method='lm') +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[2,6], 2))),
+            x=8, y=90, size = 5) +
+  labs(x = 'Cold Ratings', y = 'Burn Ratings') +
+  xlim(0,100) + ylim(-15,100) +
   theme_bw() -> TGI_cb_plot
 
 ggplot(df_corr, aes(x = TGIwarm, y = TGIburn)) +
-  geom_point() +
-  geom_smooth(method='lm') +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[4,6], 2))),
+            x=8, y=90, size = 5) +
+  labs(x = 'Warm Ratings', y = 'Burn Ratings') +
+  xlim(0,100) + ylim(-15,100) +
   theme_bw() -> TGI_wb_plot
 
 # combine TGI
+TGI_corr_plot <- ggarrange(TGI_cw_plot, TGI_cb_plot, TGI_wb_plot,
+                           nrow = 1, ncol = 3,
+                           labels = c('D','E','F'))
+TGI_corr_plot <- annotate_figure(TGI_corr_plot, 
+                                 top = text_grob("TGI", 
+                                                 size = 12))
+
+# put two together
+corr_plot <- ggarrange(CNT_corr_plot, TGI_corr_plot,
+                       nrow = 2, ncol = 1)
+corr_plot
+
+ggsave('stgi_correlations.png', corr_plot, device = NULL, path = anaPath, 
+       width = 14, height = 9, dpi = 1000)
 ```
 
 # Initial burn
