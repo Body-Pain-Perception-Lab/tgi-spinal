@@ -657,21 +657,35 @@ corrplot(cormat, type = 'lower',
 ```{r scatter}
 # Non TGI plots
 ggplot(df_corr, aes(x = CNTcold, y =CNTwarm)) +
-  geom_point() +
-  geom_smooth(method='lm') +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  labs(x = 'Cold Ratings', y = 'Warm Ratings') +
+  xlim(0,100) + ylim(-15,100) +
   theme_bw() -> CNT_cw_plot
 
 ggplot(df_corr, aes(x = CNTcold, y = CNTburn)) +
-  geom_point() +
-  geom_smooth(method='lm') +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  labs(x = 'Cold Ratings', y = 'Burn Ratings') +
+  xlim(0,100) + ylim(-15,100) +
   theme_bw() -> CNT_cb_plot
 
 ggplot(df_corr, aes(x = CNTwarm, y = CNTburn)) +
-  geom_point() +
-  geom_smooth(method='lm') +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  labs(x = 'Warm Ratings', y = 'Burn Ratings') +
+  xlim(0,100) + ylim(-15,100) +
   theme_bw() -> CNT_wb_plot
 
 # combine non TGI
+CNT_corr_plot <- ggarrange(CNT_cw_plot, CNT_cb_plot, CNT_wb_plot,
+                           nrow = 1, ncol = 3,
+                           labels = c('A.','B.','C.'))
+CNT_corr_plot <- annotate_figure(CNT_corr_plot, 
+                                 top = text_grob("Non-TGI", 
+                                                 size = 12))
+CNT_corr_plot 
+
 
 # TGI plots
 ggplot(df_corr, aes(x = TGIcold, y = TGIwarm)) +
