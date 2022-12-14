@@ -13,7 +13,7 @@ if (!require("pacman")) install.packages("pacman")
   pacman::p_load(boot, broom, broom.mixed, brms, caret, corrplot, DHARMa, 
                  gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
                  modelsummary, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
-                 rsample, simr, tibble, tidyverse, wesanderson
+                 rsample, rstatix, simr, tibble, tidyverse, wesanderson
                  )
 ```
 
@@ -626,12 +626,12 @@ df_corr <- df_res[, c(1:9,14:16,21)]
 df_corr <- df_corr %>% 
   pivot_wider(names_from = 'manipulation', values_from = c('VAScold','VASwarm','VASburn')) %>% 
   select(c(ID,VAScold_CNT,VAScold_TGI,VASwarm_CNT,VASwarm_TGI,VASburn_CNT,VASburn_TGI)) %>% 
-  rename(NonTGI_cold = VAScold_CNT,
-         TGI_cold = VAScold_TGI,
-         NonTGI_warm = VASwarm_CNT,
-         TGI_warm = VASwarm_TGI,
-         NonTGI_burn = VASburn_CNT,
-         TGI_burn = VASburn_TGI)
+  rename(CNTcold = VAScold_CNT,
+         TGIcold = VAScold_TGI,
+         CNTwarm = VASwarm_CNT,
+         TGIwarm = VASwarm_TGI,
+         CNTburn = VASburn_CNT,
+         TGIburn = VASburn_TGI)
 
 # average values within participants
 df_corr <- aggregate(. ~ID, mean, data = df_corr)
@@ -639,16 +639,59 @@ df_corr <- aggregate(. ~ID, mean, data = df_corr)
 df_corr <- select(df_corr, -ID)
 
 # correlate
-cormat <- hetcor(df_corr, type = 'pearson')$correlations
-cormat
+qual_cor <- hetcor(df_corr, type = 'spearman')
+cormat <- qual_cor$correlations
 
 # significance values
-
+p <- cor.mtest(df_corr, type ='spearman')$p
 
 # correlation matrix
 # plotting correlations between variables
-corrplot(cormat, method="circle", addrect = 0,
-         title = "VAS rating correlation matrix", mar = c(0,0,1,0), 
+corrplot(cormat, type = 'lower',
+         p.mat = p, insig = "p-value", sig.level = -1,
+         title = "VAS rating correlation matrix", 
+         mar = c(0,0,1,0), 
          tl.cex=0.9) 
 ```
+# Scatter plots
+```{r scatter}
+# Non TGI plots
+ggplot(df_corr, aes(x = CNTcold, y =CNTwarm)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  theme_bw() -> CNT_cw_plot
 
+ggplot(df_corr, aes(x = CNTcold, y = CNTburn)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  theme_bw() -> CNT_cb_plot
+
+ggplot(df_corr, aes(x = CNTwarm, y = CNTburn)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  theme_bw() -> CNT_wb_plot
+
+# combine non TGI
+
+# TGI plots
+ggplot(df_corr, aes(x = TGIcold, y = TGIwarm)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  theme_bw() -> TGI_cw_plot
+
+ggplot(df_corr, aes(x = TGIcold, y = TGIburn)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  theme_bw() -> TGI_cb_plot
+
+ggplot(df_corr, aes(x = TGIwarm, y = TGIburn)) +
+  geom_point() +
+  geom_smooth(method='lm') +
+  theme_bw() -> TGI_wb_plot
+
+# combine TGI
+```
+
+# Initial burn
+Are there any observed differences in dermatome and warm and cold afferents
+for the first initial burning rating, before trial begins?
