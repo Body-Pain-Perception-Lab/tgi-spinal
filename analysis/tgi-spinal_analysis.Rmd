@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Loading libraries
 # check for pacman package and install if not found
 if (!require("pacman")) install.packages("pacman")
-  pacman::p_load(boot, broom, broom.mixed, brms, caret, corrplot, DHARMa, gamlss,
+  pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gamlss,
                  gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
                  modelsummary, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
                  rsample, rstatix, simr, tibble, tidyverse, wesanderson
@@ -255,8 +255,7 @@ ggsave('h1_difference.png', h1_diff_plot, path = anaPath, device = NULL,
 
 Hypothesis 2 a & b: relative location of warm and cold
 ```{r h2}
-# Summary statistics
-# First, change name of manipulation
+# Change name of manipulation
 vas_meds$manipulation <- factor(vas_meds$manipulation, labels = c('Non-TGI', 'TGI'))
 h2_sum <- summarySEwithin(data = vas_meds, measurevar = 'VAS', 
                           withinvars = c('quality','manipulation','cold_probe'))
@@ -284,6 +283,17 @@ nudge2 = .1
 ggplot(data = vas_meds %>% 
          filter(quality == 'cold'),
        mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'proximal')) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'distal')) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'caudal')) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'rostral')) +
+  facet_wrap(~manipulation)
+
+
   geom_point(shape = 21, alpha = .5, position = position_nudge(nudge2)) +
   geom_half_violin(
     data = vas_meds %>% 
@@ -441,6 +451,266 @@ h2_plot
 ggsave('h2_alldat_plot.png', h2_plot, device = NULL, path = anaPath,
        width = 10, height = 6.5, dpi = 600)
 ```
+
+# Same plot, no zeros
+```{r h2nozero}
+# First, remove zeros from trials to better represent analysis
+vas_nozero <- all_vas %>% 
+  filter(VAS > 0)
+
+vas_meds1 <- aggregate(VAS ~ quality*manipulation*condition*cold_probe*ID, 
+                      median, data = vas_nozero)
+
+# Change name of manipulation
+vas_meds1$manipulation <- factor(vas_meds1$manipulation, labels = c('Non-TGI', 'TGI'))
+h2_sum1 <- summarySEwithin(data = vas_meds1, measurevar = 'VAS', 
+                          withinvars = c('quality','manipulation','cold_probe'))
+
+# organise data for plotting
+vas_meds1$cold_probe <- factor(vas_meds1$cold_probe, levels = 
+                                c('proximal', 'distal', 'rostral', 'caudal'))
+h2_sum1$cold_probe <- factor(h2_sum1$cold_probe, levels = 
+                                c('proximal', 'distal', 'rostral', 'caudal'))
+# recoding cold probe location so can jitter
+vas_meds1$cold_code <- factor(vas_meds1$cold_probe, labels = 
+                                c(1,2,3,4))
+h2_sum1$cold_code <- factor(h2_sum1$cold_probe, labels = 
+                                c(1,2,3,4))
+# creating jitter
+vas_meds1$xj <- jitter(as.numeric(vas_meds1$cold_code), amount = .05)
+
+nudge1 = -.1
+nudge2 = .1
+
+# TRY THESE PLOTS WITH BOX JITTER? gghalves may be too messy
+
+# plot all data - half-violins
+# COLD
+ggplot(data = vas_meds1 %>% 
+         filter(quality == 'cold'),
+       mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
+  geom_point(shape = 21, alpha = .5, position = position_nudge(nudge2)) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'cold', cold_probe == 'proximal'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'cold', cold_probe == 'distal'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'cold', cold_probe == 'rostral'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'cold', cold_probe == 'caudal'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  # summary stats
+  geom_point(data = h2_sum1 %>% 
+               filter(quality == 'cold'), 
+             aes(x = as.numeric(cold_code), y = VAS),
+             shape = 21, size = 2, colour = 'grey20', fill = 'grey30',
+             position = position_nudge(nudge1)) +
+  geom_errorbar(data = h2_sum1 %>% 
+               filter(quality == 'cold'), 
+               aes(x = as.numeric(cold_code), ymin = VAS-ci, ymax = VAS+ci),
+               colour = 'grey20', width = .05, size = .7,
+               position = position_nudge(nudge1)) +
+  geom_line(data = h2_sum1 %>% 
+              filter(quality == 'cold'), 
+              aes(x = as.numeric(cold_code), y = VAS), 
+              colour = 'grey20', size = .7, alpha = .6,
+              position = position_nudge(nudge1)) +
+  facet_wrap(~manipulation) +
+  scale_colour_manual(values = c(blue[4], blue[6])) +
+  scale_fill_manual(values = c(blue[4], blue[6])) +
+  scale_x_continuous(breaks = c(1,2,3,4), labels = c('prox.','dist.','rost.','caud.')) +
+  labs(title = 'Cold ratings', x = NULL, 
+         y = 'VAS Rating (0-100)') +
+  ylim(-0.5,100) +
+  theme_classic() +
+  theme(legend.position = 'none') -> h2_cold_plot
+
+# WARM
+ggplot(data = vas_meds1 %>% 
+         filter(quality == 'warm'),
+       mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
+  geom_point(shape = 21, alpha = .5, position = position_nudge(nudge2)) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'warm', cold_probe == 'proximal'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'warm', cold_probe == 'distal'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'warm', cold_probe == 'rostral'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'warm', cold_probe == 'caudal'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  # summary stats
+  geom_point(data = h2_sum1 %>% 
+               filter(quality == 'warm'), 
+             aes(x = as.numeric(cold_code), y = VAS),
+             shape = 21, size = 2, colour = 'grey20', fill = 'grey30',
+             position = position_nudge(nudge1)) +
+  geom_errorbar(data = h2_sum1 %>% 
+               filter(quality == 'warm'), 
+               aes(x = as.numeric(cold_code), ymin = VAS-ci, ymax = VAS+ci),
+               colour = 'grey20', width = .05, size = .7,
+               position = position_nudge(nudge1)) +
+  geom_line(data = h2_sum1 %>% 
+              filter(quality == 'warm'), 
+              aes(x = as.numeric(cold_code), y = VAS), 
+              colour = 'grey20', size = .7, alpha = .6,
+              position = position_nudge(nudge1)) +
+  facet_wrap(~manipulation) +
+  scale_colour_manual(values = c(oran[4], oran[6])) +
+  scale_fill_manual(values = c(oran[4], oran[6])) +
+  scale_x_continuous(breaks = c(1,2,3,4), labels = c('prox.','dist.','rost.','caud.')) +
+  labs(title = 'Warm ratings', x = 'Location of cold probe', 
+         y = NULL) +
+  ylim(-0.5,100) +
+  theme_classic() +
+  theme(legend.position = 'none') -> h2_warm_plot
+
+# BURN
+ggplot(data = vas_meds1 %>% 
+         filter(quality == 'burn'),
+       mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
+  geom_point(shape = 21, alpha = .5, position = position_nudge(nudge2)) +
+  geom_half_violin(
+    data = vas_meds %>% 
+    filter(quality == 'burn', cold_probe == 'proximal'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'burn', cold_probe == 'distal'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'burn', cold_probe == 'rostral'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  geom_half_violin(
+    data = vas_meds1 %>% 
+    filter(quality == 'burn', cold_probe == 'caudal'),
+    aes(x = xj, y = VAS), 
+    position = position_nudge(x = nudge1), side = "l", alpha = .4) +
+  # summary stats
+  geom_point(data = h2_sum1 %>% 
+               filter(quality == 'burn'), 
+             aes(x = as.numeric(cold_code), y = VAS),
+             shape = 21, size = 2, colour = 'grey20', fill = 'grey30',
+             position = position_nudge(nudge1)) +
+  geom_errorbar(data = h2_sum1 %>% 
+               filter(quality == 'burn'), 
+               aes(x = as.numeric(cold_code), ymin = VAS-ci, ymax = VAS+ci),
+               colour = 'grey20', width = .05, size = .7,
+               position = position_nudge(nudge1)) +
+  geom_line(data = h2_sum1 %>% 
+              filter(quality == 'burn'), 
+              aes(x = as.numeric(cold_code), y = VAS), 
+              colour = 'grey20', size = .7, alpha = .6,
+              position = position_nudge(nudge1)) +
+  facet_wrap(~manipulation) +
+  scale_colour_manual(values = c(purp[4], purp[6])) +
+  scale_fill_manual(values = c(purp[4], purp[6])) +
+  scale_x_continuous(breaks = c(1,2,3,4), labels = c('prox.','dist.','rost.','caud.')) +
+  labs(title = 'Burn ratings', x = 'Location of cold probe', 
+         y = 'VAS Rating (0-100)') +
+  ylim(-0.5,100) +
+  theme_classic() +
+  theme(legend.position = 'none') -> h2_burn_plot
+  
+# arrange entire plot
+h21_plot <- ggarrange(h2_cold_plot, h2_warm_plot, h2_burn_plot,
+                     nrow = 2, ncol = 2)
+h21_plot
+
+ggsave('h2_nozero_plot.png', h21_plot, device = NULL, path = anaPath,
+       width = 10, height = 6.5, dpi = 600)
+```
+
+# Differences
+```{r h2diff}
+# recode cold_location and condition to reduce levels in regression
+vas_meds$cold_cond[vas_meds$cold_probe == 'distal'] <- 'dist_rost' 
+vas_meds$cold_cond[vas_meds$cold_probe == 'rostral'] <- 'dist_rost' 
+vas_meds$cold_cond[vas_meds$cold_probe == 'proximal'] <- 'prox_caud' 
+vas_meds$cold_cond[vas_meds$cold_probe == 'caudal'] <- 'prox_caud'
+
+# then pivot wider and calculate difference
+vas_h2_diff <- vas_meds %>% 
+  select(-c(cold_code, xj, cold_probe)) %>% 
+  pivot_wider(id_cols = c(ID, quality, manipulation, condition), 
+              names_from = cold_cond, values_from = VAS) %>% 
+  mutate(difference = prox_caud - dist_rost)
+# recode quality
+vas_h2_diff$quality <- factor(vas_h2_diff$quality,
+                           levels = c('cold', 'warm', 'burn'))
+# summary statistics
+h2_diff_sum <- summarySEwithin(data = vas_h2_diff, measurevar = 'difference',
+                               withinvars = c('manipulation', 'quality', 'condition'))
+
+# plot the differences - within
+ggplot(data = vas_h2_diff %>% 
+         filter(condition == 'within'), 
+       aes(manipulation, difference, colour = quality)) +
+  geom_hline(yintercept = 0) +
+  geom_point(aes(group = ID), position = position_dodge(.2), alpha = .5) +
+  geom_point(data = h2_diff_sum %>% 
+               filter(condition == 'within'), 
+             aes(manipulation, difference), colour = 'grey15',
+             fill = 'grey15',
+             shape = 21, size = 3) +
+  geom_errorbar(data = h2_diff_sum %>% 
+               filter(condition == 'within'), 
+               aes(manipulation, ymin = difference-ci, ymax = difference+ci),
+               width = .1, size = .7, colour = 'grey15') +
+  scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
+  labs(title = 'Hypothesis 2 Cold & Warm Afferents: Within',
+       y = 'Proximal - Distal VAS Ratings', x = NULL) +
+  facet_wrap(~quality) +
+  theme_classic()
+
+# plot the differences - across
+ggplot(data = vas_h2_diff %>% 
+         filter(condition == 'across'), 
+       aes(manipulation, difference, colour = quality)) +
+  geom_hline(yintercept = 0) +
+  geom_point(aes(group = ID), position = position_dodge(.2), alpha = .5) +
+  geom_point(data = h2_diff_sum %>% 
+               filter(condition == 'across'), 
+             aes(manipulation, difference), colour = 'grey15',
+             fill = 'grey15',
+             shape = 21, size = 3) +
+  geom_errorbar(data = h2_diff_sum %>% 
+               filter(condition == 'across'), 
+               aes(manipulation, ymin = difference-ci, ymax = difference+ci),
+               width = .1, size = .7, colour = 'grey15') +
+  scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
+  labs(title = 'Hypothesis 2 Cold & Warm Afferents: Across',
+       y = 'Caudal - Rostral VAS Ratings', x = NULL) +
+  facet_wrap(~quality) +
+  theme_classic()
+```
+
 # Plot 32 burn responders seperately
 ```{r burn32}
 ```
@@ -473,7 +743,7 @@ df_long$beta <- ifelse(df_long$VAS==100, df_long$beta-0.0001, df_long$beta <- df
 df_long$beta <- df_long$beta/100
 
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
-df_long$VAS <- df_long$VAS/100
+#df_long$VAS <- df_long$VAS/100
 df_long$ID <- factor(df_long$ID)
 ```
 
@@ -489,6 +759,8 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + tria
                       na.action = na.omit) 
 mc <- summary(model.cold)
 mc
+
+Anova(model.cold)
 
 model.cold1 = gamlss(VAS ~ manipulation * condition * cold_cond + procedure + trial_n +
                                 random(ID),
@@ -512,6 +784,8 @@ model.warm = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond +
                       na.action = na.omit) 
 mw <- summary(model.warm)
 mw
+
+Anova(model.warm)
 ```
 
 # Burn
@@ -533,6 +807,8 @@ model.burn = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond +
                       na.action = na.omit) 
 mb <- summary(model.burn)
 mb
+
+Anova(model.burn)
 
 model.burn1 = gamlss(VAS ~ manipulation * condition * cold_cond + trial_n +
                                 random(ID) + random(as.factor(procedure)),
@@ -558,90 +834,6 @@ plot(mw.assump)
 mb.assump <- simulateResiduals(model.burn, n = 1000)
 plot(mb.assump)
 ```
-# Run individual models on within and across dermatomes for H2
-Directly compare proximal-distal and rostral-caudal results for each quality
-
-# Cold - within and across
-```{r cold_indiv}
-# seperate data-frames
-within <- df_long %>% 
-  filter(condition == 'within')
-across <-  df_long %>% 
-  filter(condition == 'across')
-
-# within
-model.wcold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                (1|ID),
-                      family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
-                      data = within %>% filter(quality == 'cold'),
-                      na.action = na.omit) 
-mwc <- summary(model.wcold)
-mwc
-
-# across
-model.acold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                (1|ID),
-                      family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
-                      data = across %>% filter(quality == 'cold'),
-                      na.action = na.omit) 
-mac <- summary(model.acold)
-mac
-```
-
-# Warm - within and across
-```{r warm_indiv}
-# within
-model.wwarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                (1|ID),
-                      family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
-                      data = within %>% filter(quality == 'warm'),
-                      na.action = na.omit) 
-mww <- summary(model.wwarm)
-mww
-
-# across
-model.awarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                (1|ID),
-                      family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
-                      data = across %>% filter(quality == 'warm'),
-                      na.action = na.omit) 
-maw <- summary(model.awarm)
-maw
-```
-
-# Burn - within and across
-```{r burn_indiv}
-# isolate responders only
-within <- df_long %>% 
-  filter(condition == 'within' & responder == 1)
-across <-  df_long %>% 
-  filter(condition == 'across' & responder == 1)
-
-# within
-model.wburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                (1|ID),
-                      family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
-                      data = within %>% filter(quality == 'burn'),
-                      na.action = na.omit) 
-mwb <- summary(model.wburn)
-mwb
-
-# across
-model.aburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                (1|ID),
-                      family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation,
-                      data = across %>% filter(quality == 'burn'),
-                      na.action = na.omit) 
-mab <- summary(model.aburn)
-mab
-```
-
 # EXPLORATORY HYPOTHESES
 # Correlation between quality (cold/warm/burn)
 
@@ -684,6 +876,7 @@ corrplot(cormat, type = 'lower',
          mar = c(0,0,1,0), 
          tl.cex=0.9) 
 ```
+
 # Scatter plots
 ```{r scatter}
 # Non TGI plots
@@ -799,4 +992,88 @@ model.burn1 = gamlss(VAS ~ manipulation * condition * cold_cond + trial_n +
                     trace = F) 
 mc1 <- summary(model.burn1)
 mc1
+```
+
+# Run individual models on within and across dermatomes for H2
+Directly compare proximal-distal and rostral-caudal results for each quality
+
+# Cold - within and across
+```{r cold_indiv}
+# seperate data-frames
+within <- df_long %>% 
+  filter(condition == 'within')
+across <-  df_long %>% 
+  filter(condition == 'across')
+
+# within
+model.wcold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = within %>% filter(quality == 'cold'),
+                      na.action = na.omit) 
+mwc <- summary(model.wcold)
+mwc
+
+# across
+model.acold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = across %>% filter(quality == 'cold'),
+                      na.action = na.omit) 
+mac <- summary(model.acold)
+mac
+```
+
+# Warm - within and across
+```{r warm_indiv}
+# within
+model.wwarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = within %>% filter(quality == 'warm'),
+                      na.action = na.omit) 
+mww <- summary(model.wwarm)
+mww
+
+# across
+model.awarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = across %>% filter(quality == 'warm'),
+                      na.action = na.omit) 
+maw <- summary(model.awarm)
+maw
+```
+
+# Burn - within and across
+```{r burn_indiv}
+# isolate responders only
+within <- df_long %>% 
+  filter(condition == 'within' & responder == 1)
+across <-  df_long %>% 
+  filter(condition == 'across' & responder == 1)
+
+# within
+model.wburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = within %>% filter(quality == 'burn'),
+                      na.action = na.omit) 
+mwb <- summary(model.wburn)
+mwb
+
+# across
+model.aburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = across %>% filter(quality == 'burn'),
+                      na.action = na.omit) 
+mab <- summary(model.aburn)
+mab
 ```
