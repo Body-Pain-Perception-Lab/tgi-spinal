@@ -321,6 +321,14 @@ ggplot(data = vas_meds %>%
     position = position_nudge(x = nudge2), width = .2,
       errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
       outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'cold', manipulation == 'Non-TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge1)) + 
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'cold', manipulation == 'TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge2)) +
   scale_colour_manual(values = c(blue[5], blue[7])) +
   scale_fill_manual(values = c(blue[2], blue[4])) +
   scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
@@ -375,6 +383,14 @@ ggplot(data = vas_meds %>%
     position = position_nudge(x = nudge2), width = .2,
       errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
       outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'warm', manipulation == 'Non-TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge1)) + 
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'warm', manipulation == 'TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge2)) +
   scale_colour_manual(values = c(oran[5], oran[7])) +
   scale_fill_manual(values = c(oran[2], oran[4])) +
   scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
@@ -428,6 +444,14 @@ ggplot(data = vas_meds %>%
     position = position_nudge(x = nudge2), width = .2,
       errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
       outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'burn', manipulation == 'Non-TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge1)) + 
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'burn', manipulation == 'TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge2)) +
   scale_colour_manual(values = c(purp[5], purp[7])) +
   scale_fill_manual(values = c(purp[2], purp[4])) +
   scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
@@ -522,6 +546,14 @@ ggplot(data = vas_meds1 %>%
     position = position_nudge(x = nudge2), width = .2,
       errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
       outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_line(data = h2_sum1 %>% 
+    filter(quality == 'cold', manipulation == 'Non-TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge1)) + 
+  geom_line(data = h2_sum1 %>% 
+    filter(quality == 'cold', manipulation == 'TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge2)) +
   scale_colour_manual(values = c(blue[5], blue[7])) +
   scale_fill_manual(values = c(blue[2], blue[4])) +
   scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
@@ -576,6 +608,14 @@ ggplot(data = vas_meds1 %>%
     position = position_nudge(x = nudge2), width = .2,
       errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
       outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_line(data = h2_sum1 %>% 
+    filter(quality == 'warm', manipulation == 'Non-TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge1)) + 
+  geom_line(data = h2_sum1 %>% 
+    filter(quality == 'warm', manipulation == 'TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge2)) +
   scale_colour_manual(values = c(oran[5], oran[7])) +
   scale_fill_manual(values = c(oran[2], oran[4])) +
   scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
@@ -629,6 +669,14 @@ ggplot(data = vas_meds1 %>%
     position = position_nudge(x = nudge2), width = .2,
       errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
       outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_line(data = h2_sum1 %>% 
+    filter(quality == 'burn', manipulation == 'Non-TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge1)) + 
+  geom_line(data = h2_sum1 %>% 
+    filter(quality == 'burn', manipulation == 'TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge2)) +
   scale_colour_manual(values = c(purp[5], purp[7])) +
   scale_fill_manual(values = c(purp[2], purp[4])) +
   scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
