@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Loading libraries
 # check for pacman package and install if not found
 if (!require("pacman")) install.packages("pacman")
-  pacman::p_load(boot, broom, broom.mixed, brms, caret, corrplot, DHARMa, 
+  pacman::p_load(boot, broom, broom.mixed, brms, caret, corrplot, DHARMa, gamlss,
                  gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
                  modelsummary, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
                  rsample, rstatix, simr, tibble, tidyverse, wesanderson
@@ -470,9 +470,10 @@ df_long$cold_cond[df_long$cold_probe == 'caudal'] <- 'prox_caud'
 # to run zero inflated regressions need to make sure no values = 100, 
 # as cannot model them, so simply minus a very small fraction from those values
 df_long$beta <- ifelse(df_long$VAS==100, df_long$beta-0.0001, df_long$beta <- df_long$VAS)
+df_long$beta <- df_long$beta/100
 
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
-df_long$beta <- df_long$beta/100
+df_long$VAS <- df_long$VAS/100
 df_long$ID <- factor(df_long$ID)
 ```
 
@@ -480,20 +481,31 @@ Running models as pre-registered:
 # Cold
 ```{r coldmod}
 # Try and model all with ratings
-model.cold = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + procedure + trial_n +
-                                (1|ID),
+model.cold = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + trial_n +
+                                (1|ID) + (1|order),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
                       data = df_long %>% filter(quality == 'cold'),
                       na.action = na.omit) 
 mc <- summary(model.cold)
 mc
+
+model.cold1 = gamlss(VAS ~ manipulation * condition * cold_cond + procedure + trial_n +
+                                random(ID),
+                    nu.formula = ~ 1+manipulation,
+                    tau.formula = ~ 1+manipulation,
+                    family = BEINF(mu.link = 'logit', sigma.link = 'logit', nu.link = 'logit', 
+                                   tau.link = 'logit'),
+                    data = test %>% filter(quality == 'cold'),
+                    trace = F) 
+mc1 <- summary(model.cold1)
+mc1
 ```
 # Warm
 ```{r warmmod}
 # Try and model all with ratings
-model.warm = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + procedure +
-                                trial_n + (1|ID),
+model.warm = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond +
+                                trial_n + (1|ID) + (1|order),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
                       data = df_long %>% filter(quality == 'warm'),
@@ -513,14 +525,25 @@ df_resp <- df_long %>%
 n <- count(df_resp, 'ID')
 length(n$ID)
 # Try and model all with ratings
-model.burn = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + procedure +
-                                trial_n +(1|ID),
+model.burn = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + 
+                                trial_n + (1|ID) + (1|order),
                       family = glmmTMB::beta_family(),
-                      ziformula = ~1+manipulation + (1|ID),
+                      ziformula = ~1+manipulation,
                       data = df_resp %>% filter(quality == 'burn'),
                       na.action = na.omit) 
 mb <- summary(model.burn)
 mb
+
+model.burn1 = gamlss(VAS ~ manipulation * condition * cold_cond + trial_n +
+                                random(ID) + random(as.factor(procedure)),
+                    nu.formula = ~ 1+manipulation,
+                    tau.formula = ~ 1+manipulation,
+                    family = BEINF(mu.link = 'logit', sigma.link = 'logit', nu.link = 'logit', 
+                                   tau.link = 'logit'),
+                    data = df_resp %>% filter(quality == 'burn'),
+                    trace = F) 
+mc1 <- summary(model.burn1)
+mc1
 ```
 
 # Run model checks on all
@@ -647,11 +670,11 @@ ggplot(df_means, aes(colour = quality)) +
   theme_bw()
 
 # correlate
-qual_cor <- hetcor(df_corr, type = 'spearman')
+qual_cor <- hetcor(df_corr, type = 'pearson')
 cormat <- qual_cor$correlations
 
 # significance values
-p <- cor.mtest(df_corr, type ='spearman')$p
+p <- cor.mtest(df_corr, type ='pearson')$p
 
 # correlation matrix
 # plotting correlations between variables
@@ -754,3 +777,26 @@ ggsave('stgi_correlations.png', corr_plot, device = NULL, path = anaPath,
 # Initial burn
 Are there any observed differences in dermatome and warm and cold afferents
 for the first initial burning rating, before trial begins?
+
+```{r initmod}
+# Try and model all with ratings
+model.init = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + 
+                                trial_n + (1|ID) + (1|order),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_long %>% filter(quality == 'init'),
+                      na.action = na.omit) 
+mi <- summary(model.init)
+mi
+
+model.burn1 = gamlss(VAS ~ manipulation * condition * cold_cond + trial_n +
+                                random(ID) + random(as.factor(procedure)),
+                    nu.formula = ~ 1+manipulation,
+                    tau.formula = ~ 1+manipulation,
+                    family = BEINF(mu.link = 'logit', sigma.link = 'logit', nu.link = 'logit', 
+                                   tau.link = 'logit'),
+                    data = df_resp %>% filter(quality == 'burn'),
+                    trace = F) 
+mc1 <- summary(model.burn1)
+mc1
+```
