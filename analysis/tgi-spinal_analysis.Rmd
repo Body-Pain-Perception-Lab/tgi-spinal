@@ -636,6 +636,10 @@ mw <- summary(model.warm)
 mw
 
 Anova(model.warm)
+
+eff <- ggeffects::ggeffect(model.warm, terms = c('cold_cond','condition'),
+                           type = 'random', ci.lvl = .95)
+plot(eff)
 ```
 
 # Burn
