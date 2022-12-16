@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # check for pacman package and install if not found
 if (!require("pacman")) install.packages("pacman")
   pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gamlss,
-                 gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
+                 ggeffects, gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
                  modelsummary, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
                  rsample, rstatix, simr, tibble, tidyverse, wesanderson
                  )
@@ -810,16 +810,20 @@ mc
 
 Anova(model.cold)
 
-model.cold1 = gamlss(VAS ~ manipulation * condition * cold_cond + procedure + trial_n +
-                                random(ID),
-                    nu.formula = ~ 1+manipulation,
-                    tau.formula = ~ 1+manipulation,
-                    family = BEINF(mu.link = 'logit', sigma.link = 'logit', nu.link = 'logit', 
-                                   tau.link = 'logit'),
-                    data = test %>% filter(quality == 'cold'),
-                    trace = F) 
-mc1 <- summary(model.cold1)
-mc1
+df_long$bin <- ifelse(df_long$VAS == 0, 1, 0)
+
+cold.eff <- glm(bin~1+manipulation, 
+                  family = binomial(link = 'logit'),
+                  data = df_long %>% filter(quality == 'cold'))
+summary(cold.eff)
+
+# marginal effects from glm
+eff <- ggeffects::ggeffect(cold.eff, terms = c('manipulation'))
+plot(eff)
+
+eff <- ggeffects::ggeffect(model.cold, terms = c('condition', 'manipulation', 'cold_cond'),
+                           type = 'random', ci.lvl = .95)
+plot(eff)
 ```
 # Warm
 ```{r warmmod}
@@ -858,16 +862,6 @@ mb
 
 Anova(model.burn)
 
-model.burn1 = gamlss(VAS ~ manipulation * condition * cold_cond + trial_n +
-                                random(ID) + random(as.factor(procedure)),
-                    nu.formula = ~ 1+manipulation,
-                    tau.formula = ~ 1+manipulation,
-                    family = BEINF(mu.link = 'logit', sigma.link = 'logit', nu.link = 'logit', 
-                                   tau.link = 'logit'),
-                    data = df_resp %>% filter(quality == 'burn'),
-                    trace = F) 
-mc1 <- summary(model.burn1)
-mc1
 ```
 
 # Run model checks on all
@@ -1030,16 +1024,6 @@ model.init = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond +
 mi <- summary(model.init)
 mi
 
-model.burn1 = gamlss(VAS ~ manipulation * condition * cold_cond + trial_n +
-                                random(ID) + random(as.factor(procedure)),
-                    nu.formula = ~ 1+manipulation,
-                    tau.formula = ~ 1+manipulation,
-                    family = BEINF(mu.link = 'logit', sigma.link = 'logit', nu.link = 'logit', 
-                                   tau.link = 'logit'),
-                    data = df_resp %>% filter(quality == 'burn'),
-                    trace = F) 
-mc1 <- summary(model.burn1)
-mc1
 ```
 
 # Run individual models on within and across dermatomes for H2
