@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 if (!require("pacman")) install.packages("pacman")
   pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gamlss,
                  ggeffects, gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
-                 modelsummary, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
+                 modelsummary, mumin, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
                  rsample, rstatix, simr, tibble, tidyverse, wesanderson
                  )
 ```
@@ -257,8 +257,7 @@ Hypothesis 2 a & b: relative location of warm and cold
 ```{r h2}
 # Change name of manipulation
 vas_meds$manipulation <- factor(vas_meds$manipulation, labels = c('Non-TGI', 'TGI'))
-h2_sum <- summarySEwithin(data = vas_meds, measurevar = 'VAS', 
-                          withinvars = c('quality','manipulation','cold_probe'))
+h2_sum <- aggregate(VAS~quality*manipulation*cold_probe, median, data = vas_meds)
 
 # organise data for plotting
 vas_meds$cold_probe <- factor(vas_meds$cold_probe, levels = 
@@ -275,7 +274,11 @@ vas_meds$xj <- jitter(as.numeric(vas_meds$cold_code), amount = .05)
 
 nudge1 = -.1
 nudge2 = .1
+```
 
+# All dat plot
+
+```{r}
 # plot all data
 # COLD
 ggplot(data = vas_meds %>% 
@@ -336,8 +339,10 @@ ggplot(data = vas_meds %>%
          y = 'VAS Rating (0-100)') +
   ylim(-0.5,100) +
   theme_classic() +
-  theme(legend.position = 'none') -> h2_cold_plot
-h2_cold_plot
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12),
+        title = element_text(size = 12)) -> h2_cold_plot
 
 # WARM
 ggplot(data = vas_meds %>% 
@@ -398,7 +403,10 @@ ggplot(data = vas_meds %>%
          y = 'VAS Rating (0-100)') +
   ylim(-0.5,100) +
   theme_classic() +
-  theme(legend.position = 'none') -> h2_warm_plot
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12),
+        title = element_text(size = 12)) -> h2_warm_plot
 
 # BURN
 ggplot(data = vas_meds %>% 
@@ -459,240 +467,18 @@ ggplot(data = vas_meds %>%
          y = 'VAS Rating (0-100)') +
   ylim(-0.5,100) +
   theme_classic() +
-  theme(legend.position = 'none')  -> h2_burn_plot
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12),
+        title = element_text(size = 12))  -> h2_burn_plot
   
 # arrange entire plot
 h2_plot <- ggarrange(h2_cold_plot, h2_warm_plot, h2_burn_plot,
-                     nrow = 2, ncol = 2,
-                     common.legend = TRUE)
+                     nrow = 2, ncol = 2)
 h2_plot
 
 ggsave('h2_alldat_plot.png', h2_plot, device = NULL, path = anaPath,
-       width = 10, height = 6.5, dpi = 600)
-```
-
-# Same plot, no zeros
-```{r h2nozero}
-# First, remove zeros from trials to better represent analysis
-vas_nozero <- all_vas %>% 
-  filter(VAS > 0)
-
-vas_meds1 <- aggregate(VAS ~ quality*manipulation*condition*cold_probe*ID, 
-                      median, data = vas_nozero)
-
-# Change name of manipulation
-vas_meds1$manipulation <- factor(vas_meds1$manipulation, labels = c('Non-TGI', 'TGI'))
-h2_sum1 <- summarySEwithin(data = vas_meds1, measurevar = 'VAS', 
-                          withinvars = c('quality','manipulation','cold_probe'))
-
-# organise data for plotting
-vas_meds1$cold_probe <- factor(vas_meds1$cold_probe, levels = 
-                                c('proximal', 'distal', 'rostral', 'caudal'))
-h2_sum1$cold_probe <- factor(h2_sum1$cold_probe, levels = 
-                                c('proximal', 'distal', 'rostral', 'caudal'))
-# recoding cold probe location so can jitter
-vas_meds1$cold_code <- factor(vas_meds1$cold_probe, labels = 
-                                c(1,2,3,4))
-h2_sum1$cold_code <- factor(h2_sum1$cold_probe, labels = 
-                                c(1,2,3,4))
-# creating jitter
-vas_meds1$xj <- jitter(as.numeric(vas_meds1$cold_code), amount = .05)
-
-nudge1 = -.1
-nudge2 = .1
-
-# plot all data
-# COLD
-ggplot(data = vas_meds1 %>% 
-         filter(quality == 'cold'),
-       mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'cold', cold_probe == 'proximal', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'cold', cold_probe == 'proximal', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'cold', cold_probe == 'distal', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'cold', cold_probe == 'distal', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'cold', cold_probe == 'rostral', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'cold', cold_probe == 'rostral', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'cold', cold_probe == 'caudal', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'cold', cold_probe == 'caudal', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_line(data = h2_sum1 %>% 
-    filter(quality == 'cold', manipulation == 'Non-TGI'),
-    aes(as.numeric(cold_code), VAS), 
-    position = position_nudge(nudge1)) + 
-  geom_line(data = h2_sum1 %>% 
-    filter(quality == 'cold', manipulation == 'TGI'),
-    aes(as.numeric(cold_code), VAS), 
-    position = position_nudge(nudge2)) +
-  scale_colour_manual(values = c(blue[5], blue[7])) +
-  scale_fill_manual(values = c(blue[2], blue[4])) +
-  scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
-  labs(title = 'Cold ratings', x = NULL, 
-         y = 'VAS Rating (0-100)') +
-  ylim(-0.5,100) +
-  theme_classic() +
-  theme(legend.position = 'none') -> h2_cold_plot
-h2_cold_plot
-
-# WARM
-ggplot(data = vas_meds1 %>% 
-         filter(quality == 'warm'),
-       mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'warm', cold_probe == 'proximal', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'warm', cold_probe == 'proximal', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'warm', cold_probe == 'distal', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'warm', cold_probe == 'distal', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'warm', cold_probe == 'rostral', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'warm', cold_probe == 'rostral', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'warm', cold_probe == 'caudal', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'warm', cold_probe == 'caudal', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_line(data = h2_sum1 %>% 
-    filter(quality == 'warm', manipulation == 'Non-TGI'),
-    aes(as.numeric(cold_code), VAS), 
-    position = position_nudge(nudge1)) + 
-  geom_line(data = h2_sum1 %>% 
-    filter(quality == 'warm', manipulation == 'TGI'),
-    aes(as.numeric(cold_code), VAS), 
-    position = position_nudge(nudge2)) +
-  scale_colour_manual(values = c(oran[5], oran[7])) +
-  scale_fill_manual(values = c(oran[2], oran[4])) +
-  scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
-  labs(title = 'Warm ratings', x = NULL, 
-         y = 'VAS Rating (0-100)') +
-  ylim(-0.5,100) +
-  theme_classic() +
-  theme(legend.position = 'none') -> h2_warm_plot
-
-# BURN
-ggplot(data = vas_meds1 %>% 
-         filter(quality == 'burn'),
-       mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'burn', cold_probe == 'proximal', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'burn', cold_probe == 'proximal', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'burn', cold_probe == 'distal', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'burn', cold_probe == 'distal', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'burn', cold_probe == 'rostral', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'burn', cold_probe == 'rostral', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'burn', cold_probe == 'caudal', manipulation == 'Non-TGI'),
-    position = position_nudge(x = nudge1), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_boxjitter(data = vas_meds1 %>% 
-    filter(quality == 'burn', cold_probe == 'caudal', manipulation == 'TGI'),
-    position = position_nudge(x = nudge2), width = .2,
-      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-  geom_line(data = h2_sum1 %>% 
-    filter(quality == 'burn', manipulation == 'Non-TGI'),
-    aes(as.numeric(cold_code), VAS), 
-    position = position_nudge(nudge1)) + 
-  geom_line(data = h2_sum1 %>% 
-    filter(quality == 'burn', manipulation == 'TGI'),
-    aes(as.numeric(cold_code), VAS), 
-    position = position_nudge(nudge2)) +
-  scale_colour_manual(values = c(purp[5], purp[7])) +
-  scale_fill_manual(values = c(purp[2], purp[4])) +
-  scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
-  labs(title = 'Burn ratings', x = NULL, 
-         y = 'VAS Rating (0-100)') +
-  ylim(-0.5,100) +
-  theme_classic() +
-  theme(legend.position = 'none')  -> h2_burn_plot
-  
-# arrange entire plot
-h21_plot <- ggarrange(h2_cold_plot, h2_warm_plot, h2_burn_plot,
-                     nrow = 2, ncol = 2)
-h21_plot
-
-ggsave('h2_nozero_plot.png', h21_plot, device = NULL, path = anaPath,
-       width = 10, height = 6.5, dpi = 600)
+       width = 10, height = 7, dpi = 600)
 ```
 
 # Differences
@@ -732,10 +518,11 @@ ggplot(data = vas_h2_diff %>%
                aes(manipulation, ymin = difference-ci, ymax = difference+ci),
                width = .1, size = .7, colour = 'grey15') +
   scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
-  labs(title = 'Hypothesis 2 Cold & Warm Afferents: Within',
+  labs(title = 'Within: Proximal vs. Distal',
        y = 'Proximal - Distal VAS Ratings', x = NULL) +
   facet_wrap(~quality) +
-  theme_classic()
+  theme_classic() +
+  theme(legend.position = 'none') -> h2_diff_within
 
 # plot the differences - across
 ggplot(data = vas_h2_diff %>% 
@@ -753,10 +540,19 @@ ggplot(data = vas_h2_diff %>%
                aes(manipulation, ymin = difference-ci, ymax = difference+ci),
                width = .1, size = .7, colour = 'grey15') +
   scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
-  labs(title = 'Hypothesis 2 Cold & Warm Afferents: Across',
+  labs(title = 'Across: Rostral vs. Caudal',
        y = 'Caudal - Rostral VAS Ratings', x = NULL) +
   facet_wrap(~quality) +
-  theme_classic()
+  theme_classic() +
+  theme(legend.position = 'none') -> h2_diff_across
+
+# arrange entire plot
+h2diff_plot <- ggarrange(h2_diff_within, h2_diff_across,
+                     nrow = 2, ncol = 1)
+h2diff_plot
+
+ggsave('h2_diff_plot.png', h2diff_plot, device = NULL, path = anaPath,
+       width = 6, height = 9, dpi = 600)
 ```
 
 # Plot 32 burn responders seperately
@@ -809,7 +605,10 @@ mc <- summary(model.cold)
 mc
 
 Anova(model.cold)
+# get Rsq with the mumin package
 
+# Getting the marginal effects for plotting
+# First the zeros - create new lm mo
 df_long$bin <- ifelse(df_long$VAS == 0, 1, 0)
 
 cold.eff <- glm(bin~1+manipulation, 
@@ -817,7 +616,6 @@ cold.eff <- glm(bin~1+manipulation,
                   data = df_long %>% filter(quality == 'cold'))
 summary(cold.eff)
 
-# marginal effects from glm
 eff <- ggeffects::ggeffect(cold.eff, terms = c('manipulation'))
 plot(eff)
 
