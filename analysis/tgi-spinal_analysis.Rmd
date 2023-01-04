@@ -627,23 +627,45 @@ cold_eff$label = factor(cold_eff$label, levels = c('proximal','distal','caudal',
 ggplot(data = cold_eff %>% 
          filter(facet == 'within'), 
        aes(label, predicted, group = group, colour = group),) +
-  geom_point(position = position_dodge(.3)) +
-  geom_line(position = position_dodge(.3)) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
   geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
-                position = position_dodge(.3), width = .1) +
+                position = position_dodge(.3), width = .1, size = .8) +
   ylim(0.1, 0.5) +
-  theme_bw()
+  labs(x = NULL, y = 'Predicted Cold Rating (0 - 1)') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(blue[4], blue[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 11)) -> plot_coldw_eff
 # plotting - across
 ggplot(data = cold_eff %>% 
          filter(facet == 'across'), 
        aes(label, predicted, group = group, colour = group),) +
-  geom_point(position = position_dodge(.3)) +
-  geom_line(position = position_dodge(.3)) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
   geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
-                position = position_dodge(.3), width = .1) +
+                position = position_dodge(.3), width = .1, size = .8) +
   ylim(0.1, 0.5) +
-  theme_bw() +
-  theme(legend.title = element_blank())
+  labs(x = NULL, y = '') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(blue[4], blue[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 11)) -> plot_colda_eff
+
+# combine
+plot_cold_eff <- ggarrange(plot_coldw_eff, plot_colda_eff,
+                           ncol = 2, nrow = 1,
+                           common.legend = TRUE,
+                           legend = 'bottom')
+plot_cold_eff
 ```
 
 # Warm
@@ -659,10 +681,66 @@ mw <- summary(model.warm)
 mw
 
 Anova(model.warm)
+```
+# Marginal effect plots of full model - warm
+```{r}
+warm_eff <- ggeffects::ggpredict(model.warm, terms = c('cold_cond', 'manipulation', 'condition'),
+                            ci.lvl = .95)
+# changing labels for plotting
+warm_eff$group <- factor(warm_eff$group, labels = c('Non-TGI', 'TGI'))
+warm_eff <- warm_eff %>% 
+  mutate(label = 
+           case_when(facet == 'across' & x == 'prox_caud' ~ 'caudal',
+                     facet == 'across' & x == 'dist_rostr' ~ 'rostral',
+                     facet == 'within' & x == 'prox_caud' ~ 'proximal',
+                     facet == 'within' & x == 'dist_rostr' ~ 'distal',) 
+         )
 
-eff <- ggeffects::ggeffect(model.warm, terms = c('cold_cond','condition'),
-                           type = 'random', ci.lvl = .95)
-plot(eff)
+warm_eff$label = factor(warm_eff$label, levels = c('proximal','distal','caudal','rostral'))
+  
+# plotting - within
+ggplot(data = warm_eff %>% 
+         filter(facet == 'within'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.4) +
+  labs(x = NULL, y = 'Predicted Warm Rating (0 - 1)') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(oran[4], oran[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 11)) -> plot_warmw_eff
+# plotting - across
+ggplot(data = warm_eff %>% 
+         filter(facet == 'across'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.4) +
+  labs(x = NULL, y = '') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(oran[4], oran[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 11)) -> plot_warma_eff
+
+# combine
+plot_warm_eff <- ggarrange(plot_warmw_eff, plot_warma_eff,
+                           ncol = 2, nrow = 1,
+                           common.legend = TRUE,
+                           legend = 'bottom')
+plot_warm_eff
 ```
 
 # Burn
