@@ -631,7 +631,7 @@ ggplot(data = cold_eff %>%
   geom_line(position = position_dodge(.3), size = 1) +
   geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
                 position = position_dodge(.3), width = .1, size = .8) +
-  ylim(0.1, 0.5) +
+  ylim(0, 0.5) +
   labs(x = NULL, y = 'Predicted Cold Rating (0 - 1)') +
   facet_wrap(~facet) +
   scale_colour_manual(values = c(blue[4], blue[7])) +
@@ -649,7 +649,7 @@ ggplot(data = cold_eff %>%
   geom_line(position = position_dodge(.3), size = 1) +
   geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
                 position = position_dodge(.3), width = .1, size = .8) +
-  ylim(0.1, 0.5) +
+  ylim(0, 0.5) +
   labs(x = NULL, y = '') +
   facet_wrap(~facet) +
   scale_colour_manual(values = c(blue[4], blue[7])) +
@@ -658,14 +658,14 @@ ggplot(data = cold_eff %>%
         axis.text = element_text(size = 10),
         axis.title = element_text(size = 12),
         strip.text = element_text(size = 12),
-        legend.text = element_text(size = 11)) -> plot_colda_eff
+        legend.text = element_text(size = 10)) -> plot_colda_eff
 
 # combine
-plot_cold_eff <- ggarrange(plot_coldw_eff, plot_colda_eff,
+plot_cold_eff1 <- ggarrange(plot_coldw_eff, plot_colda_eff,
                            ncol = 2, nrow = 1,
                            common.legend = TRUE,
-                           legend = 'bottom')
-plot_cold_eff
+                           legend = 'right')
+plot_cold_eff1
 ```
 
 # Warm
@@ -706,7 +706,7 @@ ggplot(data = warm_eff %>%
   geom_line(position = position_dodge(.3), size = 1) +
   geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
                 position = position_dodge(.3), width = .1, size = .8) +
-  ylim(0, 0.4) +
+  ylim(0, 0.5) +
   labs(x = NULL, y = 'Predicted Warm Rating (0 - 1)') +
   facet_wrap(~facet) +
   scale_colour_manual(values = c(oran[4], oran[7])) +
@@ -724,7 +724,7 @@ ggplot(data = warm_eff %>%
   geom_line(position = position_dodge(.3), size = 1) +
   geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
                 position = position_dodge(.3), width = .1, size = .8) +
-  ylim(0, 0.4) +
+  ylim(0, 0.5) +
   labs(x = NULL, y = '') +
   facet_wrap(~facet) +
   scale_colour_manual(values = c(oran[4], oran[7])) +
@@ -733,16 +733,15 @@ ggplot(data = warm_eff %>%
         axis.text = element_text(size = 10),
         axis.title = element_text(size = 12),
         strip.text = element_text(size = 12),
-        legend.text = element_text(size = 11)) -> plot_warma_eff
+        legend.text = element_text(size = 10)) -> plot_warma_eff
 
 # combine
-plot_warm_eff <- ggarrange(plot_warmw_eff, plot_warma_eff,
+plot_warm_eff1 <- ggarrange(plot_warmw_eff, plot_warma_eff,
                            ncol = 2, nrow = 1,
                            common.legend = TRUE,
-                           legend = 'bottom')
-plot_warm_eff
+                           legend = 'right')
+plot_warm_eff1
 ```
-
 # Burn
 The burning hypothesis is only for participants that experience burning TGI 
 (aka are responders)
@@ -764,7 +763,67 @@ mb <- summary(model.burn)
 mb
 
 Anova(model.burn)
+```
 
+# Marginal effect plots of full model - burn
+```{r}
+burn_eff <- ggeffects::ggpredict(model.burn, terms = c('cold_cond', 'manipulation', 'condition'),
+                            ci.lvl = .95)
+# changing labels for plotting
+burn_eff$group <- factor(burn_eff$group, labels = c('Non-TGI', 'TGI'))
+burn_eff <- burn_eff %>% 
+  mutate(label = 
+           case_when(facet == 'across' & x == 'prox_caud' ~ 'caudal',
+                     facet == 'across' & x == 'dist_rostr' ~ 'rostral',
+                     facet == 'within' & x == 'prox_caud' ~ 'proximal',
+                     facet == 'within' & x == 'dist_rostr' ~ 'distal',) 
+         )
+
+burn_eff$label = factor(burn_eff$label, levels = c('proximal','distal','caudal','rostral'))
+  
+# plotting - within
+ggplot(data = burn_eff %>% 
+         filter(facet == 'within'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.5) +
+  labs(x = NULL, y = 'Predicted Burn Rating (0 - 1)') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(purp[4], purp[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 11)) -> plot_burnw_eff
+# plotting - across
+ggplot(data = burn_eff %>% 
+         filter(facet == 'across'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.5) +
+  labs(x = NULL, y = '') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(purp[4], purp[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 10)) -> plot_burna_eff
+
+# combine
+plot_burn_eff1 <- ggarrange(plot_burnw_eff, plot_burna_eff,
+                           ncol = 2, nrow = 1,
+                           common.legend = TRUE,
+                           legend = 'right')
+plot_burn_eff1
 ```
 
 # Zero inflation marginal effects plot of all models
@@ -772,27 +831,111 @@ Anova(model.burn)
 # Getting the marginal effects for plotting
 # First the zeros - create new lm mo
 df_long$bin <- ifelse(df_long$VAS == 0, 1, 0)
+df_resp$bin <- ifelse(df_resp$VAS == 0, 1, 0)
 
 # model for each VAS
-cold.eff <- glm(bin~1+manipulation, 
+# cold
+cold.zeff <- glm(bin~1+manipulation, 
                   family = binomial(link = 'logit'),
                   data = df_long %>% filter(quality == 'cold'))
-summary(cold.eff)
+summary(cold.zeff)
+# warm
+warm.zeff <- glm(bin~1+manipulation, 
+                  family = binomial(link = 'logit'),
+                  data = df_long %>% filter(quality == 'warm'))
+summary(warm.zeff)
+# burn
+burn.zeff <- glm(bin~1+manipulation, 
+                  family = binomial(link = 'logit'),
+                  data = df_resp %>% filter(quality == 'burn'))
+summary(burn.zeff)
 
 # Data-frames
-cold_zeff <- ggeffects::ggeffect(cold.eff, terms = c('manipulation'))
+cold_zeff <- ggeffects::ggeffect(cold.zeff, terms = c('manipulation'))
+warm_zeff <- ggeffects::ggeffect(warm.zeff, terms = c('manipulation'))
+burn_zeff <- ggeffects::ggeffect(burn.zeff, terms = c('manipulation'))
 # changing labels for plotting
 cold_zeff$x <- factor(cold_zeff$x, labels = c('Non-TGI', 'TGI'))
+warm_zeff$x <- factor(warm_zeff$x, labels = c('Non-TGI', 'TGI'))
+burn_zeff$x <- factor(burn_zeff$x, labels = c('Non-TGI', 'TGI'))
 
-# plotting
-ggplot(cold_zeff, aes(x, predicted)) +
-  geom_point() +
+# plotting - cold
+ggplot(cold_zeff, aes(x, predicted, colour = x)) +
+  geom_point(size = 2.5) +
   geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
-                width = .1) +
-  theme_bw()
+                width = .05, size = .8) +
+  labs(y = 'Predicted proportion of zeros', x = NULL) +
+  ylim(0,.25) +
+  scale_colour_manual(values = c(blue[4], blue[7])) +
+  theme_classic() + 
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12)) -> plot_zcold
 
+# warm
+ggplot(warm_zeff, aes(x, predicted, colour = x)) +
+  geom_point(size = 2.5) +
+  geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
+                width = .05, size = .8) +
+  labs(y = 'Predicted proportion of zeros', x = NULL) +
+  ylim(.45,.7) +
+  scale_colour_manual(values = c(oran[4], oran[7])) +
+  theme_classic() + 
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12)) -> plot_zwarm
+
+# burn
+ggplot(burn_zeff, aes(x, predicted, colour = x)) +
+  geom_point(size = 2.5) +
+  geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
+                width = .05, size = .8) +
+  labs(y = 'Predicted proportion of zeros', x = NULL) +
+  ylim(.05,.3) +
+  scale_colour_manual(values = c(purp[4], purp[7])) +
+  theme_classic() + 
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12)) -> plot_zburn
 ```
 
+# Compile all marginal effect plots
+```{r}
+# Cold
+plot_cold_eff <- ggarrange(plot_zcold, plot_cold_eff1,
+                   ncol = 2, nrow = 1,
+                   widths = c(.35,1))
+# add title
+plot_cold_eff <- annotate_figure(plot_cold_eff, top = text_grob("Cold Ratings", 
+                                                size = 12, hjust = 4.05))
+plot_cold_eff
+
+# Warm
+plot_warm_eff <- ggarrange(plot_zwarm, plot_warm_eff1,
+                   ncol = 2, nrow = 1,
+                   widths = c(.35,1))
+# add title
+plot_warm_eff <- annotate_figure(plot_warm_eff, top = text_grob("Warm Ratings", 
+                                                size = 12, hjust = 3.69))
+plot_warm_eff
+
+# Burn
+plot_burn_eff <- ggarrange(plot_zburn, plot_burn_eff1,
+                   ncol = 2, nrow = 1,
+                   widths = c(.35,1))
+# add title
+plot_burn_eff <- annotate_figure(plot_burn_eff, top = text_grob("Burn Ratings", 
+                                                size = 12, hjust = 4.1))
+plot_burn_eff
+
+# Compile all!
+plot_eff <- ggarrange(plot_cold_eff, plot_warm_eff, plot_burn_eff,
+                      ncol = 1, nrow = 3)
+plot_eff
+
+ggsave('h2_effects_plot.png', plot_eff, device = NULL, path = anaPath,
+       width = 9, height = 8, dpi = 600)
+```
 # Run model checks on all
 ```{r checks, warning=FALSE}
 # cold assumption - on n = 50
