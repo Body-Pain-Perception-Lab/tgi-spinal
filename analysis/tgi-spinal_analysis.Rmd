@@ -5,14 +5,14 @@ date: "2022-12-02"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ## Loading libraries
 # check for pacman package and install if not found
 if (!require("pacman")) install.packages("pacman")
   pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gamlss,
                  ggeffects, gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
-                 modelsummary, mumin, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
+                 modelsummary, MuMIn, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
                  rsample, rstatix, simr, tibble, tidyverse, wesanderson
                  )
 ```
@@ -76,8 +76,8 @@ df_res <- df_res[df_res$ID != '019' ,]
 df_res$ID <- as.numeric(df_res$ID)
 # recode conditions
 df_res <- df_res %>%
-  mutate(condition = recode(condition, '1' = 'within', '2' = 'across'),
-         cold_probe = recode(cold_probe, 'C6' = 'rostral', 'T1' = 'caudal',
+  mutate(condition = dplyr::recode(condition, '1' = 'within', '2' = 'across'),
+         cold_probe = dplyr::recode(cold_probe, 'C6' = 'rostral', 'T1' = 'caudal',
                              'dist' = 'distal', 'prox' = 'proximal'))
 # change levels 
 df_res$cold_probe <- factor(df_res$cold_probe, 
@@ -97,7 +97,7 @@ fileName = paste(anaPath, 'STGI_compiled-data.csv', sep = '')
 write.csv(df_res, fileName, row.names = FALSE)
 
 # check we have 40 participants with 96 trials
-id_check <- count(df_res, ID)
+id_check <- count(df_res, 'ID')
 id_check
 ```
 
@@ -606,23 +606,46 @@ mc
 
 Anova(model.cold)
 # get Rsq with the mumin package
-
-# Getting the marginal effects for plotting
-# First the zeros - create new lm mo
-df_long$bin <- ifelse(df_long$VAS == 0, 1, 0)
-
-cold.eff <- glm(bin~1+manipulation, 
-                  family = binomial(link = 'logit'),
-                  data = df_long %>% filter(quality == 'cold'))
-summary(cold.eff)
-
-eff <- ggeffects::ggeffect(cold.eff, terms = c('manipulation'))
-plot(eff)
-
-eff <- ggeffects::ggeffect(model.cold, terms = c('condition', 'manipulation', 'cold_cond'),
-                           type = 'random', ci.lvl = .95)
-plot(eff)
 ```
+# Marginal effect plots of full model - cold
+```{r}
+cold_eff <- ggeffects::ggpredict(model.cold, terms = c('cold_cond', 'manipulation', 'condition'),
+                           ci.lvl = .95)
+# changing labels for plotting
+cold_eff$group <- factor(cold_eff$group, labels = c('Non-TGI', 'TGI'))
+cold_eff <- cold_eff %>% 
+  mutate(label = 
+           case_when(facet == 'across' & x == 'prox_caud' ~ 'caudal',
+                     facet == 'across' & x == 'dist_rostr' ~ 'rostral',
+                     facet == 'within' & x == 'prox_caud' ~ 'proximal',
+                     facet == 'within' & x == 'dist_rostr' ~ 'distal',) 
+         )
+
+cold_eff$label = factor(cold_eff$label, levels = c('proximal','distal','caudal','rostral'))
+  
+# plotting - within
+ggplot(data = cold_eff %>% 
+         filter(facet == 'within'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3)) +
+  geom_line(position = position_dodge(.3)) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1) +
+  ylim(0.1, 0.5) +
+  theme_bw()
+# plotting - across
+ggplot(data = cold_eff %>% 
+         filter(facet == 'across'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3)) +
+  geom_line(position = position_dodge(.3)) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1) +
+  ylim(0.1, 0.5) +
+  theme_bw() +
+  theme(legend.title = element_blank())
+```
+
 # Warm
 ```{r warmmod}
 # Try and model all with ratings
@@ -663,6 +686,32 @@ mb <- summary(model.burn)
 mb
 
 Anova(model.burn)
+
+```
+
+# Zero inflation marginal effects plot of all models
+```{r zero_plots}
+# Getting the marginal effects for plotting
+# First the zeros - create new lm mo
+df_long$bin <- ifelse(df_long$VAS == 0, 1, 0)
+
+# model for each VAS
+cold.eff <- glm(bin~1+manipulation, 
+                  family = binomial(link = 'logit'),
+                  data = df_long %>% filter(quality == 'cold'))
+summary(cold.eff)
+
+# Data-frames
+cold_zeff <- ggeffects::ggeffect(cold.eff, terms = c('manipulation'))
+# changing labels for plotting
+cold_zeff$x <- factor(cold_zeff$x, labels = c('Non-TGI', 'TGI'))
+
+# plotting
+ggplot(cold_zeff, aes(x, predicted)) +
+  geom_point() +
+  geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
+                width = .1) +
+  theme_bw()
 
 ```
 
