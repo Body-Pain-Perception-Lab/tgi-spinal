@@ -79,7 +79,7 @@ trial_idx = 0 ; %create a seperate index for individual trials
 count_idx = 0;
 endExp = 0;
 
-while endExp ~= 1
+%while endExp ~= 1
     for rep_idx = 1:vars.task.CalibReps %loop through trial repeats, 3 trials per thermode location
         % record number of total trials per participant
         trial_idx = trial_idx+1;
@@ -93,7 +93,7 @@ while endExp ~= 1
     
         % run countdown during TGI stimulation - number of seconds defined in
         % VAS_loadParams.m
-        StimCount(scr, vars); 
+        vars = StimCount(scr, vars); 
     
         %% Run VAS
         % run one VAS to rate burning experience
@@ -125,7 +125,8 @@ while endExp ~= 1
             vars.control.RunSuccessfull = 0;
             vars.control.Aborted = 1;
             endExp = 1; %breaking loop
-            return
+            %return
+            break
         end
         % breaking the loop if participants experience burning > 15 6 times
         % overall
@@ -137,7 +138,7 @@ while endExp ~= 1
             break
         end
     end 
-end
+%end
 
 sca; % close VAS
 ListenChar(0); %enable keypress
