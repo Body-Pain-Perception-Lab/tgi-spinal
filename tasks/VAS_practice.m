@@ -1,3 +1,4 @@
+function VAS_practice(vars)
 %% VAS rating practice script
 %% Adapted by Gosia Basińska form the main script by A.G. Mitchell 
 % Developed from code by Camila Deolindo & Francesca Fardo
@@ -10,21 +11,14 @@
 % angle2pix.m
 % probably more...            
         
-
-%% Load parameters
-clear all % clearing all old data
-
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 1; 
-addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
-VAS_loadParams;
-
-% path to save data to - should be changed depending on laptop (VAS_loadParams.m)
-datPath = vars.filename.path;
-runPath = pwd;
 
 % Reseed the random-number generator
 SetupRand;
+% if params not loaded, then load
+if ~exist('vars')
+    VAS_loadParams;
+end
 
 %% Psychtoolbox settings
 PsychDefaultSetup(2);
@@ -89,3 +83,5 @@ for practiceRep = 1:vars.task.practiceReps %repeats three ratings desired number
 end
 sca; % close VAS
 ListenChar(0); %enable keypress
+
+end

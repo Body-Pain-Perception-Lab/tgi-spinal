@@ -1,3 +1,4 @@
+function VAS_run(vars)
 %% VAS rating main script
 %% A.G. Mitchell - 25.02.2022
 % Developed from code by Camila Deolindo & Francesca Fardo
@@ -10,22 +11,14 @@
 % angle2pix.m
 % probably more...            
         
-
-%% Load parameters
 clear all % clearing all old data
-addpath helperFunctions % getting helper functions to path, just incase they are not already added (make sure they are in the same folder)
-
-% Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 0; 
-% load other relevant parameters
-VAS_loadParams;
-
-% path to save data to - should be changed depending on laptop (VAS_loadParams.m)
-datPath = vars.filename.path;
-runPath = pwd;
 
 % Reseed the random-number generator
 SetupRand;
+% if params not loaded, then load
+if ~exist('vars')
+    VAS_loadParams;
+end
 
 %% Path
 if vars.control.devFlag == 0 %only run if not debugging
@@ -196,4 +189,5 @@ if vars.control.devFlag == 0 % only run when not debugging
     writematrix(results.vasResponse, csvFile1);
     writematrix(results.vasReactionTime, csvFile2);
     writetable(results.trialInfo, csvFile3)
+end
 end

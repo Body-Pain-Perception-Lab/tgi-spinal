@@ -1,173 +1,108 @@
- function Multi_wrapper(whichPart)
+function tgispine_multiWrapper(whichPart)
 %
-% Project: TGI spine - part II
+% Project: TGI spine - experiment II
 %
 % Input: whichPart  optional argument to only run one of the TPL component tasks
 %       0   Practice
 %       1   Calibration
-%       2   Main experiment
-%
+%       2   Main experiment - first session
+%       3   Main experiment - second session
+% 
 % Sets paths, and calls functions
 %
-% Camila Sardeto Deolindo and Francesca Fardo
-% Last edit: 21/07/2022
-
-%% TPL tasks wrapper
+% Alexandra G. Mitchell
+% Adapted from code by Camila Sardeto Deolindo
+% Last edit: 16.01.2023
 
 % Close existing workspaces
 close all; clc;
+
 %% Define general vars across tasks
-vars.dir.projdir = pwd;
-vars.control.devFlag  = 0;              % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.stimFlag = 1;              % Development flag 2. Set to 0 when developing the task without a stimulator
-vars.ID.subNo = input('What is the subject number (e.g. 0001)?   ');
-vars.ID.sesNo = input('What is the session number (e.g. 0001)?   ');
-vars.control.language = input('Which language: English (1) or Danish (2)?   ');
-vars.control.startTrialN = 1;
+addpath helperFunctions % getting helper functions to path
 
-% check for data dir
-if ~exist('data', 'dir')
-    mkdir('data')
-end
+% Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
+vars.control.devFlag  = 1; 
+% load other relevant parameters
+VAS_loadParams;
 
-% Define subject No if the value is missing 
-if isempty(vars.ID.subNo)
-    vars.ID.subNo = 9999; % debugging                                            
-end
+% path to save data to - should be changed depending on laptop (VAS_loadParams.m)
+datPath = vars.filename.path;
+runPath = pwd;
 
-% Define session No if the value is missing 
-if isempty(vars.ID.sesNo)
-    vars.ID.sesNo = 1; % debugging                                            
-end
+cd(fullfile('.', 'tasks')) % cd to task folder
 
-vars.ID.subIDstring = sprintf('%04d', vars.ID.subNo);
-vars.ID.sesIDstring = sprintf('%01d', vars.ID.sesNo);
-%% Prepare metadata
-participant.MetaDataFileName = strcat(vars.ID.subIDstring, '_metaData'); 
-participant.partsCompleted = zeros(1,4);
-
-% Check if the subject folder already exists in data dir
-vars.dir.OutputFolder = fullfile(vars.dir.projdir, 'data', ['sub_',vars.ID.subIDstring], filesep);
-if ~exist(vars.dir.OutputFolder, 'dir') 
-    mkdir(vars.dir.OutputFolder)
-else
-    try load(fullfile(vars.dir.OutputFolder, ['sub_', participant.MetaDataFileName]), 'participant'); end
-end
-
-%% Set up paths
-addpath(vars.dir.OutputFolder);
-addpath(genpath('stimuli'));
-addpath(genpath('..\LibTcsMatlab2021a'));
-
-%% Check that PTB is installed
-[oldLevelScreen, oldLevelAudio] = checkPTBinstallation;
-%% Open a PTB window
-scr.ViewDist = 56; 
-[scr] = displayConfig(scr);
-AssertOpenGL;
-if vars.control.devFlag
-    [scr.win, scr.winRect] = PsychImaging('OpenWindow', scr.screenID, scr.BackgroundGray, [0 0 1000 1000]); %,[0 0 1920 1080] mr screen dim
-else
-    [scr.win, scr.winRect] = PsychImaging('OpenWindow', scr.screenID, scr.BackgroundGray); %,[0 0 1920 1080] mr screen dim
-end
-% PsychColorCorrection('SetEncodingGamma', scr.win, 1/scr.GammaGuess);
-
-% Set text size, dependent on screen resolution
-if any(logical(scr.winRect(:)>3000))       % 4K resolution
-    scr.TextSize = 65;
-else
-    scr.TextSize = 28;
-end
-Screen('TextSize', scr.win, scr.TextSize);
-
-% Set priority for script execution to realtime priority:
-scr.priorityLevel = MaxPriority(scr.win);
-Priority(scr.priorityLevel);
-
-% Determine stim size in pixels
-scr.dist        = scr.ViewDist;
-scr.width       = scr.MonitorWidth;
-scr.resolution  = scr.winRect(3:4);                    % number of pixels of display in horizontal direction
+% Check that PTB installation
+%[oldLevelScreen, oldLevelAudio] = checkPTBinstallation;
 
 %% 00 Run Tutorial
 if ((nargin < 1) || (whichPart==0))
     vars.control.taskN = 1;
-    runTutorial = input('Would you like to run a tutorial? 1-yes 0-no ');
-    if runTutorial
-        cd(fullfile('.', 'tasks', '00_tutorial'))
-        addpath(genpath('helpers'))
-        tutorial_MT (scr,vars);
+    runPrac = input('Would you like to run a practice? 1-yes 0-no ');
+    if runPrac
+        %practice
+        VAS_practice(vars);
     end
     % Continue to next task
     if (nargin < 1)
-        goOn1 = input('Tutorial completed. Continue to the main tasks? 1-yes, 0-no ');
+        goOn1 = input('Practice completed. Continue to the calibration? 1-yes, 0-no ');
         if ~goOn1
             return
         end
     end
 end
 
-%% 01 Run TGI Multidimensional Thresholding (FAST)
+%% 01 Run Calibration
 if ((nargin < 1) || (whichPart==1)) %&& (participant.partsCompleted(taskN) == 0)
     vars.control.taskN = 1;
-    cd(fullfile('.', 'tasks', '01_tgiMulti'))
-    addpath(genpath('code'))
-    tgiMulti_Launcher(scr, vars); % Launcher
+    VAS_calibration(vars); % Launcher
     participant.partsCompleted(1) = 1;
     % Save metadata
-    save(fullfile(vars.dir.OutputFolder, ['sub_', participant.MetaDataFileName]), 'participant');
+    %save(fullfile(vars.dir.OutputFolder, ['sub_', participant.MetaDataFileName]), 'participant');
     % Continue to next task
-    if (nargin < 1)
-        goOn1 = input('TGI Multidimensional threshold task completed. Continue to Cold/Warm Thresholding? 1-yes, 0-no ');
-        if ~goOn1
-            return
+    if (nargin < 1) % should it be repeated?
+        repeatCal = input('Calibration completed. Do you need to repeat the Calibration Step? 1-yes, 0-no ');
+        if ~repeatCal 
+            goOn1 = input('Continue to the Main Task? 1-yes, 0-no ');
+            if ~goOn1
+                return
+            end  
         end
     end
 end
 
-%% 02 Cold and Warm Pain Thresholds
+%% 02 Run Main Task - first session
 
 if ((nargin < 1) || (whichPart==2)) %&& (participant.partsCompleted(2) == 0)
     vars.control.taskN = 2;
-    vars.control.whichMethodCW = input('Which method would you like to use to estimate Burning thresholds? (1)Psi (otherwise)Method of Limits    ');
-    
-    switch vars.control.whichMethodCW
-        case 1
-            vars.control.whichBlock = input('Which Sensation would you like to threshold now? (0)Cold (1)Warm    ');
-            cd(fullfile('.', 'tasks', '02a_PsiThr'))
-            PsiThreshold_Launcher(scr,vars); % Launcher
-         otherwise
-            cd(fullfile('.', 'tasks', '02b_MethodLimits'))
-            limitsThreshold_Launcher(scr,vars); % Launcher
-    end
-    % if vars.RunSuccessfull
+    VAS_run(vars); % Launcher
     participant.partsCompleted(2) = 1;
     % Save metadata
-    save(fullfile(vars.dir.OutputFolder, ['sub_', participant.MetaDataFileName]), 'participant');
+    %save(fullfile(vars.dir.OutputFolder, ['sub_', participant.MetaDataFileName]), 'participant');
     % Continue to next task
     if (nargin < 1)
-        goOn1 = input('Cold and Warm Pain Thresholds completed. Continue to Psi-TGI Thresholding? 1-yes, 0-no ');
+        goOn1 = input('Main task part 1 completed, continue to part 2? 1-yes, 0-no ');
         if ~goOn1
             return
         end
     end
 end
 
-%% Finish up
-% Copy data files to 1_VMP_aux
-% copy2VMPaux(participant.subNo);
+%% 03 Run Main Task - second session
 
-% Close screen etc
-rmpath(genpath('code'));
-rmpath(vars.dir.OutputFolder);
-sca;
-ShowCursor;
-fclose('all'); %Not working Screen('CloseAll')%
-Priority(0);
-ListenChar(0);          % turn on keypresses -> command window
+if ((nargin < 1) || (whichPart==3)) %&& (participant.partsCompleted(2) == 0)
+    vars.control.taskN = 3;
 
-%% Restore PTB verbosity
-Screen('Preference', 'Verbosity', oldLevelScreen);
-PsychPortAudio('Verbosity', oldLevelAudio);
+    % if vars.RunSuccessfull
+    VAS_run(vars); % Launcher
+    participant.partsCompleted(3) = 1;
+    % Save metadata
+    %save(fullfile(vars.dir.OutputFolder, ['sub_', participant.MetaDataFileName]), 'participant');
+    % Continue to next task
+    done_msg = 'The experiment is completed';
+    disp(done_msg)
+end
+
+% cd back to previous folder
+cd(runPath)
 
 end

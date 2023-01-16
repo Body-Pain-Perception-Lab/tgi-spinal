@@ -21,7 +21,7 @@ vars.ViewDist = 56;
 
 %Trials
 vars.task.NTrialReps         = 1; %number of repeat trials per condition (i.e. thermode in right place)
-vars.task.NBlocksTotal       = 1; %Total number of blocks per pseudorandom procedure (n x 16 trials)
+vars.task.NBlocksTotal       = 2; %Total number of blocks per pseudorandom procedure (n x 16 trials)
 vars.task.NTrialsChange      = 3; % The frequency of thermode change per trial (if thermode is changed every trial, set to 1)
 vars.task.practiceReps       = 3; % number of repetitions of three ratings (cold/warm/burning) during practice trials
 vars.task.CalibReps          = 20; % set to the max number of trials required to calibrate temperature for TGI, atm this is a guess
