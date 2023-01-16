@@ -2,7 +2,7 @@
 %% A.G. Mitchell - 25.02.2022
 % Developed from code by Camila Deolindo & Francesca Fardo
 
-% Last edit -06.07.2022
+% Last edit -16.01.2023
 
 % Helpers required: 
 % VAS_loadParams.m; getVasRatings.m; SetupRand.m; ptbConfig.m; 
@@ -15,7 +15,7 @@
 clear all % clearing all old data
 
 % Development flag 1. Set to 1 when developing the task, will optimize stim size for laptop, not hide cursor
-vars.control.devFlag  = 0; 
+vars.control.devFlag  = 1; 
 
 addpath helperFunctions 
 VAS_loadParams;
@@ -77,6 +77,9 @@ vars.control.abortFlag = 0;
 %% Preparing to present VAS  
 trial_idx = 0 ; %create a seperate index for individual trials
 count_idx = 0;
+endExp = 0;
+
+while endExp ~= 1
     for rep_idx = 1:vars.task.CalibReps %loop through trial repeats, 3 trials per thermode location
         % record number of total trials per participant
         trial_idx = trial_idx+1;
@@ -115,20 +118,26 @@ count_idx = 0;
             playAudio(vars,myBeep)
 
             count_idx = count_idx + 1;
-        else 
-            % resetting count idx back to 0 if participants rate
-            % vas.response > 15
-            count_idx = 0;
         end
-        % breaking the loop if participants experience burning > 15 4 times
-        % in a row
-        if count_idx > 3
+
+        if keys.KeyCode(keys.Escape)==1 % if ESC, quit the experiment
+            % Save, mark the run
+            vars.control.RunSuccessfull = 0;
+            vars.control.Aborted = 1;
+            endExp = 1; %breaking loop
+            return
+        end
+        % breaking the loop if participants experience burning > 15 6 times
+        % overall
+        if count_idx > 5
             % Play audio to signify that the participant has rated above 15
             myBeep = MakeBeep(300, vars.audio.beepLength, vars.audio.sampRate);
             playAudio(vars,myBeep)
+            vars.control.RunSuccessfull = 1;
             break
         end
-    end     
+    end 
+end
 
 sca; % close VAS
 ListenChar(0); %enable keypress
