@@ -29,7 +29,7 @@ VAS_loadParams;
 datPath = vars.filename.path;
 runPath = pwd;
 
-cd(fullfile('.', 'tasks')) % cd to task folder
+%cd(fullfile('.', 'tasks')) % cd to task folder
 
 % Check that PTB installation
 %[oldLevelScreen, oldLevelAudio] = checkPTBinstallation;
@@ -52,20 +52,24 @@ if ((nargin < 1) || (whichPart==0))
 end
 
 %% 01 Run Calibration
-if ((nargin < 1) || (whichPart==1)) %&& (participant.partsCompleted(taskN) == 0)
-    vars.control.taskN = 1;
-    VAS_calibration(vars); % Launcher
-    participant.partsCompleted(1) = 1;
-    % Save metadata
-    %save(fullfile(vars.dir.OutputFolder, ['sub_', participant.MetaDataFileName]), 'participant');
-    % Continue to next task
-    if (nargin < 1) % should it be repeated?
-        repeatCal = input('Calibration completed. Do you need to repeat the Calibration Step? 1-yes, 0-no ');
-        if ~repeatCal 
-            goOn1 = input('Continue to the Main Task? 1-yes, 0-no ');
-            if ~goOn1
-                return
-            end  
+rep = 1; %setting repeat loop to one
+while rep == 1 
+    if ((nargin < 1) || (whichPart==1)) %&& (participant.partsCompleted(taskN) == 0)
+        vars.control.taskN = 1;
+        VAS_calibration(vars); % Launcher
+        participant.partsCompleted(1) = 1;
+        % Save metadata
+        %save(fullfile(vars.dir.OutputFolder, ['sub_', participant.MetaDataFileName]), 'participant');
+        % Continue to next task
+        if (nargin < 1) % should it be repeated?
+            repeatCal = input('Calibration completed. Do you need to repeat the Calibration Step? 1-yes, 0-no ');
+            if repeatCal == 0
+                goOn1 = input('Continue to the Main Task? 1-yes, 0-no ');
+                rep = 0; %closing repeat loop
+                if ~goOn1
+                    return
+                end
+            end
         end
     end
 end

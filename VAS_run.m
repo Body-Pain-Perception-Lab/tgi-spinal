@@ -10,8 +10,6 @@ function VAS_run(vars)
 % openScreen.m; StimCount.m; slideScale.m; drawFixation.m;
 % angle2pix.m
 % probably more...            
-        
-clear all % clearing all old data
 
 % Reseed the random-number generator
 SetupRand;
