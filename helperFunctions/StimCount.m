@@ -25,7 +25,7 @@ scr.nominalFrameRate = Screen('NominalFrameRate', scr.win);
 % seconds, can make this more fancy by displaying time & combining
 % GetSecs() with frame-rate
 %presSecs = [sort(repmat(1:vars.waitStim.secs, 1, scr.nominalFrameRate), 'descend') 0]; % number of seconds you want to count down from
-presSecs = 1:10;
+presSecs = 1:9;
 endCount = 0;
 n_idx = 1; %count index
 
