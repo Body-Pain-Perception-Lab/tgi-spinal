@@ -18,6 +18,8 @@ if ~exist('vars')
     VAS_loadParams;
 end
 
+datPath = vars.filename.path;
+
 %% Path
 if vars.control.devFlag == 0 %only run if not debugging
     % input participant details for filename

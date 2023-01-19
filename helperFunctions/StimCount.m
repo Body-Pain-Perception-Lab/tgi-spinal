@@ -46,7 +46,7 @@ while endCount ~= 1
     WaitSecs(.98) %wait for 980 ms (20ms to account for screen refresh rate)
     vars.endSec(n_idx) = GetSecs();
 
-    if n_idx == presSecs(10) %if index = total number of seconds played
+    if n_idx == presSecs(9) %if index = total number of seconds played
         endCount = 1;
     else
         n_idx = n_idx+1;
