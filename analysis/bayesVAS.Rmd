@@ -13,7 +13,6 @@ library(brms)             # Bayesian modeling through Stan
 library(tidybayes)        # Manipulate Stan objects in a tidy way
 library(broom)            # Convert model objects to data frames
 library(broom.mixed)      # Convert brms model objects to data frames
-library(vdemdata)         # Use data from the Varieties of Democracy (V-Dem) project
 library(betareg)          # Run beta regression models
 library(extraDistr)       # Use extra distributions like dprop()
 library(ggdist)           # Special geoms for posterior distributions
@@ -48,5 +47,130 @@ theme_clean <- function() {
 
 # Make labels use Barlow by default
 update_geom_defaults("label_repel", list(family = "Barlow Semi Condensed"))
+
+anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Analysis/'
+```
+
+# Load own data
+```{r}
+setwd(anaPath)
+dat <- read.csv('STGI_compiled-data.csv')
+
+# data wrangling
+dat <- dat %>% 
+  select(ID, trial_n, manipulation, arm, condition, dermatome, cold_probe, order, VASburn)
+head(dat)
+```
+
+```{r}
+# plot data
+dat$manipulation <- as.factor(dat$manipulation)
+
+quota_halves <- ggplot(dat, aes(x = manipulation, y = VASburn)) +
+  geom_half_point(aes(color = manipulation), 
+                  transformation = position_quasirandom(width = 0.1),
+                  side = "l", size = 0.5, alpha = 0.5) +
+  geom_half_boxplot(aes(fill = manipulation), side = "r") + 
+  scale_fill_viridis_d(option = "plasma", end = 0.8) +
+  scale_color_viridis_d(option = "plasma", end = 0.8) +
+  guides(color = "none", fill = "none") +
+  labs(x = "Manipulation", y = "Burning VAS") +
+  theme_classic()
+
+quota_densities <- ggplot(dat, aes(x = VASburn, fill = manipulation)) +
+  geom_density(alpha = 0.6) +
+  scale_fill_viridis_d(option = "plasma", end = 0.8) +
+  labs(x = "Burning VAS", y = "Density", fill = "Quota") +
+  theme_classic() +
+  theme(legend.position = "bottom")
+
+quota_halves | quota_densities
+```
+# Frequentist beta regression
+```{r}
+# transform VAS ratings into beta
+dat1 <- dat %>% 
+  mutate(VASburn = VASburn/100) %>% 
+  mutate(beta = ifelse(VASburn == 0, 0.001, VASburn)) %>% 
+  mutate(beta = ifelse(VASburn == 1, VASburn - 0.001, beta)) %>% 
+  filter(!is.na(beta))
+
+# run normal beta regression
+model_beta <- betareg(beta ~ manipulation | manipulation, 
+                      data = dat1, 
+                      link = "logit")
+tidy(model_beta)
+
+# calculating model effect of manipulation
+beta_mu_intercept <- model_beta %>% 
+  tidy() %>% 
+  filter(component == "mean", term == "(Intercept)") %>% 
+  pull(estimate)
+
+beta_mu_quota <- model_beta %>% 
+  tidy() %>% 
+  filter(component == "mean", term == "manipulationTGI") %>% 
+  pull(estimate)
+
+plogis(beta_mu_intercept + beta_mu_quota) - plogis(beta_mu_intercept)
+```
+
+TGI increases average burn rating by 5% - when zeros are included in the model
+
+
+```{r}
+beta_phi_intercept <- model_beta %>% 
+  tidy() %>% 
+  filter(component == "precision", term == "(Intercept)") %>% 
+  pull(estimate)
+
+beta_phi_quota <- model_beta %>% 
+  tidy() %>% 
+  filter(component == "precision", term == "manipulationTGI") %>% 
+  pull(estimate)
+
+no_tgi_title <- paste0("dprop(mean = plogis(", round(beta_mu_intercept, 2),
+                         "), size = exp(", round(beta_phi_intercept, 2), "))")
+
+tgi_title <- paste0("dprop(mean = plogis(", round(beta_mu_intercept, 2),
+                      " + ", round(beta_mu_quota, 2), 
+                      "), size = exp(", round(beta_phi_intercept, 2),
+                      " + ", round(beta_phi_quota, 2), "))")
+
+ggplot(data = tibble(x = 0:1), aes(x = x)) +
+  geom_density(data = dat2, 
+               aes(x = beta, fill = manipulation), alpha = 0.5, color = NA) +
+  stat_function(fun = dprop, size = 1,
+                args = list(size = exp(beta_phi_intercept), 
+                            mean = plogis(beta_mu_intercept)),
+                aes(color = no_tgi_title)) +
+  stat_function(fun = dprop, size = 1,
+                args = list(size = exp(beta_phi_intercept + beta_phi_quota), 
+                            mean = plogis(beta_mu_intercept + beta_mu_quota)),
+                aes(color = tgi_title)) +
+  scale_fill_viridis_d(option = "plasma", end = 0.8, name = "Manipulation",
+                       guide = guide_legend(ncol = 1, order = 1)) +
+  scale_color_viridis_d(option = "plasma", end = 0.8, direction = -1, name = "",
+                        guide = guide_legend(reverse = TRUE, ncol = 1, order = 2)) +
+  labs(x = "Burning VAS") +
+  theme_classic() +
+  theme(legend.position = "bottom")
+```
+
+```{r}
+# brms model
+model_beta_bayes <- brm(
+  bf(VASburn ~ manipulation,
+     phi ~ quota), 
+  data = dat1,
+  family = (), #need to change family
+  chains = 4, iter = 2000, warmup = 1000,
+  cores = 4, seed = 1234, 
+  # Use the cmdstanr backend for Stan because it's faster and more modern than
+  # the default rstan You need to install the cmdstanr package first
+  # (https://mc-stan.org/cmdstanr/) and then run cmdstanr::install_cmdstan() to
+  # install cmdstan on your computer.
+  backend = "cmdstanr"
+)
 ```
 
