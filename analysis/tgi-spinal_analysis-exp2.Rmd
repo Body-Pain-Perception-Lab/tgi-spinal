@@ -1,7 +1,7 @@
 ---
-title: "TGI Spinal Analysis Code"
+title: "TGI Spinal Analysis Code Experiment 2"
 author: "A.G. Mitchell"
-date: "2022-12-02"
+date: "2023-04-14"
 output: html_document
 ---
 
@@ -19,8 +19,8 @@ if (!require("pacman")) install.packages("pacman")
 
 ```{r paths}
 # paths
-datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
-anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Analysis/'
+datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/exp2/Raw/'
+anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/exp2/Analysis/'
 ```
 
 # Loading data
@@ -66,8 +66,10 @@ for (file in filenames){
 df_res <- merge(df_trials, df_VAS, by = c('ID','trial_n','manipulation'))
 df_res <- merge(df_res, df_RT, by = c('ID','trial_n','manipulation'))
 
-# remove participant 019, stopped testing halfway due to broken thermal probe
-df_res <- df_res[df_res$ID != '019' ,]
+# remove participants 047 and 048
+# one had ongoing pain, the other missed 6 trials
+df_res <- df_res[df_res$ID != '047' ,]
+df_res <- df_res[df_res$ID != '048' ,]
 ```
 
 # Data organisation
@@ -118,7 +120,7 @@ cnt <-  df_med %>%
 # identify test results where pvalue is < .05
 tgi$ID <- as.factor(tgi$ID)
 i = 0
-test = data.frame(matrix(nrow = 40, ncol = 3))
+test = data.frame(matrix(nrow = 27, ncol = 3))
 colnames(test) <- c('ID','pval','responder')
 
 for (id in levels(tgi$ID)){

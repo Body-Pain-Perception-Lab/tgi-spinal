@@ -1,5 +1,5 @@
 ---
-title: "TGI Spinal Analysis Code"
+title: "TGI Spinal Analysis Code Experiment 1"
 author: "A.G. Mitchell"
 date: "2022-12-02"
 output: html_document
@@ -19,8 +19,8 @@ if (!require("pacman")) install.packages("pacman")
 
 ```{r paths}
 # paths
-datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
-anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Analysis/'
+datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/exp1/Raw/'
+anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/exp1/Analysis/'
 ```
 
 # Loading data
