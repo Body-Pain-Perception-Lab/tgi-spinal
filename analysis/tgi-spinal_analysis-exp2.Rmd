@@ -1,0 +1,1183 @@
+---
+title: "TGI Spinal Analysis Code"
+author: "A.G. Mitchell"
+date: "2022-12-02"
+output: html_document
+---
+
+```{r setup, include=FALSE, message = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+## Loading libraries
+# check for pacman package and install if not found
+if (!require("pacman")) install.packages("pacman")
+  pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gamlss,
+                 ggeffects, gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
+                 modelsummary, MuMIn, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
+                 rsample, rstatix, simr, tibble, tidyverse, wesanderson
+                 )
+```
+
+```{r paths}
+# paths
+datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
+anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Analysis/'
+```
+
+# Loading data
+```{r data, echo = FALSE}
+# Extract all .csv files and compile
+filenames <- dir(datPath, recursive = TRUE, full.names = FALSE, pattern = '.csv')
+# empty dataframes for data
+## with new data trials file will have changed to include temperature coding!
+df_trials <- read.csv(text='procedure,trial_type,arm,condition,dermatome,order,cold_probe,trial_n,coolTemp,warmTempID,manipulation')
+df_VAS <- read.csv(text='VASinit,VASburn,VASwarm,VAScold,trial_n,ID,manipulation')
+df_RT <- read.csv(text='RTinit,RTburn,RTwarm,RTcold,trial_n,ID,manipulation')
+
+## Data compiling
+# trial files
+setwd(datPath)
+for (file in filenames){
+  # trial files
+  if (isTRUE(substr(basename(file), 24, 24)=="t")){
+    tmp <- read.csv(file)
+    tmp$ID <- substr(basename(file), 4, 6)
+    tmp$manipulation <- substr(basename(file), 17, 19)
+    df_trials <- rbind(df_trials, tmp)
+  }
+  # VAS response files
+  if (isTRUE(substr(basename(file), 24, 29)=="rating")){
+    tmp <- read.csv(file, header = FALSE)
+    colnames(tmp) <- c('VASinit','VASburn','VASwarm','VAScold','trial_n')
+    tmp$ID <- substr(basename(file), 4, 6)
+    tmp$manipulation <- substr(basename(file), 17, 19)
+    df_VAS <- rbind(df_VAS, tmp)
+  }
+  # VAS RT files
+  if (isTRUE(substr(basename(file), 24, 29)=="respti")){
+    tmp <- read.csv(file, header = FALSE)
+    colnames(tmp) <- c('RTinit','RTburn','RTwarm','RTcold','trial_n')
+    tmp$ID <- substr(basename(file), 4, 6)
+    tmp$manipulation <- substr(basename(file), 17, 19)
+    df_RT <- rbind(df_RT, tmp)
+  }
+}
+
+# merge all files
+df_res <- merge(df_trials, df_VAS, by = c('ID','trial_n','manipulation'))
+df_res <- merge(df_res, df_RT, by = c('ID','trial_n','manipulation'))
+
+# remove participant 019, stopped testing halfway due to broken thermal probe
+df_res <- df_res[df_res$ID != '019' ,]
+```
+
+# Data organisation
+```{r}
+# transform the ID of participants to remove 0
+df_res$ID <- as.numeric(df_res$ID)
+# recode conditions
+df_res <- df_res %>%
+  mutate(condition = dplyr::recode(condition, '1' = 'within', '2' = 'across'),
+         cold_probe = dplyr::recode(cold_probe, 'C6' = 'rostral', 'T1' = 'caudal',
+                             'dist' = 'distal', 'prox' = 'proximal'))
+# change levels 
+df_res$cold_probe <- factor(df_res$cold_probe, 
+                            levels = c("caudal", "rostral", "distal", "proximal"))
+
+# incorporate demographics
+# the warm and cold TGI and CNT temperatures did not code properly on the trial .csv
+# have saved these in the demo .csv as well, so will add these in
+demoFile <- 'STGI_participant-demographics.csv'
+fileName = paste(datPath, demoFile, sep = '')
+df_demo <- read.csv(fileName)
+# merge
+test <- merge(df_res, df_demo)
+
+# save new data-frame
+fileName = paste(anaPath, 'STGI_compiled-data.csv', sep = '')
+write.csv(df_res, fileName, row.names = FALSE)
+
+# check we have 40 participants with 96 trials
+id_check <- count(df_res, 'ID')
+id_check
+```
+
+
+# Responder check
+Check whether participants median burning ratings for TGI is significantly above 0
+If not, flag them as a 'non-responder'
+```{r}
+# Calculate median burning rating for all participants
+# TGI trials only
+# Then flag how many are not sig > 0
+df_med <- aggregate(VASburn~ID*manipulation*cold_probe*trial_type, median, data = df_res)
+tgi <-  df_med %>% 
+  filter(manipulation == 'TGI')
+cnt <-  df_med %>% 
+  filter(manipulation == 'CNT')
+
+# identify test results where pvalue is < .05
+tgi$ID <- as.factor(tgi$ID)
+i = 0
+test = data.frame(matrix(nrow = 40, ncol = 3))
+colnames(test) <- c('ID','pval','responder')
+
+for (id in levels(tgi$ID)){
+  i = i+1
+  tmp1 <- tgi[tgi$ID == id ,]
+  test$ID[i] <- id
+  test$pval[i] <- (t.test(tmp1$VASburn, mu = 0, alternative = 'greater'))$p.value
+  test$responder[i] <- isTRUE(test$pval[i] < .05)
+}
+
+# combine responder logic with main data-frame
+test$responder <- ifelse(test$responder == TRUE, 1, 0)
+test <- test[, c(1,3)]
+df_res <- merge(df_res, test, by = 'ID')
+  
+# count the number of false responses
+nNONRESP <- sum(test$responder == FALSE)
+# print
+print(paste0('Non responders: ', nNONRESP, '/', length(test$ID)))
+```
+
+# Let's look at the data!
+```{r}
+# Reorganise data-frame 
+# pivot longer the VAS response by each quality of sensation
+# do this for both RT and VAS
+df_long <- df_res %>% 
+  pivot_longer(cols = c(VASinit, VASburn, VASwarm, VAScold),
+               names_to = 'quality',
+               values_to = 'VAS')
+df_long2 <- df_res %>% 
+  pivot_longer(cols = c(RTinit, RTburn, RTwarm, RTcold),
+               names_to = 'quality',
+               values_to = 'RT')
+# remove the VAS & RT from quality column
+df_long$quality <- substr(df_long$quality, 4, 7)
+df_long2$quality <- substr(df_long2$quality, 3, 6)
+# remove columns from both then merge
+df_long <- df_long[, c(1:12,17:19)]
+df_long2 <- df_long2[, c(1:12,17:19)]
+df_long <- merge(df_long, df_long2)
+
+# then remove NaNs
+df_long <- df_long %>% filter(!is.na(VAS))
+# remove the initial trials - not important for now
+init_burn <- filter(df_long, quality == 'init')
+all_vas <- filter(df_long, quality != 'init')
+
+# plot distribution of data
+ggplot(df_long) +
+  geom_density(aes(VAS, colour = manipulation)) +
+  facet_wrap(~quality, scales = "free_y") +
+  theme_bw()
+
+# summary statistics
+```
+# MAIN HYPOTHESES
+# Plot descriptives for each hypotheses
+Hypothesis 1: within vs. across dermatomes
+
+```{r h1}
+# calculate means
+vas_meds <- aggregate(VAS ~ quality*manipulation*condition*cold_probe*ID, 
+                      median, data = all_vas)
+vas_h1 <- aggregate(VAS ~ quality*manipulation*condition*ID, mean, data = vas_meds)
+# change name of manipulation
+vas_h1$manipulation <- factor(vas_h1$manipulation,
+                           labels = c('Non-TGI', 'TGI'))
+# summary means for h1
+h1_sum <- summarySEwithin(data = vas_h1, measurevar = 'VAS',
+                               withinvars = c('manipulation', 'quality', 'condition'))
+
+# plot the summary statistics
+# first colours
+blue <- brewer.pal(8, "Blues")
+grey <- brewer.pal(8, "Greys")
+purp <- brewer.pal(8, "Purples")
+oran <- brewer.pal(8, "Oranges")
+gren <- brewer.pal(8, "Greens")
+
+# order conditions
+h1_sum$condition <- factor(h1_sum$condition, levels = c('within', 'across'))
+h1_sum$quality <- factor(h1_sum$quality, levels = c('cold', 'warm', 'burn'))
+
+# plot
+ggplot(h1_sum, aes(colour = quality, group = manipulation, alpha = manipulation)) + 
+  geom_point(aes(condition, VAS), size = 2, position = position_dodge(-.3)) +
+  geom_errorbar(aes(condition, ymin = VAS-ci, ymax = VAS+ci), width = .1, size = .7,
+                position = position_dodge(-.3)) +
+  geom_line(aes(condition, VAS), size = .7, position = position_dodge(-.3)) +
+  facet_wrap(~quality) +
+  scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
+  scale_alpha_discrete(range = c(0.6, 1)) +
+  ylim(0,50) +
+  theme_bw() 
+```
+
+# Hypothesis 1: plot difference across conditions of interest
+```{r h1diff}
+# then pivot wider and calculate difference
+vas_h1_diff <- vas_h1 %>% 
+  pivot_wider(names_from = condition, values_from = VAS) %>% 
+  mutate(difference = within - across)
+# recode quality
+vas_h1_diff$quality <- factor(vas_h1_diff$quality,
+                           levels = c('cold', 'warm', 'burn'))
+
+# summary statistics
+h1_diff_sum <- summarySEwithin(data = vas_h1_diff, measurevar = 'difference',
+                               withinvars = c('manipulation', 'quality'))
+
+# now plot the difference
+ggplot(data = vas_h1_diff, aes(colour = quality)) +
+  geom_hline(yintercept = 0, colour = 'grey50') +
+  geom_point(aes(manipulation, difference, group = ID), position = position_dodge(.2),
+             alpha = .5) +
+  geom_point(data = h1_diff_sum, aes(manipulation, difference), colour = 'grey15',
+             fill = 'grey15',
+             shape = 21, size = 3) +
+  geom_errorbar(data = h1_diff_sum, aes(manipulation, ymin = difference-ci,
+                                        ymax = difference+ci), 
+                width = .1, size = .7, colour = 'grey15') +
+  facet_wrap(~quality) +
+  scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
+  labs(title = 'Hypothesis 1: Segmental Distance',
+       y = 'Within - Across VAS Ratings', x = NULL) +
+  theme_classic() +
+  theme(legend.position = 'none') -> h1_diff_plot
+
+h1_diff_plot
+ggsave('h1_difference.png', h1_diff_plot, path = anaPath, device = NULL, 
+       width = 7, height = 4.5, dpi = 1000)
+```
+
+Hypothesis 2 a & b: relative location of warm and cold
+```{r h2}
+# Change name of manipulation
+vas_meds$manipulation <- factor(vas_meds$manipulation, labels = c('Non-TGI', 'TGI'))
+h2_sum <- aggregate(VAS~quality*manipulation*cold_probe, median, data = vas_meds)
+
+# organise data for plotting
+vas_meds$cold_probe <- factor(vas_meds$cold_probe, levels = 
+                                c('proximal', 'distal', 'rostral', 'caudal'))
+h2_sum$cold_probe <- factor(h2_sum$cold_probe, levels = 
+                                c('proximal', 'distal', 'rostral', 'caudal'))
+# recoding cold probe location so can jitter
+vas_meds$cold_code <- factor(vas_meds$cold_probe, labels = 
+                                c(1,2,3,4))
+h2_sum$cold_code <- factor(h2_sum$cold_probe, labels = 
+                                c(1,2,3,4))
+# creating jitter
+vas_meds$xj <- jitter(as.numeric(vas_meds$cold_code), amount = .05)
+
+nudge1 = -.1
+nudge2 = .1
+```
+
+# All dat plot
+
+```{r}
+# plot all data
+# COLD
+ggplot(data = vas_meds %>% 
+         filter(quality == 'cold'),
+       mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'proximal', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'proximal', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'distal', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'distal', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'rostral', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'rostral', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'caudal', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'cold', cold_probe == 'caudal', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'cold', manipulation == 'Non-TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge1)) + 
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'cold', manipulation == 'TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge2)) +
+  scale_colour_manual(values = c(blue[5], blue[7])) +
+  scale_fill_manual(values = c(blue[2], blue[4])) +
+  scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
+  labs(title = 'Cold ratings', x = NULL, 
+         y = 'VAS Rating (0-100)') +
+  ylim(-0.5,100) +
+  theme_classic() +
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12),
+        title = element_text(size = 12)) -> h2_cold_plot
+
+# WARM
+ggplot(data = vas_meds %>% 
+         filter(quality == 'warm'),
+       mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'warm', cold_probe == 'proximal', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'warm', cold_probe == 'proximal', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'warm', cold_probe == 'distal', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'warm', cold_probe == 'distal', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'warm', cold_probe == 'rostral', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'warm', cold_probe == 'rostral', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'warm', cold_probe == 'caudal', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'warm', cold_probe == 'caudal', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'warm', manipulation == 'Non-TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge1)) + 
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'warm', manipulation == 'TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge2)) +
+  scale_colour_manual(values = c(oran[5], oran[7])) +
+  scale_fill_manual(values = c(oran[2], oran[4])) +
+  scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
+  labs(title = 'Warm ratings', x = NULL, 
+         y = 'VAS Rating (0-100)') +
+  ylim(-0.5,100) +
+  theme_classic() +
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12),
+        title = element_text(size = 12)) -> h2_warm_plot
+
+# BURN
+ggplot(data = vas_meds %>% 
+         filter(quality == 'burn'),
+       mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'burn', cold_probe == 'proximal', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'burn', cold_probe == 'proximal', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'burn', cold_probe == 'distal', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'burn', cold_probe == 'distal', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'burn', cold_probe == 'rostral', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'burn', cold_probe == 'rostral', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'burn', cold_probe == 'caudal', manipulation == 'Non-TGI'),
+    position = position_nudge(x = nudge1), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_boxjitter(data = vas_meds %>% 
+    filter(quality == 'burn', cold_probe == 'caudal', manipulation == 'TGI'),
+    position = position_nudge(x = nudge2), width = .2,
+      errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
+      outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'burn', manipulation == 'Non-TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge1)) + 
+  geom_line(data = h2_sum %>% 
+    filter(quality == 'burn', manipulation == 'TGI'),
+    aes(as.numeric(cold_code), VAS), 
+    position = position_nudge(nudge2)) +
+  scale_colour_manual(values = c(purp[5], purp[7])) +
+  scale_fill_manual(values = c(purp[2], purp[4])) +
+  scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
+  labs(title = 'Burn ratings', x = NULL, 
+         y = 'VAS Rating (0-100)') +
+  ylim(-0.5,100) +
+  theme_classic() +
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12),
+        title = element_text(size = 12))  -> h2_burn_plot
+  
+# arrange entire plot
+h2_plot <- ggarrange(h2_cold_plot, h2_warm_plot, h2_burn_plot,
+                     nrow = 2, ncol = 2)
+h2_plot
+
+ggsave('h2_alldat_plot.png', h2_plot, device = NULL, path = anaPath,
+       width = 10, height = 7, dpi = 600)
+```
+
+# Differences
+```{r h2diff}
+# recode cold_location and condition to reduce levels in regression
+vas_meds$cold_cond[vas_meds$cold_probe == 'distal'] <- 'dist_rost' 
+vas_meds$cold_cond[vas_meds$cold_probe == 'rostral'] <- 'dist_rost' 
+vas_meds$cold_cond[vas_meds$cold_probe == 'proximal'] <- 'prox_caud' 
+vas_meds$cold_cond[vas_meds$cold_probe == 'caudal'] <- 'prox_caud'
+
+# then pivot wider and calculate difference
+vas_h2_diff <- vas_meds %>% 
+  select(-c(cold_code, xj, cold_probe)) %>% 
+  pivot_wider(id_cols = c(ID, quality, manipulation, condition), 
+              names_from = cold_cond, values_from = VAS) %>% 
+  mutate(difference = prox_caud - dist_rost)
+# recode quality
+vas_h2_diff$quality <- factor(vas_h2_diff$quality,
+                           levels = c('cold', 'warm', 'burn'))
+# summary statistics
+h2_diff_sum <- summarySEwithin(data = vas_h2_diff, measurevar = 'difference',
+                               withinvars = c('manipulation', 'quality', 'condition'))
+
+# plot the differences - within
+ggplot(data = vas_h2_diff %>% 
+         filter(condition == 'within'), 
+       aes(manipulation, difference, colour = quality)) +
+  geom_hline(yintercept = 0) +
+  geom_point(aes(group = ID), position = position_dodge(.2), alpha = .5) +
+  geom_point(data = h2_diff_sum %>% 
+               filter(condition == 'within'), 
+             aes(manipulation, difference), colour = 'grey15',
+             fill = 'grey15',
+             shape = 21, size = 3) +
+  geom_errorbar(data = h2_diff_sum %>% 
+               filter(condition == 'within'), 
+               aes(manipulation, ymin = difference-ci, ymax = difference+ci),
+               width = .1, size = .7, colour = 'grey15') +
+  scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
+  labs(title = 'Within: Proximal vs. Distal',
+       y = 'Proximal - Distal VAS Ratings', x = NULL) +
+  facet_wrap(~quality) +
+  theme_classic() +
+  theme(legend.position = 'none') -> h2_diff_within
+
+# plot the differences - across
+ggplot(data = vas_h2_diff %>% 
+         filter(condition == 'across'), 
+       aes(manipulation, difference, colour = quality)) +
+  geom_hline(yintercept = 0) +
+  geom_point(aes(group = ID), position = position_dodge(.2), alpha = .5) +
+  geom_point(data = h2_diff_sum %>% 
+               filter(condition == 'across'), 
+             aes(manipulation, difference), colour = 'grey15',
+             fill = 'grey15',
+             shape = 21, size = 3) +
+  geom_errorbar(data = h2_diff_sum %>% 
+               filter(condition == 'across'), 
+               aes(manipulation, ymin = difference-ci, ymax = difference+ci),
+               width = .1, size = .7, colour = 'grey15') +
+  scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
+  labs(title = 'Across: Rostral vs. Caudal',
+       y = 'Caudal - Rostral VAS Ratings', x = NULL) +
+  facet_wrap(~quality) +
+  theme_classic() +
+  theme(legend.position = 'none') -> h2_diff_across
+
+# arrange entire plot
+h2diff_plot <- ggarrange(h2_diff_within, h2_diff_across,
+                     nrow = 2, ncol = 1)
+h2diff_plot
+
+ggsave('h2_diff_plot.png', h2diff_plot, device = NULL, path = anaPath,
+       width = 6, height = 9, dpi = 600)
+```
+
+# Plot 32 burn responders seperately
+```{r burn32}
+```
+
+# ZOIB regression
+Running main analysis of a zero inflated beta regression
+Outcome: VAS
+Predictors: manipulation (CNT, TGI), cold probe location ()
+Run a seperate regression for each quality
+
+```{r model_prep}
+set.seed(1234)  # Make everything reproducible
+
+# Define the goodness-of-fit stats to include in modelsummary()
+gof_stuff <- tribble(
+  ~raw, ~clean, ~fmt,
+  "nobs", "N", 0,
+  "r.squared", "R²", 3
+)
+
+# recode cold_location and condition to reduce levels in regression
+df_long$cold_cond[df_long$cold_probe == 'distal'] <- 'dist_rostr' 
+df_long$cold_cond[df_long$cold_probe == 'rostral'] <- 'dist_rostr' 
+df_long$cold_cond[df_long$cold_probe == 'proximal'] <- 'prox_caud' 
+df_long$cold_cond[df_long$cold_probe == 'caudal'] <- 'prox_caud' 
+
+# to run zero inflated regressions need to make sure no values = 100, 
+# as cannot model them, so simply minus a very small fraction from those values
+df_long$beta <- ifelse(df_long$VAS==100, df_long$beta-0.0001, df_long$beta <- df_long$VAS)
+df_long$beta <- df_long$beta/100
+
+# transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
+#df_long$VAS <- df_long$VAS/100
+df_long$ID <- factor(df_long$ID)
+```
+
+Running models as pre-registered: 
+# Cold
+```{r coldmod}
+# Try and model all with ratings
+model.cold = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + trial_n +
+                                (1|ID) + (1|order),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_long %>% filter(quality == 'cold'),
+                      na.action = na.omit) 
+mc <- summary(model.cold)
+mc
+
+Anova(model.cold)
+# get Rsq with the mumin package
+```
+# Marginal effect plots of full model - cold
+```{r}
+cold_eff <- ggeffects::ggpredict(model.cold, terms = c('cold_cond', 'manipulation', 'condition'),
+                           ci.lvl = .95)
+# changing labels for plotting
+cold_eff$group <- factor(cold_eff$group, labels = c('Non-TGI', 'TGI'))
+cold_eff <- cold_eff %>% 
+  mutate(label = 
+           case_when(facet == 'across' & x == 'prox_caud' ~ 'caudal',
+                     facet == 'across' & x == 'dist_rostr' ~ 'rostral',
+                     facet == 'within' & x == 'prox_caud' ~ 'proximal',
+                     facet == 'within' & x == 'dist_rostr' ~ 'distal',) 
+         )
+
+cold_eff$label = factor(cold_eff$label, levels = c('proximal','distal','caudal','rostral'))
+  
+# plotting - within
+ggplot(data = cold_eff %>% 
+         filter(facet == 'within'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.5) +
+  labs(x = NULL, y = 'Predicted Cold Rating (0 - 1)') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(blue[4], blue[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 11)) -> plot_coldw_eff
+# plotting - across
+ggplot(data = cold_eff %>% 
+         filter(facet == 'across'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.5) +
+  labs(x = NULL, y = '') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(blue[4], blue[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 10)) -> plot_colda_eff
+
+# combine
+plot_cold_eff1 <- ggarrange(plot_coldw_eff, plot_colda_eff,
+                           ncol = 2, nrow = 1,
+                           common.legend = TRUE,
+                           legend = 'right')
+plot_cold_eff1
+```
+
+# Warm
+```{r warmmod}
+# Try and model all with ratings
+model.warm = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond +
+                                trial_n + (1|ID) + (1|order),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_long %>% filter(quality == 'warm'),
+                      na.action = na.omit) 
+mw <- summary(model.warm)
+mw
+
+Anova(model.warm)
+```
+# Marginal effect plots of full model - warm
+```{r}
+warm_eff <- ggeffects::ggpredict(model.warm, terms = c('cold_cond', 'manipulation', 'condition'),
+                            ci.lvl = .95)
+# changing labels for plotting
+warm_eff$group <- factor(warm_eff$group, labels = c('Non-TGI', 'TGI'))
+warm_eff <- warm_eff %>% 
+  mutate(label = 
+           case_when(facet == 'across' & x == 'prox_caud' ~ 'caudal',
+                     facet == 'across' & x == 'dist_rostr' ~ 'rostral',
+                     facet == 'within' & x == 'prox_caud' ~ 'proximal',
+                     facet == 'within' & x == 'dist_rostr' ~ 'distal',) 
+         )
+
+warm_eff$label = factor(warm_eff$label, levels = c('proximal','distal','caudal','rostral'))
+  
+# plotting - within
+ggplot(data = warm_eff %>% 
+         filter(facet == 'within'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.5) +
+  labs(x = NULL, y = 'Predicted Warm Rating (0 - 1)') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(oran[4], oran[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 11)) -> plot_warmw_eff
+# plotting - across
+ggplot(data = warm_eff %>% 
+         filter(facet == 'across'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.5) +
+  labs(x = NULL, y = '') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(oran[4], oran[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 10)) -> plot_warma_eff
+
+# combine
+plot_warm_eff1 <- ggarrange(plot_warmw_eff, plot_warma_eff,
+                           ncol = 2, nrow = 1,
+                           common.legend = TRUE,
+                           legend = 'right')
+plot_warm_eff1
+```
+# Burn
+The burning hypothesis is only for participants that experience burning TGI 
+(aka are responders)
+```{r burnmod}
+# First, remove non-responders
+df_resp <- df_long %>% 
+  filter(responder == 1)
+# check n
+n <- count(df_resp, 'ID')
+length(n$ID)
+# Try and model all with ratings
+model.burn = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + 
+                                trial_n + (1|ID) + (1|order),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_resp %>% filter(quality == 'burn'),
+                      na.action = na.omit) 
+mb <- summary(model.burn)
+mb
+
+Anova(model.burn)
+```
+
+# Marginal effect plots of full model - burn
+```{r}
+burn_eff <- ggeffects::ggpredict(model.burn, terms = c('cold_cond', 'manipulation', 'condition'),
+                            ci.lvl = .95)
+# changing labels for plotting
+burn_eff$group <- factor(burn_eff$group, labels = c('Non-TGI', 'TGI'))
+burn_eff <- burn_eff %>% 
+  mutate(label = 
+           case_when(facet == 'across' & x == 'prox_caud' ~ 'caudal',
+                     facet == 'across' & x == 'dist_rostr' ~ 'rostral',
+                     facet == 'within' & x == 'prox_caud' ~ 'proximal',
+                     facet == 'within' & x == 'dist_rostr' ~ 'distal',) 
+         )
+
+burn_eff$label = factor(burn_eff$label, levels = c('proximal','distal','caudal','rostral'))
+  
+# plotting - within
+ggplot(data = burn_eff %>% 
+         filter(facet == 'within'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.5) +
+  labs(x = NULL, y = 'Predicted Burn Rating (0 - 1)') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(purp[4], purp[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 11)) -> plot_burnw_eff
+# plotting - across
+ggplot(data = burn_eff %>% 
+         filter(facet == 'across'), 
+       aes(label, predicted, group = group, colour = group),) +
+  geom_point(position = position_dodge(.3), size = 2.5) +
+  geom_line(position = position_dodge(.3), size = 1) +
+  geom_errorbar(aes(label, ymin = conf.low, ymax = conf.high),
+                position = position_dodge(.3), width = .1, size = .8) +
+  ylim(0, 0.5) +
+  labs(x = NULL, y = '') +
+  facet_wrap(~facet) +
+  scale_colour_manual(values = c(purp[4], purp[7])) +
+  theme_classic() +
+  theme(legend.title = element_blank(),
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        strip.text = element_text(size = 12),
+        legend.text = element_text(size = 10)) -> plot_burna_eff
+
+# combine
+plot_burn_eff1 <- ggarrange(plot_burnw_eff, plot_burna_eff,
+                           ncol = 2, nrow = 1,
+                           common.legend = TRUE,
+                           legend = 'right')
+plot_burn_eff1
+```
+
+# Zero inflation marginal effects plot of all models
+```{r zero_plots}
+# Getting the marginal effects for plotting
+# First the zeros - create new lm mo
+df_long$bin <- ifelse(df_long$VAS == 0, 1, 0)
+df_resp$bin <- ifelse(df_resp$VAS == 0, 1, 0)
+
+# model for each VAS
+# cold
+cold.zeff <- glm(bin~1+manipulation, 
+                  family = binomial(link = 'logit'),
+                  data = df_long %>% filter(quality == 'cold'))
+summary(cold.zeff)
+# warm
+warm.zeff <- glm(bin~1+manipulation, 
+                  family = binomial(link = 'logit'),
+                  data = df_long %>% filter(quality == 'warm'))
+summary(warm.zeff)
+# burn
+burn.zeff <- glm(bin~1+manipulation, 
+                  family = binomial(link = 'logit'),
+                  data = df_resp %>% filter(quality == 'burn'))
+summary(burn.zeff)
+
+# Data-frames
+cold_zeff <- ggeffects::ggeffect(cold.zeff, terms = c('manipulation'))
+warm_zeff <- ggeffects::ggeffect(warm.zeff, terms = c('manipulation'))
+burn_zeff <- ggeffects::ggeffect(burn.zeff, terms = c('manipulation'))
+# changing labels for plotting
+cold_zeff$x <- factor(cold_zeff$x, labels = c('Non-TGI', 'TGI'))
+warm_zeff$x <- factor(warm_zeff$x, labels = c('Non-TGI', 'TGI'))
+burn_zeff$x <- factor(burn_zeff$x, labels = c('Non-TGI', 'TGI'))
+
+# plotting - cold
+ggplot(cold_zeff, aes(x, predicted, colour = x)) +
+  geom_point(size = 2.5) +
+  geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
+                width = .05, size = .8) +
+  labs(y = 'Predicted proportion of zeros', x = NULL) +
+  ylim(0,.25) +
+  scale_colour_manual(values = c(blue[4], blue[7])) +
+  theme_classic() + 
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12)) -> plot_zcold
+
+# warm
+ggplot(warm_zeff, aes(x, predicted, colour = x)) +
+  geom_point(size = 2.5) +
+  geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
+                width = .05, size = .8) +
+  labs(y = 'Predicted proportion of zeros', x = NULL) +
+  ylim(.45,.7) +
+  scale_colour_manual(values = c(oran[4], oran[7])) +
+  theme_classic() + 
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12)) -> plot_zwarm
+
+# burn
+ggplot(burn_zeff, aes(x, predicted, colour = x)) +
+  geom_point(size = 2.5) +
+  geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
+                width = .05, size = .8) +
+  labs(y = 'Predicted proportion of zeros', x = NULL) +
+  ylim(.05,.3) +
+  scale_colour_manual(values = c(purp[4], purp[7])) +
+  theme_classic() + 
+  theme(legend.position = 'none',
+        axis.text = element_text(size = 10),
+        axis.title = element_text(size = 12)) -> plot_zburn
+```
+
+# Compile all marginal effect plots
+```{r}
+# Cold
+plot_cold_eff <- ggarrange(plot_zcold, plot_cold_eff1,
+                   ncol = 2, nrow = 1,
+                   widths = c(.35,1))
+# add title
+plot_cold_eff <- annotate_figure(plot_cold_eff, top = text_grob("Cold Ratings", 
+                                                size = 12, hjust = 4.05))
+plot_cold_eff
+
+# Warm
+plot_warm_eff <- ggarrange(plot_zwarm, plot_warm_eff1,
+                   ncol = 2, nrow = 1,
+                   widths = c(.35,1))
+# add title
+plot_warm_eff <- annotate_figure(plot_warm_eff, top = text_grob("Warm Ratings", 
+                                                size = 12, hjust = 3.69))
+plot_warm_eff
+
+# Burn
+plot_burn_eff <- ggarrange(plot_zburn, plot_burn_eff1,
+                   ncol = 2, nrow = 1,
+                   widths = c(.35,1))
+# add title
+plot_burn_eff <- annotate_figure(plot_burn_eff, top = text_grob("Burn Ratings", 
+                                                size = 12, hjust = 4.1))
+plot_burn_eff
+
+# Compile all!
+plot_eff <- ggarrange(plot_cold_eff, plot_warm_eff, plot_burn_eff,
+                      ncol = 1, nrow = 3)
+plot_eff
+
+ggsave('h2_effects_plot.png', plot_eff, device = NULL, path = anaPath,
+       width = 9, height = 8, dpi = 600)
+```
+# Run model checks on all
+```{r checks, warning=FALSE}
+# cold assumption - on n = 50
+mc.assump <- simulateResiduals(model.cold, n = 1000)
+plot(mc.assump)
+# warm assumption - on n = 50
+mw.assump <- simulateResiduals(model.warm, n = 1000)
+plot(mw.assump)
+# warm assumption - on n = 50
+mb.assump <- simulateResiduals(model.burn, n = 1000)
+plot(mb.assump)
+```
+# EXPLORATORY HYPOTHESES
+# Correlation between quality (cold/warm/burn)
+
+```{r corr}
+# remove columns
+df_corr <- df_res[, c(1:9,14:16,21)]
+df_corr <- df_corr %>% 
+  pivot_wider(names_from = 'manipulation', values_from = c('VAScold','VASwarm','VASburn')) %>% 
+  select(c(ID,VAScold_CNT,VAScold_TGI,VASwarm_CNT,VASwarm_TGI,VASburn_CNT,VASburn_TGI)) %>% 
+  rename(CNTcold = VAScold_CNT,
+         TGIcold = VAScold_TGI,
+         CNTwarm = VASwarm_CNT,
+         TGIwarm = VASwarm_TGI,
+         CNTburn = VASburn_CNT,
+         TGIburn = VASburn_TGI)
+
+# average values within participants
+df_corr <- aggregate(. ~ID, mean, data = df_corr)
+# remove ID
+df_corr <- select(df_corr, -ID)
+
+# check distribution of data
+df_means <- aggregate(VAS ~ ID*quality*manipulation, mean, data = vas_meds)
+ggplot(df_means, aes(colour = quality)) +
+  geom_density(aes(VAS)) +
+  theme_bw()
+
+# correlate
+qual_cor <- hetcor(df_corr, type = 'pearson')
+cormat <- qual_cor$correlations
+
+# significance values
+p <- cor.mtest(df_corr, type ='pearson')$p
+
+# correlation matrix
+# plotting correlations between variables
+corrplot(cormat, type = 'lower',
+         p.mat = p, insig = "p-value", sig.level = -1,
+         title = "VAS rating correlation matrix", 
+         mar = c(0,0,1,0), 
+         tl.cex=0.9) 
+```
+
+# Scatter plots
+```{r scatter}
+# Non TGI plots
+ggplot(df_corr, aes(x = CNTcold, y =CNTwarm)) +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[1,3], 2))),
+            x=8, y=90, size = 5) +
+  labs(x = 'Cold Ratings', y = 'Warm Ratings') +
+  xlim(0,100) + ylim(-15,100) +
+  theme_bw() -> CNT_cw_plot
+
+ggplot(df_corr, aes(x = CNTcold, y = CNTburn)) +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[1,5], 2))),
+            x=8, y=90, size = 5) +
+  labs(x = 'Cold Ratings', y = 'Burn Ratings') +
+  xlim(0,100) + ylim(-15,100) +
+  theme_bw() -> CNT_cb_plot
+
+ggplot(df_corr, aes(x = CNTwarm, y = CNTburn)) +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[3,5], 2))),
+            x=8, y=90, size = 5) +
+  labs(x = 'Warm Ratings', y = 'Burn Ratings') +
+  xlim(0,100) + ylim(-15,100) +
+  theme_bw() -> CNT_wb_plot
+
+# combine non TGI
+CNT_corr_plot <- ggarrange(CNT_cw_plot, CNT_cb_plot, CNT_wb_plot,
+                           nrow = 1, ncol = 3,
+                           labels = c('A','B','C'))
+CNT_corr_plot <- annotate_figure(CNT_corr_plot, 
+                                 top = text_grob("Non-TGI", 
+                                                 size = 12))
+
+
+# TGI plots
+ggplot(df_corr, aes(x = TGIcold, y = TGIwarm)) +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[2,4], 2))),
+            x=8, y=90, size = 5) +
+  labs(x = 'Cold Ratings', y = 'Warm Ratings') +
+  xlim(0,100) + ylim(-15,100) +
+  theme_bw() -> TGI_cw_plot
+
+ggplot(df_corr, aes(x = TGIcold, y = TGIburn)) +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[2,6], 2))),
+            x=8, y=90, size = 5) +
+  labs(x = 'Cold Ratings', y = 'Burn Ratings') +
+  xlim(0,100) + ylim(-15,100) +
+  theme_bw() -> TGI_cb_plot
+
+ggplot(df_corr, aes(x = TGIwarm, y = TGIburn)) +
+  geom_smooth(method='lm', colour = 'black', alpha = .5) +
+  geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
+  geom_text(aes(label = paste0("R = ",
+                               round(cormat[4,6], 2))),
+            x=8, y=90, size = 5) +
+  labs(x = 'Warm Ratings', y = 'Burn Ratings') +
+  xlim(0,100) + ylim(-15,100) +
+  theme_bw() -> TGI_wb_plot
+
+# combine TGI
+TGI_corr_plot <- ggarrange(TGI_cw_plot, TGI_cb_plot, TGI_wb_plot,
+                           nrow = 1, ncol = 3,
+                           labels = c('D','E','F'))
+TGI_corr_plot <- annotate_figure(TGI_corr_plot, 
+                                 top = text_grob("TGI", 
+                                                 size = 12))
+
+# put two together
+corr_plot <- ggarrange(CNT_corr_plot, TGI_corr_plot,
+                       nrow = 2, ncol = 1)
+corr_plot
+
+ggsave('stgi_correlations.png', corr_plot, device = NULL, path = anaPath, 
+       width = 14, height = 9, dpi = 1000)
+```
+
+# Initial burn
+Are there any observed differences in dermatome and warm and cold afferents
+for the first initial burning rating, before trial begins?
+
+```{r initmod}
+# Try and model all with ratings
+model.init = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + 
+                                trial_n + (1|ID) + (1|order),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_long %>% filter(quality == 'init'),
+                      na.action = na.omit) 
+mi <- summary(model.init)
+mi
+
+```
+
+# Run individual models on within and across dermatomes for H2
+Directly compare proximal-distal and rostral-caudal results for each quality
+
+# Cold - within and across
+```{r cold_indiv}
+# seperate data-frames
+within <- df_long %>% 
+  filter(condition == 'within')
+across <-  df_long %>% 
+  filter(condition == 'across')
+
+# within
+model.wcold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = within %>% filter(quality == 'cold'),
+                      na.action = na.omit) 
+mwc <- summary(model.wcold)
+mwc
+
+# across
+model.acold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = across %>% filter(quality == 'cold'),
+                      na.action = na.omit) 
+mac <- summary(model.acold)
+mac
+```
+
+# Warm - within and across
+```{r warm_indiv}
+# within
+model.wwarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = within %>% filter(quality == 'warm'),
+                      na.action = na.omit) 
+mww <- summary(model.wwarm)
+mww
+
+# across
+model.awarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = across %>% filter(quality == 'warm'),
+                      na.action = na.omit) 
+maw <- summary(model.awarm)
+maw
+```
+
+# Burn - within and across
+```{r burn_indiv}
+# isolate responders only
+within <- df_long %>% 
+  filter(condition == 'within' & responder == 1)
+across <-  df_long %>% 
+  filter(condition == 'across' & responder == 1)
+
+# within
+model.wburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = within %>% filter(quality == 'burn'),
+                      na.action = na.omit) 
+mwb <- summary(model.wburn)
+mwb
+
+# across
+model.aburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = across %>% filter(quality == 'burn'),
+                      na.action = na.omit) 
+mab <- summary(model.aburn)
+mab
+```
