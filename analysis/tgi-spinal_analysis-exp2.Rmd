@@ -120,7 +120,7 @@ cnt <-  df_med %>%
 # identify test results where pvalue is < .05
 tgi$ID <- as.factor(tgi$ID)
 i = 0
-test = data.frame(matrix(nrow = 27, ncol = 3))
+test = data.frame(matrix(nrow = 35, ncol = 3))
 colnames(test) <- c('ID','pval','responder')
 
 for (id in levels(tgi$ID)){
@@ -214,7 +214,7 @@ ggplot(h1_sum, aes(colour = quality, group = manipulation, alpha = manipulation)
   facet_wrap(~quality) +
   scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
   scale_alpha_discrete(range = c(0.6, 1)) +
-  ylim(0,50) +
+  ylim(0,70) +
   theme_bw() 
 ```
 
