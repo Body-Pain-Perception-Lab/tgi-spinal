@@ -61,7 +61,10 @@ for (file in filenames){
     df_RT <- rbind(df_RT, tmp)
   }
 }
+```
 
+# merging
+```{r data, echo = FALSE}
 # merge all files
 df_res <- merge(df_trials, df_VAS, by = c('ID','trial_n','manipulation'))
 df_res <- merge(df_res, df_RT, by = c('ID','trial_n','manipulation'))
@@ -88,7 +91,7 @@ df_res$cold_probe <- factor(df_res$cold_probe,
 # incorporate demographics
 # the warm and cold TGI and CNT temperatures did not code properly on the trial .csv
 # have saved these in the demo .csv as well, so will add these in
-demoFile <- 'STGI_participant-demographics.csv'
+demoFile <- 'STGI_exp2_participant-demographics.csv'
 fileName = paste(datPath, demoFile, sep = '')
 df_demo <- read.csv(fileName)
 # merge
@@ -99,7 +102,7 @@ fileName = paste(anaPath, 'STGI_compiled-data.csv', sep = '')
 write.csv(df_res, fileName, row.names = FALSE)
 
 # check we have 40 participants with 96 trials
-id_check <- count(df_res, 'ID')
+id_check <- count(df_res, ID)
 id_check
 ```
 
@@ -120,7 +123,7 @@ cnt <-  df_med %>%
 # identify test results where pvalue is < .05
 tgi$ID <- as.factor(tgi$ID)
 i = 0
-test = data.frame(matrix(nrow = 35, ncol = 3))
+test = data.frame(matrix(nrow = 40, ncol = 3))
 colnames(test) <- c('ID','pval','responder')
 
 for (id in levels(tgi$ID)){
@@ -867,7 +870,7 @@ ggplot(cold_zeff, aes(x, predicted, colour = x)) +
   geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
                 width = .05, size = .8) +
   labs(y = 'Predicted proportion of zeros', x = NULL) +
-  ylim(0,.25) +
+  ylim(.20,.60) +
   scale_colour_manual(values = c(blue[4], blue[7])) +
   theme_classic() + 
   theme(legend.position = 'none',
@@ -880,7 +883,7 @@ ggplot(warm_zeff, aes(x, predicted, colour = x)) +
   geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
                 width = .05, size = .8) +
   labs(y = 'Predicted proportion of zeros', x = NULL) +
-  ylim(.45,.7) +
+  ylim(0,.25) +
   scale_colour_manual(values = c(oran[4], oran[7])) +
   theme_classic() + 
   theme(legend.position = 'none',
