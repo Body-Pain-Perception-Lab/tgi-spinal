@@ -17,90 +17,12 @@ if (!require("pacman")) install.packages("pacman")
                  )
 ```
 
+# Load in data
 ```{r paths}
 # paths
 datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/exp1/Raw/'
 anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/exp1/Analysis/'
 ```
-
-# Loading data
-```{r data, echo = FALSE}
-# Extract all .csv files and compile
-filenames <- dir(datPath, recursive = TRUE, full.names = FALSE, pattern = '.csv')
-# empty dataframes for data
-## with new data trials file will have changed to include temperature coding!
-df_trials <- read.csv(text='procedure,trial_type,arm,condition,dermatome,order,cold_probe,trial_n,coolTemp,warmTempID,manipulation')
-df_VAS <- read.csv(text='VASinit,VASburn,VASwarm,VAScold,trial_n,ID,manipulation')
-df_RT <- read.csv(text='RTinit,RTburn,RTwarm,RTcold,trial_n,ID,manipulation')
-
-## Data compiling
-# trial files
-setwd(datPath)
-for (file in filenames){
-  # trial files
-  if (isTRUE(substr(basename(file), 24, 24)=="t")){
-    tmp <- read.csv(file)
-    tmp$ID <- substr(basename(file), 4, 6)
-    tmp$manipulation <- substr(basename(file), 17, 19)
-    df_trials <- rbind(df_trials, tmp)
-  }
-  # VAS response files
-  if (isTRUE(substr(basename(file), 24, 29)=="rating")){
-    tmp <- read.csv(file, header = FALSE)
-    colnames(tmp) <- c('VASinit','VASburn','VASwarm','VAScold','trial_n')
-    tmp$ID <- substr(basename(file), 4, 6)
-    tmp$manipulation <- substr(basename(file), 17, 19)
-    df_VAS <- rbind(df_VAS, tmp)
-  }
-  # VAS RT files
-  if (isTRUE(substr(basename(file), 24, 29)=="respti")){
-    tmp <- read.csv(file, header = FALSE)
-    colnames(tmp) <- c('RTinit','RTburn','RTwarm','RTcold','trial_n')
-    tmp$ID <- substr(basename(file), 4, 6)
-    tmp$manipulation <- substr(basename(file), 17, 19)
-    df_RT <- rbind(df_RT, tmp)
-  }
-}
-
-# merge all files
-df_res <- merge(df_trials, df_VAS, by = c('ID','trial_n','manipulation'))
-df_res <- merge(df_res, df_RT, by = c('ID','trial_n','manipulation'))
-
-# remove participant 019, stopped testing halfway due to broken thermal probe
-df_res <- df_res[df_res$ID != '019' ,]
-```
-
-# Data organisation
-```{r}
-# transform the ID of participants to remove 0
-df_res$ID <- as.numeric(df_res$ID)
-# recode conditions
-df_res <- df_res %>%
-  mutate(condition = dplyr::recode(condition, '1' = 'within', '2' = 'across'),
-         cold_probe = dplyr::recode(cold_probe, 'C6' = 'rostral', 'T1' = 'caudal',
-                             'dist' = 'distal', 'prox' = 'proximal'))
-# change levels 
-df_res$cold_probe <- factor(df_res$cold_probe, 
-                            levels = c("caudal", "rostral", "distal", "proximal"))
-
-# incorporate demographics
-# the warm and cold TGI and CNT temperatures did not code properly on the trial .csv
-# have saved these in the demo .csv as well, so will add these in
-demoFile <- 'STGI_exp1_participant-demographics.csv'
-fileName = paste(datPath, demoFile, sep = '')
-df_demo <- read.csv(fileName)
-# merge
-test <- merge(df_res, df_demo)
-
-# save new data-frame
-fileName = paste(anaPath, 'STGI_compiled-data.csv', sep = '')
-write.csv(df_res, fileName, row.names = FALSE)
-
-# check we have 40 participants with 96 trials
-id_check <- count(df_res, ID)
-id_check
-```
-
 
 # Responder check
 Check whether participants median burning ratings for TGI is significantly above 0
