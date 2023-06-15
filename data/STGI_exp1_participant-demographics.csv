@@ -1,0 +1,45 @@
+ID,Order,Manipulation first,Age,Gender,warmT,coldT,Tested,Calibration,Notes
+001,1,TGI,18,F,,,dec,,PILOT
+002,2,TGI,20,M,,,dec,,PILOT
+003,3,TGI,24,F,,,gb,,PILOT
+004,4,TGI,35,F,,,dec,agm,
+005,5,CNT,27,M,,,gb,agm,
+006,6,CNT,27,M,,,dec,agm,
+007,7,CNT,34,M,,,gb,agm,
+008,8,CNT,28,F,,,agm,agm,
+009,1,TGI,27,M,,,agm,agm,
+010,2,TGI,25,F,,,jfe,agm,
+011,3,TGI,24,F,,,jfe,agm,poss a non-responder
+012,4,TGI,21,M,,,agm,agm,
+013,5,CNT,23,F,,,agm,agm,
+014,6,CNT,30,F,,,agm,agm,
+015,7,CNT,20,F,,,agm,agm,
+016,8,CNT,18,F,,,jfe,agm,
+017,1,TGI,25,M,,,agm,agm,poss a non-responder
+018,2,TGI,25,F,,,agm,agm,
+019,3,TGI,22,M,,,agm,agm,terminated - broke thermode
+020,4,TGI,19,F,,,agm,agm,
+021,5,CNT,24,M,,,agm,agm,
+022,6,CNT,25,M,,,agm,agm,
+023,7,CNT,25,F,,,pm,agm,
+024,8,CNT,26,F,,,agm,agm,
+025,1,TGI,21,F,,,jfe,agm,
+026,2,TGI,20,F,,,ss,agm,
+027,3,TGI,19,M,,,agm,agm,
+028,4,TGI,36,F,,,agm,agm,
+029,5,CNT,24,F,,,agm,agm,burn during control
+030,6,CNT,25,F,,,agm,agm,
+031,7,CNT,27,F,,,agm,agm,first 2 TGI trials - invalid
+032,8,CNT,23,F,,,pm,agm,
+033,1,TGI,36,F,,,ss,agm,
+034,2,TGI,22,M,,,pm,agm,
+035,3,TGI,31,M,,,agm,agm,
+036,4,TGI,25,F,,,agm,agm,
+037,5,CNT,19,M,,,agm,agm,
+038,6,CNT,22,F,,,ss,agm,
+039,7,CNT,29,F,,,agm,agm,
+040,8,CNT,26,F,,,pm,agm,
+041,1,TGI,27,F,,,agm,agm,
+042,2,TGI,21,F,,,agm,agm,
+043,3,TGI,23,F,,,agm,agm,
+044,4,TGI,31,M,,,agm,agm,should be order = 3 to make up for loss of ppt 19
