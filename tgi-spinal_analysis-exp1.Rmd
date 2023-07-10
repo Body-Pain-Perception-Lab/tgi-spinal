@@ -524,6 +524,10 @@ df_long$beta <- df_long$beta/100
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
 #df_long$VAS <- df_long$VAS/100
 df_long$ID <- factor(df_long$ID)
+
+df_long_exp1 = df_long
+
+source(here::here("scripts","utility.R"))
 ```
 
 Running models as pre-registered: 
@@ -539,6 +543,7 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + tria
 mc <- summary(model.cold)
 mc
 
+summary_stats(model.cold, 3,2)
 Anova(model.cold)
 # get Rsq with the mumin package
 ```
@@ -1054,6 +1059,8 @@ across <-  df_long %>%
   filter(condition == 'across')
 
 # within
+
+
 model.wcold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
                                 (1|ID),
                       family = glmmTMB::beta_family(),
@@ -1062,6 +1069,9 @@ model.wcold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                       na.action = na.omit) 
 mwc <- summary(model.wcold)
 mwc
+
+q = update(model.wcold, data = within %>% filter(quality == 'cold') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI")))
+summary(q)
 
 # across
 model.acold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
@@ -1072,6 +1082,11 @@ model.acold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                       na.action = na.omit) 
 mac <- summary(model.acold)
 mac
+
+
+plot(ggeffect(model.wcold, terms = c("manipulation","cold_probe")))
+
+across %>% filter(quality == 'cold') %>% filter(beta != 0) %>% ggplot(aes(x = manipulation, y = beta, fill = cold_probe))+geom_boxplot(notch = T)
 ```
 
 # Warm - within and across
@@ -1085,6 +1100,9 @@ model.wwarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                       na.action = na.omit) 
 mww <- summary(model.wwarm)
 mww
+
+q = update(model.wwarm, data = within %>% filter(quality == 'warm') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI")))
+summary(q)
 
 # across
 model.awarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
@@ -1114,6 +1132,9 @@ model.wburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                       na.action = na.omit) 
 mwb <- summary(model.wburn)
 mwb
+
+q = update(model.wburn, data = within %>% filter(quality == 'burn') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI")))
+summary(q)
 
 # across
 model.aburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +

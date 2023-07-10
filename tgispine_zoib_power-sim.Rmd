@@ -1,5 +1,5 @@
 ---
-title: "TGI-spinal-power"
+title: "Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion"
 author: "A.G. Mitchell"
 date: '2022-04-28'
 output: html_document

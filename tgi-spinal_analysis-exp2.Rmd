@@ -524,6 +524,8 @@ df_long$beta <- df_long$beta/100
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
 #df_long$VAS <- df_long$VAS/100
 df_long$ID <- factor(df_long$ID)
+
+df_long_exp2 = df_long
 ```
 
 Running models as pre-registered: 
@@ -534,7 +536,7 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + tria
                                 (1|ID) + (1|order),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df_long %>% filter(quality == 'cold'),
+                      data = df_long_exp2 %>% filter(quality == 'cold'),
                       na.action = na.omit) 
 mc <- summary(model.cold)
 mc
@@ -611,7 +613,7 @@ model.warm = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond +
                                 trial_n + (1|ID) + (1|order),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df_long %>% filter(quality == 'warm'),
+                      data = df_long_exp2 %>% filter(quality == 'warm'),
                       na.action = na.omit) 
 mw <- summary(model.warm)
 mw
@@ -685,17 +687,17 @@ The burning hypothesis is only for participants that experience burning TGI
 (aka are responders)
 ```{r burnmod}
 # First, remove non-responders
-df_resp <- df_long %>% 
+df_resp_exp2 <- df_long_exp2 %>% 
   filter(responder == 1)
 # check n
-n <- count(df_resp, 'ID')
+n <- count(df_resp_exp2, 'ID')
 length(n$ID)
 # Try and model all with ratings
 model.burn = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + 
                                 trial_n + (1|ID) + (1|order),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df_resp %>% filter(quality == 'burn'),
+                      data = df_resp_exp2 %>% filter(quality == 'burn'),
                       na.action = na.omit) 
 mb <- summary(model.burn)
 mb
@@ -1050,9 +1052,9 @@ Directly compare proximal-distal and rostral-caudal results for each quality
 # Cold - within and across
 ```{r cold_indiv}
 # seperate data-frames
-within <- df_long %>% 
+within_exp2 <- df_long_exp2 %>% 
   filter(condition == 'within')
-across <-  df_long %>% 
+across_exp2 <-  df_long_exp2 %>% 
   filter(condition == 'across')
 
 # within
@@ -1060,7 +1062,7 @@ model.wcold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = within %>% filter(quality == 'cold'),
+                      data = within_exp2 %>% filter(quality == 'cold'),
                       na.action = na.omit) 
 mwc <- summary(model.wcold)
 mwc
@@ -1070,7 +1072,7 @@ model.acold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = across %>% filter(quality == 'cold'),
+                      data = across_exp2 %>% filter(quality == 'cold'),
                       na.action = na.omit) 
 mac <- summary(model.acold)
 mac
@@ -1083,7 +1085,7 @@ model.wwarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = within %>% filter(quality == 'warm'),
+                      data = within_exp2 %>% filter(quality == 'warm'),
                       na.action = na.omit) 
 mww <- summary(model.wwarm)
 mww
@@ -1093,7 +1095,7 @@ model.awarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = across %>% filter(quality == 'warm'),
+                      data = across_exp2 %>% filter(quality == 'warm'),
                       na.action = na.omit) 
 maw <- summary(model.awarm)
 maw
@@ -1102,9 +1104,9 @@ maw
 # Burn - within and across
 ```{r burn_indiv}
 # isolate responders only
-within <- df_long %>% 
+within_exp2 <- df_long_exp2 %>% 
   filter(condition == 'within' & responder == 1)
-across <-  df_long %>% 
+across_exp2 <-  df_long_exp2 %>% 
   filter(condition == 'across' & responder == 1)
 
 # within
@@ -1112,7 +1114,7 @@ model.wburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = within %>% filter(quality == 'burn'),
+                      data = within_exp2 %>% filter(quality == 'burn'),
                       na.action = na.omit) 
 mwb <- summary(model.wburn)
 mwb
@@ -1122,7 +1124,7 @@ model.aburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = across %>% filter(quality == 'burn'),
+                      data = across_exp2 %>% filter(quality == 'burn'),
                       na.action = na.omit) 
 mab <- summary(model.aburn)
 mab
