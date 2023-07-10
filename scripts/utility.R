@@ -156,7 +156,7 @@ prep_data = function(file){
   
   
   #Hypothesis 2 a & b: relative location of warm and cold
-
+  
   # Change name of manipulation
   vas_meds$manipulation <- factor(vas_meds$manipulation, labels = c('Non-TGI', 'TGI'))
   h2_sum <- aggregate(VAS~quality*manipulation*cold_probe, median, data = vas_meds)
@@ -220,10 +220,10 @@ prep_data = function(file){
 }
 
 
-make_plot1 = function(vas_h1_diff,h1_diff_sum){
+make_plot1 = function(vas_h1_diff,h1_diff_sum, exp){
   
   # now plot the difference
-  h1_diff_plot_exp1 = ggplot(data = vas_h1_diff, aes(colour = quality)) +
+  plot = ggplot(data = vas_h1_diff, aes(colour = quality)) +
     geom_hline(yintercept = 0, colour = 'grey50') +
     geom_point(aes(manipulation, difference, group = ID), position = position_dodge(.2),
                alpha = .5) +
@@ -231,18 +231,19 @@ make_plot1 = function(vas_h1_diff,h1_diff_sum){
                fill = 'grey15',
                shape = 21, size = 3) +
     geom_errorbar(data = h1_diff_sum, aes(manipulation, ymin = difference-ci,
-                                               ymax = difference+ci), 
+                                          ymax = difference+ci), 
                   width = .1, size = .7, colour = 'grey15') +
     facet_wrap(~quality) +
     scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
-    labs(title = 'Experiment 1',
+    labs(title = paste0('Experiment ',exp),
          y = 'Within - Across VAS Ratings', x = NULL) +
     theme_classic() +
     theme(legend.position = 'none')+coord_cartesian(ylim = c(-30,30)) 
   
-  return(h1_diff_plot_exp1)
+  return(plot)
   
 }
+
 
 plot1 = function(){
   
@@ -253,18 +254,22 @@ plot1 = function(){
   h1_diff_sum_exp1 = experiment1$h1_diff_sum
   
   
-  h1_diff_plot_exp1 = make_plot1(vas_h1_diff_exp1,h1_diff_sum_exp1)
-
+  h1_diff_plot_exp1 = make_plot1(vas_h1_diff = vas_h1_diff_exp1,
+                                 h1_diff_sum = h1_diff_sum_exp1,
+                                 exp = "1")
+  
   
   # experiment 2 file
   
-  experiment2 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'))
+  experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'))
   vas_h1_diff_exp2 = experiment2$vas_h1_diff
   h1_diff_sum_exp2 = experiment2$h1_diff_sum
   
-  h1_diff_plot_exp2 = make_plot1(vas_h1_diff_exp2,h1_diff_sum_exp2)
+  h1_diff_plot_exp2 = make_plot1(vas_h1_diff = vas_h1_diff_exp2,
+                                 h1_diff_sum = h1_diff_sum_exp2,
+                                 exp = "2")
   
-  plot1 = h1_diff_plot_exp1+h1_diff_plot_exp2+ plot_annotation('Hypothesis 1: Segmental Distance',theme=theme(plot.title=element_text(hjust=0.5)), tag_levels = "A")
+  plot1 = h1_diff_plot_exp1+h1_diff_plot_exp2+plot_annotation('Hypothesis 1: Segmental Distance',theme=theme(plot.title=element_text(hjust=0.5)), tag_levels = "A")
   return(plot1)
 }
 
@@ -322,26 +327,26 @@ plot2 = function(){
   h2_diff_sum_exp1 = experiment1$h2_diff_sum
   
   
-   experiment1_h2 = make_plot2(vas_h2_diff_exp1,h2_diff_sum_exp1)+plot_annotation('Experiment 1',theme=theme(plot.title=element_text(hjust=0.5)), tag_levels = list("A","B"))
+  experiment1_h2 = make_plot2(vas_h2_diff_exp1,h2_diff_sum_exp1)+plot_annotation('Experiment 1',theme=theme(plot.title=element_text(hjust=0.5)), tag_levels = list("A","B"))
   
   
   
   
-
-   # experiment 2 file
-   experiment1 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'))
-   vas_h2_diff_exp2 = experiment1$vas_h2_diff
-   h2_diff_sum_exp2 = experiment1$h2_diff_sum
-   
-   experiment2_h2 = make_plot2(vas_h2_diff_exp2,h2_diff_sum_exp2)+plot_annotation('Experiment 2',theme=theme(plot.title=element_text(hjust=0.5)), tag_levels = list(c("C","D")))
-   
-   
-   
-   #combine plots
+  
+  # experiment 2 file
+  experiment1 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'))
+  vas_h2_diff_exp2 = experiment1$vas_h2_diff
+  h2_diff_sum_exp2 = experiment1$h2_diff_sum
+  
+  experiment2_h2 = make_plot2(vas_h2_diff_exp2,h2_diff_sum_exp2)+plot_annotation('Experiment 2',theme=theme(plot.title=element_text(hjust=0.5)), tag_levels = list(c("C","D")))
+  
+  
+  
+  #combine plots
   plot2 = wrap_elements(wrap_elements(experiment1_h2) | wrap_elements(experiment2_h2))+ plot_annotation('Hypothesis 2: XXXXXXXXXX',theme=theme(plot.title=element_text(hjust=0.5)))
-   
-   
-   return(plot2)
+  
+  
+  return(plot2)
 }
 
 
