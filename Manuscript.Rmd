@@ -14,9 +14,9 @@ affliation:
 date: "`r Sys.Date()`"
 output:
   word_document:
+  html_document: default
   pdf_document:
     latex_engine: xelatex
-  html_document: default
 bibliography: knitting files/Citations.bib
 link-citations: yes
 linkcolor: blue
@@ -103,14 +103,14 @@ The results indicated a notably enhanced TGI effect when the cold stimulus induc
 
 
 ## Spinal organisation and TGI perception
-The complexities of spinal neuroanatomy provide insightful perspectives concerning the two main findings of these experiments: (1) enhanced heat and burning sensations when cold-warm thermosensory integration takes place more focally within the spinal cord, and (2) discernible directional inter-segmental effects when distinct cold and warm stimuli elicited broader activity along the spinal cord. Small primary afferents, responsible for mediating temperature and pain sensations, split into ascending and descending branches that cover one to two segments before they enter the dorsal horn [@kerr_neuroanatomical_1975; @lamotte_distribution_1977). This pattern forms the Lissauer's tract, a structure hypothesised to regulate sensory transmission to the dorsal horn and influence spinal receptive field size [@wall_brief_1999].
+The complexities of spinal neuroanatomy provide insightful perspectives concerning the two main findings of these experiments: (1) enhanced heat and burning sensations when cold-warm thermosensory integration takes place more focally within the spinal cord, and (2) discernible directional inter-segmental effects when distinct cold and warm stimuli elicited broader activity along the spinal cord. Small primary afferents, responsible for mediating temperature and pain sensations, split into ascending and descending branches that cover one to two segments before they enter the dorsal horn [@kerr_neuroanatomical_1975; @lamotte_distribution_1977]. This pattern forms the Lissauer's tract, a structure hypothesised to regulate sensory transmission to the dorsal horn and influence spinal receptive field size [@wall_brief_1999].
 
 Additionally, the endings of small primary afferents within the superficial laminae of the dorsal horn form synapses with both propriospinal neurons and projection neurons that target supraspinal structures known to significantly influence TGI perception [@craig_functional_1996; @lindstedt_evidence_2011; @leung_supraspinal_2014 + any other neuroimaging studies of the TGI].
 
-Evidence from animal studies shows that propriospinal neurons, confined within the spinal cord, exhibit bidirectional collateral branches along the rostrocaudal plane [@saywell_electrophysiological_2011; @skinner_ascending_1989). These connections shape the network of interneurons that modulates sensory information delivered to the dorsal horn [@todd_neuronal_2010; @peirs_neural_2016].
+Evidence from animal studies shows that propriospinal neurons, confined within the spinal cord, exhibit bidirectional collateral branches along the rostrocaudal plane [@saywell_electrophysiological_2011; @skinner_ascending_1989]. These connections shape the network of interneurons that modulates sensory information delivered to the dorsal horn [@todd_neuronal_2010; @peirs_neural_2016].
 
 
-Our finding of enhanced TGI perception with cold-warm stimuli applied within dermatomes might reflect the combined effects of the Lissauer's tract's short rostrocaudal span (comprising one to two segments, consistent with a single dermatome's boundary) and the characteristics of spinal circuits. These circuits, created by propriospinal neurons, may promote sensory integration within a spinal receptive field while simultaneously inhibiting activity in adjacent fields. This mechanism aligns with the concept of lateral inhibition, a ubiquitous process in sensory processing seen across both the peripheral and central nervous systems, and multiple sensory modalities, including thermoception and nociception [@bekesy_lateral_1962; @quevedo_lateral_2017; @adamczyk_not_2021).
+Our finding of enhanced TGI perception with cold-warm stimuli applied within dermatomes might reflect the combined effects of the Lissauer's tract's short rostrocaudal span (comprising one to two segments, consistent with a single dermatome's boundary) and the characteristics of spinal circuits. These circuits, created by propriospinal neurons, may promote sensory integration within a spinal receptive field while simultaneously inhibiting activity in adjacent fields. This mechanism aligns with the concept of lateral inhibition, a ubiquitous process in sensory processing seen across both the peripheral and central nervous systems, and multiple sensory modalities, including thermoception and nociception [@bekesy_lateral_1962; @quevedo_lateral_2017; @adamczyk_not_2021].
 Further, our observation that spatial factors, such as the more caudal localisation of cold activity relative to warm activity in the spinal cord, influences TGI perception, suggests possible neuroanatomical and functional asymmetries. This could mean a greater number of ascending fibres than descending fibres carrying thermosensory information in the Lissauer's tract, an uneven distribution of ascending and descending collaterals of propriospinal neurons (Anatomical Hypotheses), or varying effects of inter-segmental inhibition along the rostrocaudal axis (Functional Hypothesis). Additional research is needed to illuminate the specific anatomical and functional features of the spinal cord that resulted in the observed effects of this study.
 
 
@@ -142,7 +142,7 @@ We carried out the statistical analyses using the 'glmmTMB' package in R (versio
 \newpage
 
 # Authors contributions
-Author contributions listed alphabetically according to CRediT taxonomy (https://credit.niso.org):
+Author contributions listed alphabetically according to [CRediT taxonomy](https://credit.niso.org):
 Conceptualization: DEC, JFE, FF, PH, AGM.
 Data curation: JEF, AGM.
 Formal analysis: JFE, FF, AGM.
