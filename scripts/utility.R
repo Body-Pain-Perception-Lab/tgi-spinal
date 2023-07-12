@@ -36,7 +36,7 @@ summary_stat = function(model, coefficients, round){
     stat[i] = a$coefficients$cond[1+i,3]
     p[i] = a$coefficients$cond[1+i,4]
   }
-  return(list(beta = round(coef,round),std = round(std,round),stat = round(stat,round),p = p))
+  return(list(beta = format(round(coef,round),nsmall = round),std = format(round(std,round),nsmall = round),stat = format(round(stat,round), nsmall = round),p = p))
   
 }
 

@@ -528,6 +528,8 @@ df_long$ID <- factor(df_long$ID)
 df_long_exp1 = df_long
 
 source(here::here("scripts","utility.R"))
+source(here::here("scripts","models.R"))
+
 ```
 
 Running models as pre-registered: 
@@ -543,7 +545,7 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + tria
 mc <- summary(model.cold)
 mc
 
-summary_stats(model.cold, 3,2)
+summary_stat(model.cold, 3,2)
 Anova(model.cold)
 # get Rsq with the mumin package
 ```
