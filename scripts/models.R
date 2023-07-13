@@ -75,7 +75,7 @@ if(rerun){
                                  ziformula = ~1+manipulation,
                                  data = within_exp1 %>% filter(quality == 'cold'),
                                  na.action = na.omit) 
-
+  
   
   stats_within_cold_exp1_control = summary_stat(model_within_cold_exp1,5,r)
   
