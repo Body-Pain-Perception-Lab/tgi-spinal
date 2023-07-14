@@ -16,9 +16,15 @@ author:
 
 affiliation:
   - id : "1"
-    institution : "Center of Functionally Integrative Neuroscience (CFIN), Department of Clinical Medicine, Aarhus University"
+    institution : "Center of Functionally Integrative Neuroscience (CFIN), Department of Clinical Medicine, Aarhus University, Denmark"
   - id : "2"
-    institution : "Interacting Minds Center (IMC), Department XXX, Aarhus University"
+    institution : "Interacting Minds Center (IMC), Department XXX, Aarhus University, Denmark"
+  - id : "3"
+    institution : "Departement of Neuroscience, University of Copenhagen, Denmark"
+  - id : "4"
+    institution : "Institute of Cognitive Neuroscience, University College London, United Kingdom"
+  - id : "4"
+    institution : "Danish Pain Research Center, Aarhus University, Denmark"
 date: "`r Sys.Date()`"
 output:
   word_document:
@@ -132,12 +138,7 @@ plot1()
 
 In keeping with the unique heat and burning features of TGI, our results exhibited a more robust TGI when stimuli were confined within dermatomes compared to when applied across dermatomes, corresponding to non-adjacent spinal segments (Fig. 2).
 We investigated this difference in subjective cold / warm and burning ratings with a two by two interaction of manipulation (control / TGI) and dermatome (within / across).
-Results showed that participants reported a stronger reduced experience of cold, when the stimulus was presented within determatomes compared to across in the TGI condition compared to the control condition when the reference thermode was cold (experiment 1), but not when the reference thermode was warm (experiment 2)
-(Exp. 1: $\beta$ = `r stats_model_cold_exp1$beta[6]`, `r make_pvalue(stats_model_cold_exp1$p[6])`; Exp. 2: $\beta$ = `r stats_model_cold_exp2$beta[6]`, `r make_pvalue(stats_model_cold_exp2$p[6])`)
-The percept of warm showed no siginifcant interaction with either thermode as reference (Exp. 1: $\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`; Exp. 2: $\beta$ = `r stats_model_warm_exp2$beta[6]`, `r make_pvalue(stats_model_warm_exp2$p[6])`) 
-The percept of burning showed no statistical significant interaction with the reference being cold, but a strong interaction when the reference thermode was warm
-(Exp.1: $\beta$ = `r stats_model_burn_exp1$beta[6]`, `r make_pvalue(stats_model_burn_exp1$p[6])`; Exp. 2 $\beta$ = `r stats_model_burn_exp2$beta[6]`, `r make_pvalue(stats_model_burn_exp2$p[6])`)
-These findings not only corroborated earlier results regarding the segmental organisation of the TGI [@fardo_organization_2018] but also suggested that both the thermosensory enhancement and illusory pain components of the illusion are modulated at the spinal cord level.
+Results showed that participants reported a stronger reduced experience of cold, when the stimulus was presented within determatomes compared to across in the TGI condition compared to the control condition when the reference thermode was cold (experiment 1), but not when the reference thermode was warm (experiment 2) (Exp. 1: $\beta$ = `r stats_model_cold_exp1$beta[6]`, `r make_pvalue(stats_model_cold_exp1$p[6])`; Exp. 2: $\beta$ = `r stats_model_cold_exp2$beta[6]`, `r make_pvalue(stats_model_cold_exp2$p[6])`) The percept of warm showed no siginifcant interaction with either thermode as reference (Exp. 1: $\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`; Exp. 2: $\beta$ = `r stats_model_warm_exp2$beta[6]`, `r make_pvalue(stats_model_warm_exp2$p[6])`) The percept of burning showed no statistical significant interaction with the reference being cold, but a strong interaction when the reference thermode was warm (Exp.1: $\beta$ = `r stats_model_burn_exp1$beta[6]`, `r make_pvalue(stats_model_burn_exp1$p[6])`; Exp. 2 $\beta$ = `r stats_model_burn_exp2$beta[6]`, `r make_pvalue(stats_model_burn_exp2$p[6])`) These findings not only corroborated earlier results regarding the segmental organisation of the TGI [@fardo_organization_2018] but also suggested that both the thermosensory enhancement and illusory pain components of the illusion are modulated at the spinal cord level.
 These findings are consistent with previous results on the modulation of heat and pain ratings of TGI stimuli by conditioned pain modulation [@harper_conditioned_2017].
 All together these results support the role of spinal processes in the generation of distinct perceptual aspects of the TGI.
 
@@ -145,15 +146,7 @@ All together these results support the role of spinal processes in the generatio
 
 Previous research demonstrated a phenomenon known as distal inhibition, wherein heat pain ratings tend to increase when a participant evaluates a more distal compared to a more proximal stimulus among two warm stimuli presented on the forearm [@quevedo_psychophysicshyperalgesia_2004; @quevedo_illusion_2007].
 In our study, we sought to investigate whether this effect of distal inhibition would also influence TGI perception within a single dermatome (Fig. 3).
-We tested this effect with a two way interaction between condition (control / TGI) and the location of the cold thermode when it was placed within dermatome (distal / proximal)
-Results showed no statistical significant interaction effect for the cold ratings in both experiments:
-(Exp. 1: $\beta$ = `r stats_model_cold_exp1$beta[8]`, `r make_pvalue(stats_model_cold_exp1$p[8])`; Exp. 2: $\beta$ = `r stats_model_cold_exp2$beta[8]`, `r make_pvalue(stats_model_cold_exp2$p[8])`)
-Neither a statistically significant effect for warm watings
-(Exp1: $\beta$ = `r stats_model_warm_exp1$beta[8]`, `r make_pvalue(stats_model_warm_exp1$p[8])`; Exp 2: $\beta$ = `r stats_model_warm_exp2$beta[8]`, `r make_pvalue(stats_model_warm_exp2$p[8])`) 
-and also not for burning ratings
-(Exp1: $\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`; Exp 2: $\beta$ = `r stats_model_burn_exp2$beta[8]`, `r make_pvalue(stats_model_burn_exp2$p[8])`) 
-
-
+We tested this effect with a two way interaction between condition (control / TGI) and the location of the cold thermode when it was placed within dermatome (distal / proximal) Results showed no statistical significant interaction effect for the cold ratings in both experiments: (Exp. 1: $\beta$ = `r stats_model_cold_exp1$beta[8]`, `r make_pvalue(stats_model_cold_exp1$p[8])`; Exp. 2: $\beta$ = `r stats_model_cold_exp2$beta[8]`, `r make_pvalue(stats_model_cold_exp2$p[8])`) Neither a statistically significant effect for warm watings (Exp1: $\beta$ = `r stats_model_warm_exp1$beta[8]`, `r make_pvalue(stats_model_warm_exp1$p[8])`; Exp 2: $\beta$ = `r stats_model_warm_exp2$beta[8]`, `r make_pvalue(stats_model_warm_exp2$p[8])`) and also not for burning ratings (Exp1: $\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`; Exp 2: $\beta$ = `r stats_model_burn_exp2$beta[8]`, `r make_pvalue(stats_model_burn_exp2$p[8])`)
 
 ```{r, results="hide", fig.width = 7.2, fig.height = 7.2, warning = F, message = F, echo = F, fig.cap = "Difference in VAS ratings between the two dermatome conditions. The top panel shows the difference between proximal and distal cold afferent locations (within dermatomes) and the bottom panel shows the difference between rostral and caudal cold afferent locations, relative to warm, across stimulation type (Non-TGI, TGI) and VAS rating quality (cold, warm and burning). Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 plot2()
@@ -164,12 +157,7 @@ plot2()
 A main objective of this study was assessing spatial order effects along the rostrocaudal axis at the spinal level.
 We delivered an equal number of trials in which the cold stimulus was applied on a dermatome that mapped more rostrally or caudally compared to the warm or neutral stimuli.
 Like the previous analysis we investigated this relationship with a two way interaction here with the rostral - caudal axis being investigated.
-Results showed no statistical significant interaction effect for the cold ratings in the first experiment, but a statistically significant interaction when the reference thermode was warm:
-(Exp. 1: $\beta$ = `r stats_model_cold_exp1$beta[7]`, `r make_pvalue(stats_model_cold_exp1$p[7])`; Exp. 2: $\beta$ = `r stats_model_cold_exp2$beta[7]`, `r make_pvalue(stats_model_cold_exp2$p[7])`)
-No statistically significant effect for warm watings
-(Exp1: $\beta$ = `r stats_model_warm_exp1$beta[7]`, `r make_pvalue(stats_model_warm_exp1$p[7])`; Exp 2: $\beta$ = `r stats_model_warm_exp2$beta[7]`, `r make_pvalue(stats_model_warm_exp2$p[7])`) 
-and also not for burning ratings
-(Exp1: $\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`; Exp 2: $\beta$ = `r stats_model_burn_exp2$beta[7]`, `r make_pvalue(stats_model_burn_exp2$p[7])`) 
+Results showed no statistical significant interaction effect for the cold ratings in the first experiment, but a statistically significant interaction when the reference thermode was warm: (Exp. 1: $\beta$ = `r stats_model_cold_exp1$beta[7]`, `r make_pvalue(stats_model_cold_exp1$p[7])`; Exp. 2: $\beta$ = `r stats_model_cold_exp2$beta[7]`, `r make_pvalue(stats_model_cold_exp2$p[7])`) No statistically significant effect for warm watings (Exp1: $\beta$ = `r stats_model_warm_exp1$beta[7]`, `r make_pvalue(stats_model_warm_exp1$p[7])`; Exp 2: $\beta$ = `r stats_model_warm_exp2$beta[7]`, `r make_pvalue(stats_model_warm_exp2$p[7])`) and also not for burning ratings (Exp1: $\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`; Exp 2: $\beta$ = `r stats_model_burn_exp2$beta[7]`, `r make_pvalue(stats_model_burn_exp2$p[7])`)
 
 The results indicated a notably enhanced TGI effect when the cold stimulus induced more caudal activity within the spinal cord, as depicted in Figure 3.
 These findings were consistent across both experiments for thermosensory ratings, albeit with minor deviations that corresponded with the particular stimulation quality being assessed.
