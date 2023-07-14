@@ -1,12 +1,20 @@
 ---
 title: "Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion"
 author: 
-  - name : "**Jesper Fischer Ehmsen**"
-    affiliation: "1"
+  - name : "Alexandra G. Mitchell"
+    affiliation : "1"
+  - name : "Jesper Fischer Ehmsen"
+    affiliation : "1"
   - name : "Daniel Elmstrom Christensen"
-    affliation : "2"
-affliation:
-  
+    affiliation : "2"
+  - name : "Anna Villaume Stuckert"
+    affiliation : "3"
+  - name : "Patrick Haggard"
+    affiliation : "4"  
+  - name : "Francesca Fardo"
+    affiliation : "1"  
+
+affiliation:
   - id : "1"
     institution : "Center of Functionally Integrative Neuroscience (CFIN), Department of Clinical Medicine, Aarhus University"
   - id : "2"
