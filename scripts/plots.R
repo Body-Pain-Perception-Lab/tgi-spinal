@@ -2,7 +2,7 @@
 make_plot1 = function(vas_h1_diff,h1_diff_sum, title){
   
   # now plot the difference
-  plot = ggplot(data = vas_h1_diff, aes(colour = quality)) +
+  plot = data = vas_h1_diff %>% ggplot(aes(colour = quality)) +
     geom_hline(yintercept = 0, colour = 'grey50') +
     geom_point(aes(manipulation, difference, group = ID), position = position_dodge(.2),
                alpha = .5) +
@@ -19,6 +19,7 @@ make_plot1 = function(vas_h1_diff,h1_diff_sum, title){
     theme_classic() +
     theme(legend.position = 'none')+coord_cartesian(ylim = c(-30,30))+scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
+  plot
   return(plot)
   
 }

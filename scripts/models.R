@@ -59,7 +59,6 @@ if(rerun){
                                 contrasts=list(cold_probe = cold)
                                 ) 
   
-  
   stats_model_warm_exp1 = summary_stat(model_warm_exp1, 8,r)
   
   # Burn

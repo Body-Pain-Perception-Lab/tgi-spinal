@@ -13,7 +13,6 @@ author:
     affiliation : "4"  
   - name : "Francesca Fardo"
     affiliation : "1"  
-
 affiliation:
   - id : "1"
     institution : "Center of Functionally Integrative Neuroscience (CFIN), Department of Clinical Medicine, Aarhus University, Denmark"
@@ -27,10 +26,10 @@ affiliation:
     institution : "Danish Pain Research Center, Aarhus University, Denmark"
 #date: "`r Sys.Date()`"
 output:
-  word_document:
-  html_document: default
   pdf_document:
     latex_engine: xelatex
+  html_document: default
+  word_document:
 bibliography: knitting files/Citations.bib
 link-citations: yes
 linkcolor: blue
