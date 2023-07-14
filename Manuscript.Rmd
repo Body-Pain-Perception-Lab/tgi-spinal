@@ -23,7 +23,7 @@ affiliation:
     institution : "Departement of Neuroscience, University of Copenhagen, Denmark"
   - id : "4"
     institution : "Institute of Cognitive Neuroscience, University College London, United Kingdom"
-  - id : "4"
+  - id : "5"
     institution : "Danish Pain Research Center, Aarhus University, Denmark"
 date: "`r Sys.Date()`"
 output:
@@ -47,9 +47,9 @@ Much debate has revolved around whether spinal mechanisms are involved in the ge
 In this study, we investigated the role of the spinal cord in the generation of the TGI, in two independent experiments, involving a total of 80 healthy individuals.
 We applied heat and cold stimuli on dermatomes, namely areas of skin innervated by a single spinal nerve, mapped onto adjacent or nonadjacent spinal segments.
 Participants were asked to rate their perceptions of cold, warm, and burning sensations in response to TGI and control stimuli.
-Our aims were to investigate thermosensory and painful perceptual components of the TGI, as well as spatial features of the TGI that may illuminate processes underlying thermosensory integration in the spinal cord.
+Our aims were to investigate thermosensory and painful perceptual components of the TGI, as well as spatial features of the illusion that may illuminate processes underlying thermosensory integration in the spinal cord.
 Our findings revealed that both thermosensory and painful components of TGI perception were modulated similarly, with enhanced warm and burning ratings observed when cold and warm stimuli were confined within the same dermatome.
-Further, we found no perceptual differences based on the proximal-distal location of the cold stimulus within a single dermatome, but a notable enhancement of the TGI effect when the cold stimulus was associated with a more caudal segmental location along the spinal cord compared to the warm stimulus.
+Further, we found no perceptual differences based on the proximal-distal location of the cold stimulus within a single dermatome, but notable heat enhancement when the cold rather than the warm stimulus was associated with a more caudal segmental location along the spinal cord.
 These results provide insights into the organisation of the spinal cord in relation to the thermosensory integration and generation of the TGI.
 
 \newpage
@@ -59,15 +59,18 @@ These results provide insights into the organisation of the spinal cord in relat
 The thermal grill illusion (TGI) is a perceptual phenomenon that challenges conventional understanding of pain perception.
 It is a sensation of burning heat or pain when harmless cold and warm temperatures are applied to the skin simultaneously [@craig_thermal_1994; @craig_functional_1996].
 Despite cold and warm temperatures being individually innocuous, their combination produces a contradictory burning sensation, even so the temperatures are insufficient to activate peripheral nociceptors.
-The generation of this illusion is thus attributed to central nervous system mechanisms [@fardo_beyond_2020].
+The generation of this illusion is thus attributed to central nervous system mechanisms [@craig_thermal_1994; @fardo_beyond_2020].
 Recent studies have highlighted the involvement of the spinal cord as an initial site contributing to the TGI [@fardo_organization_2018; @harper_conditioned_2017].
-However, the precise mechanisms underpinning integration of cold and warm thermal afferents in the spinal cord, alongside those responsible for the distinctive burning quality to this illusion, are yet to be elucidated.The TGI is often described as encompassing two distinct perceptual components - an illusion of heat and an illusion of pain [@defrin_spatial_2008, @fardo_beyond_2020]. The illusion of heat, also known as synthetic heat [@fruhstorfer_significance_2003; @green_localization_1977; -@green_synthetic_2002; -@green_temperature_2004], refers to non-painful sensations evoked by the thermal grill [@defrin_spatial_2008; @kern_pharmacological_2008; -@kern_effects_2008; @bouhassira_investigation_2005; @adam_relationships_2014].
+However, the precise mechanisms underpinning integration of cold and warm thermal afferents in the spinal cord, alongside those responsible for the distinctive burning quality to this illusion, are yet to be elucidated.
+
+The TGI is often described as encompassing two distinct perceptual components - an illusion of heat and an illusion of pain [@defrin_spatial_2008, @fardo_beyond_2020]. The illusion of heat, also known as synthetic heat [@fruhstorfer_significance_2003; @green_localization_1977; -@green_synthetic_2002; -@green_temperature_2004], refers to non-painful sensations evoked by the thermal grill [@defrin_spatial_2008; @kern_pharmacological_2008; -@kern_effects_2008; @bouhassira_investigation_2005; @adam_relationships_2014].
 The illusion of pain, which is the most recognised aspect of the TGI, is the distinctive burning sensation that accompanies the simultaneous presentation of cold and warm stimuli [@craig_thermal_1994; -@craig_functional_1996; @bach_thermal_2011].
 The hallmark of both illusory components is a qualitative change in perception when the cold and warm stimuli are applied concurrently, compared to when they are presented individually.
 Historically, the thermosensory and painful components of the TGI were explained by distinct spinal and supraspinal mechanisms, respectively.
-The enhanced perception of heat in TGI was explained by a spinal inhibitory mechanism, drawing from observations in an animal model where simultaneous application of cold and warm temperatures reduced the activity of cold-specific spinal neurons compared to when cold was applied alone [@craig_thermal_1994]. Instead, the illusory pain component was ascribed to a disinhibition mechanism at the level of the thalamus, primarily based on the observations of unremitting pain following a thalamic lesion [@craig_thermal_1994; -@bud_craig_new_1998].
+The enhanced perception of heat in TGI was explained by a spinal inhibitory mechanism, drawing from observations in an animal model where simultaneous application of cold and warm temperatures reduced the activity of cold-specific spinal neurons compared to when cold was applied alone [@craig_thermal_1994]. Instead, the illusory pain component was ascribed to a disinhibition mechanism at the level of the thalamus, primarily based on the observations of unremitting pain following thalamic lesions [@craig_thermal_1994; -@bud_craig_new_1998].
+
 Recent human studies on TGI provided differing interpretations of the spinal or supraspinal origin of the illusion.
-Two studies posited that the illusory pain of the TGI depends uniquely on supraspinal mechanisms.
+Two studies posited that the illusory pain component of the TGI depends uniquely on supraspinal mechanisms.
 This interpretation was based on the observed modulation of the illusion in accordance with a spatiotopic rather than somatotopic representation of the body [@marotta_transforming_2015].
 Further, the illusion remained unaltered during concomitant tactile stimulation, suggesting ineffectiveness of tactile gating - a spinally-mediated process involving inhibition of nociceptive activity by concurrent somatosensory activity [@ferre_ineffectiveness_2018].
 Counter to this perspective, other research endorsed a spinal contribution to the TGI.
@@ -75,7 +78,8 @@ These studies demonstrated that the illusion varied depending on whether cold an
 Participants perceived the stimulation more veridically, consistently with a reduction in TGI perception, when warm or cold stimuli triggered more widespread activity along the spinal cord, corroborating the hypothesis that the spinal cord is an initial site of thermosensory integration underlying TGI.
 Further support for spinal mechanisms comes from research demonstrating that both noxious heat and the TGI were comparably reduced by conditioned pain modulation in humans.
 This suggests a similar influence of descending modulation, irrespective of whether the painful sensation was triggered by potentially harmful (noxious) or harmless (innocuous) stimuli [@harper_conditioned_2017].
-These findings collectively challenge a purely supraspinal hypothesis of the painful component of the TGI and indicate the relevance of spinal mechanisms in the manifestation of both illusory heat and pain within the TGI.
+These findings collectively challenge a purely supraspinal hypothesis of the painful component of the TGI and indicate the relevance of spinal mechanisms in the manifestation of both illusory heat and pain.
+
 In this paper our objective was twofold.
 Firstly, we directly investigated the hypothesis that thermosensory and burning components of the TGI experience are mediated by spinal mechanisms in humans, by manipulating the location of the stimuli within and across dermatomes.
 Our past work using a similar manipulation involved measuring the experience of the TGI using a temperature matching task [@fardo_organization_2018], which provides a composite measure of TGI perception, reflecting both thermosensory and burning components.
