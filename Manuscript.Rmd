@@ -26,11 +26,11 @@ affiliation:
     institution : "Danish Pain Research Center, Aarhus University, Denmark"
 #date: "`r Sys.Date()`"
 output:
+  word_document:
+  html_document: default
   pdf_document:
     latex_engine: xelatex
-  html_document: default
-  word_document:
-bibliography: knitting files/Citations.bib
+bibliography: knitting files/Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion.bib
 link-citations: yes
 linkcolor: blue
 always_allow_html: yes
@@ -66,7 +66,7 @@ The TGI is often described as encompassing two distinct perceptual components - 
 The illusion of pain, which is the most recognised aspect of the TGI, is the distinctive burning sensation that accompanies the simultaneous presentation of cold and warm stimuli [@craig_thermal_1994; -@craig_functional_1996; @bach_thermal_2011].
 The hallmark of both illusory components is a qualitative change in perception when the cold and warm stimuli are applied concurrently, compared to when they are presented individually.
 Historically, the thermosensory and painful components of the TGI were explained by distinct spinal and supraspinal mechanisms, respectively.
-The enhanced perception of heat in TGI was explained by a spinal inhibitory mechanism, drawing from observations in an animal model where simultaneous application of cold and warm temperatures reduced the activity of cold-specific spinal neurons compared to when cold was applied alone [@craig_thermal_1994]. Instead, the illusory pain component was ascribed to a disinhibition mechanism at the level of the thalamus, primarily based on the observations of unremitting pain following thalamic lesions [@craig_thermal_1994; -@bud_craig_new_1998].
+The enhanced perception of heat in TGI was explained by a spinal inhibitory mechanism, drawing from observations in an animal model where simultaneous application of cold and warm temperatures reduced the activity of cold-specific spinal neurons compared to when cold was applied alone [@craig_thermal_1994]. Instead, the illusory pain component was ascribed to a disinhibition mechanism at the level of the thalamus, primarily based on the observations of unremitting pain following thalamic lesions [@craig_thermal_1994; -@craig_new_1998].
 
 Recent human studies on TGI provided differing interpretations of the spinal or supraspinal origin of the illusion.
 Two studies posited that the illusory pain component of the TGI depends uniquely on supraspinal mechanisms.
