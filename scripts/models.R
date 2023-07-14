@@ -10,33 +10,57 @@ if(rerun){
   experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'))
   experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'))
   
-  df_long_exp1 = experiment1$df_long
-  df_long_exp2 = experiment2$df_long
+  df_long_exp1 = experiment1$df_long %>% mutate(cold_probe = as.factor(cold_probe), manipulation = as.factor(manipulation))
+  df_long_exp2 = experiment2$df_long %>% mutate(cold_probe = as.factor(cold_probe), manipulation = as.factor(manipulation))
+  
+  
+  ## Define constrats such that we both get within / across (i.e. distal & proximal vs rostral & caudual)
+  levels(df_long_exp1$cold_probe)
+  # "caudal"   "distal"   "proximal" "rostral" 
+  
+  #within - across
+  within_across = c(-1/2,1/2,1/2,-1/2)
+  #caudal - rostral
+  caudal_rostral = c(1,0,0,-1)
+  #distral - proximal
+  distal_proximal = c(0,1,-1,0)
+  
+  #define the matrix
+  cold = rbind(1/4,within_across,caudal_rostral,distal_proximal)
+  
+  #solve it 
+  cold = solve(cold)
+  
+  #remove the constant
+  cold = cold[,-1]
   
   
   ######### Exp 1 (Hypothesis 1)
   
   ## hypothsis 1
   # Cold
-  model_cold_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + trial_n +
+  model_cold_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + trial_n +
                                   (1|ID) + (1|order),
                                 family = glmmTMB::beta_family(),
                                 ziformula = ~1+manipulation,
                                 data = df_long_exp1 %>% filter(quality == 'cold'),
-                                na.action = na.omit) 
-  
-  stats_model_cold_exp1 = summary_stat(model_cold_exp1, 2,r)
+                                na.action = na.omit,
+                                contrasts=list(cold_probe = cold) 
+                                ) 
+  stats_model_cold_exp1 = summary_stat(model_cold_exp1, 8,r)
   
   # Warm
-  model_warm_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond +
+  model_warm_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe +
                                   trial_n + (1|ID) + (1|order),
                                 family = glmmTMB::beta_family(),
                                 ziformula = ~1+manipulation,
                                 data = df_long_exp1 %>% filter(quality == 'warm'),
-                                na.action = na.omit) 
+                                na.action = na.omit,
+                                contrasts=list(cold_probe = cold)
+                                ) 
   
   
-  stats_model_warm_exp1 = summary_stat(model_warm_exp1, 2,r)
+  stats_model_warm_exp1 = summary_stat(model_warm_exp1, 8,r)
   
   # Burn
   #The burning hypothesis is only for participants that experience burning TGI 
@@ -52,166 +76,41 @@ if(rerun){
                                 family = glmmTMB::beta_family(),
                                 ziformula = ~1+manipulation,
                                 data = df_resp_exp1 %>% filter(quality == 'burn'),
-                                na.action = na.omit) 
+                                na.action = na.omit,
+                                contrasts=list(cold_probe = cold)
+                                ) 
   
-  stats_model_burn_exp1 = summary_stat(model_burn_exp1, 2,r)
-  
+  stats_model_burn_exp1 = summary_stat(model_burn_exp1, 8,r)
   
   
 
-  ## hypothsis 2 (within)
-
-  within_exp1 <- df_long_exp1 %>% 
-    filter(condition == 'within')
-
-  
-  # within
-  
-  ### cold
-  
-  model_within_cold_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                   (1|ID),
-                                 family = glmmTMB::beta_family(),
-                                 ziformula = ~1+manipulation,
-                                 data = within_exp1 %>% filter(quality == 'cold'),
-                                 na.action = na.omit) 
-  
-  
-  stats_within_cold_exp1_control = summary_stat(model_within_cold_exp1,5,r)
-  
-  stats_within_cold_exp1_TGI = summary_stat(
-                               update(model_within_cold_exp1, data = within_exp1 %>% filter(quality == 'cold') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-                               2,r)
-  
-  
-  ###warm 
-  
-
-  model_within_warm_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                   (1|ID),
-                                 family = glmmTMB::beta_family(),
-                                 ziformula = ~1+manipulation,
-                                 data = within_exp1 %>% filter(quality == 'warm'),
-                                 na.action = na.omit) 
-  
-  stats_within_warm_exp1_control = summary_stat(model_within_warm_exp1,5,r)
-  
-  stats_within_warm_exp1_TGI = summary_stat(
-    update(model_within_warm_exp1, data = within_exp1 %>% filter(quality == 'warm') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,2)
-
-  
-  
-  ## burning
-  within_exp1 <- df_long_exp1 %>% 
-    filter(condition == 'within' & responder == 1)
-  
-  
-  # within
-  model_within_burn_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                   (1|ID),
-                                 family = glmmTMB::beta_family(),
-                                 ziformula = ~1+manipulation,
-                                 data = within_exp1 %>% filter(quality == 'burn'),
-                                 na.action = na.omit) 
-  
-  stats_within_burn_exp1_control = summary_stat(model_within_burn_exp1,5,r)
-  
-  stats_within_burn_exp1_TGI = summary_stat(
-    update(model_within_burn_exp1, data = within_exp1 %>% filter(quality == 'burn') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  
-  
-  ## hypothsis 2 (within)
-  
-  across_exp1 <- df_long_exp1 %>% 
-    filter(condition == 'across')
-  
-  
-  # within
-  
-  ### cold
-  
-  model_across_cold_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                              (1|ID),
-                                            family = glmmTMB::beta_family(),
-                                            ziformula = ~1+manipulation,
-                                            data = across_exp1 %>% filter(quality == 'cold'),
-                                            na.action = na.omit) 
-  
-  
-  stats_across_cold_exp1_control = summary_stat(model_across_cold_exp1,5,r)
-  
-  stats_across_cold_exp1_TGI = summary_stat(
-    update(model_across_cold_exp1, data = across_exp1 %>% filter(quality == 'cold') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  ###warm 
-  
-  
-  model_across_warm_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                              (1|ID),
-                                            family = glmmTMB::beta_family(),
-                                            ziformula = ~1+manipulation,
-                                            data = across_exp1 %>% filter(quality == 'warm'),
-                                            na.action = na.omit) 
-  
-  stats_across_warm_exp1_control = summary_stat(model_across_warm_exp1,5,r)
-  
-  stats_across_warm_exp1_TGI = summary_stat(
-    update(model_across_warm_exp1, data = across_exp1 %>% filter(quality == 'warm') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  
-  ## burning
-  across_exp1 <- df_long_exp1 %>% 
-    filter(condition == 'across' & responder == 1)
-  
-  
-  # within
-  model_across_burn_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                              (1|ID),
-                                            family = glmmTMB::beta_family(),
-                                            ziformula = ~1+manipulation,
-                                            data = across_exp1 %>% filter(quality == 'burn'),
-                                            na.action = na.omit) 
-  
-  stats_across_burn_exp1_control = summary_stat(model_across_burn_exp1,5,r)
-  
-  stats_across_burn_exp1_TGI = summary_stat(
-    update(model_across_burn_exp1, data = across_exp1 %>% filter(quality == 'burn') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  
   
   
   ######### Exp 2 (Hypothesis 1)
 
   # Cold
-  model_cold_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + trial_n +
+  model_cold_exp2 = glmmTMB::glmmTMB(beta ~ manipulation*cold_probe  + trial_n +
                                        (1|ID) + (1|order),
                                      family = glmmTMB::beta_family(),
                                      ziformula = ~1+manipulation,
                                      data = df_long_exp2 %>% filter(quality == 'cold'),
-                                     na.action = na.omit) 
+                                     na.action = na.omit,
+                                     contrasts=list(cold_probe = cold) 
+                                     ) 
   
-  stats_model_cold_exp2 = summary_stat(model_cold_exp2, 2,r)
+  stats_model_cold_exp2 = summary_stat(model_cold_exp2, 8,r)
   
   # Warm
-  model_warm_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond +
+  model_warm_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe +
                                        trial_n + (1|ID) + (1|order),
                                      family = glmmTMB::beta_family(),
                                      ziformula = ~1+manipulation,
                                      data = df_long_exp2 %>% filter(quality == 'warm'),
-                                     na.action = na.omit) 
+                                     na.action = na.omit,
+                                     contrasts=list(cold_probe = cold)) 
   
   
-  stats_model_warm_exp2 = summary_stat(model_warm_exp2, 2,r)
+  stats_model_warm_exp2 = summary_stat(model_warm_exp2, 8,r)
   
   # Burn
   #The burning hypothesis is only for participants that experience burning TGI 
@@ -222,141 +121,17 @@ if(rerun){
   # check n
   length(unique(df_resp_exp2$ID))
   
-  model_burn_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + 
+  model_burn_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + 
                                        trial_n + (1|ID) + (1|order),
                                      family = glmmTMB::beta_family(),
                                      ziformula = ~1+manipulation,
                                      data = df_resp_exp2 %>% filter(quality == 'burn'),
-                                     na.action = na.omit) 
+                                     na.action = na.omit,
+                                     contrasts=list(cold_probe = cold)
+                                     ) 
   
-  stats_model_burn_exp2 = summary_stat(model_burn_exp2, 2,r)
-  
-  
-  ## hypothsis 2 (within)
-  
-  within_exp2 <- df_long_exp2 %>% 
-    filter(condition == 'within')
-  
-  # within
-  
-  ### cold
-  
-  model_within_cold_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                              (1|ID),
-                                            family = glmmTMB::beta_family(),
-                                            ziformula = ~1+manipulation,
-                                            data = within_exp2 %>% filter(quality == 'cold'),
-                                            na.action = na.omit) 
-  
-  
-  stats_within_cold_exp2_control = summary_stat(model_within_cold_exp2,5,r)
-  
-  stats_within_cold_exp2_TGI = summary_stat(
-    update(model_within_cold_exp2, data = within_exp2 %>% filter(quality == 'cold') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  ###warm 
-  
-  
-  model_within_warm_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                              (1|ID),
-                                            family = glmmTMB::beta_family(),
-                                            ziformula = ~1+manipulation,
-                                            data = within_exp2 %>% filter(quality == 'warm'),
-                                            na.action = na.omit) 
-  
-  stats_within_warm_exp2_control = summary_stat(model_within_warm_exp2,5,r)
-  
-  stats_within_warm_exp2_TGI = summary_stat(
-    update(model_within_warm_exp2, data = within_exp2 %>% filter(quality == 'warm') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  
-  ## burning
-  within_exp2 <- df_long_exp2 %>% 
-    filter(condition == 'within' & responder == 1)
-  
-  
-  # within
-  model_within_burn_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                              (1|ID),
-                                            family = glmmTMB::beta_family(),
-                                            ziformula = ~1+manipulation,
-                                            data = within_exp2 %>% filter(quality == 'burn'),
-                                            na.action = na.omit) 
-  
-  stats_within_burn_exp2_control = summary_stat(model_within_burn_exp2,5,r)
-  
-  stats_within_burn_exp2_TGI = summary_stat(
-    update(model_within_burn_exp2, data = within_exp2 %>% filter(quality == 'burn') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  #hypothesis 2 (across)
-  
-  
-  across_exp2 <- df_long_exp2 %>% 
-    filter(condition == 'across')
-  
-  
-  ### cold
-  
-  model_across_cold_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                              (1|ID),
-                                            family = glmmTMB::beta_family(),
-                                            ziformula = ~1+manipulation,
-                                            data = across_exp2 %>% filter(quality == 'cold'),
-                                            na.action = na.omit) 
-  
-  
-  stats_across_cold_exp2_control = summary_stat(model_across_cold_exp2,5,r)
-  
-  stats_across_cold_exp2_TGI = summary_stat(
-    update(model_across_cold_exp2, data = across_exp2 %>% filter(quality == 'cold') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  ###warm 
-  
-  
-  model_across_warm_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                              (1|ID),
-                                            family = glmmTMB::beta_family(),
-                                            ziformula = ~1+manipulation,
-                                            data = across_exp2 %>% filter(quality == 'warm'),
-                                            na.action = na.omit) 
-  
-  stats_across_warm_exp2_control = summary_stat(model_across_warm_exp2,5,r)
-  
-  stats_across_warm_exp2_TGI = summary_stat(
-    update(model_across_warm_exp2, data = across_exp2 %>% filter(quality == 'warm') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  
-  ## burning
-  across_exp2 <- df_long_exp2 %>% 
-    filter(condition == 'across' & responder == 1)
-  
-  
-  # within
-  model_across_burn_exp2 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + trial_n +
-                                              (1|ID),
-                                            family = glmmTMB::beta_family(),
-                                            ziformula = ~1+manipulation,
-                                            data = across_exp2 %>% filter(quality == 'burn'),
-                                            na.action = na.omit) 
-  
-  stats_across_burn_exp2_control = summary_stat(model_across_burn_exp2,5,r)
-  
-  stats_across_burn_exp2_TGI = summary_stat(
-    update(model_across_burn_exp2, data = across_exp2 %>% filter(quality == 'burn') %>% mutate(manipulation = as.factor(manipulation), manipulation = relevel(manipulation, ref ="TGI"))),
-    2,r)
-  
-  
-  
+  stats_model_burn_exp2 = summary_stat(model_burn_exp2, 8,r)
+
   
   ## participant information (all)
   #remove columns in exp2 that isnt in exp1
