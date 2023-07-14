@@ -13,10 +13,10 @@ affliation:
     institution : "Interacting Minds Center (IMC), Department XXX, Aarhus University"
 date: "`r Sys.Date()`"
 output:
+  word_document:
+  html_document: default
   pdf_document:
     latex_engine: xelatex
-  html_document: default
-  word_document:
 bibliography: knitting files/Citations.bib
 link-citations: yes
 linkcolor: blue
