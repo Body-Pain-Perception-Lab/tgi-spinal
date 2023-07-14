@@ -148,8 +148,8 @@ However we did not observed such interaction effect for warm (stimulation by der
 In contrast, when rating the warm thermode (Exp. 2), participants reported markedly enhanced burning sensations for TGI, but not non-TGI, stimuli applied within a dermatome compared to across dermatomes (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp2$beta[6]`, `r make_pvalue(stats_model_burn_exp2$p[6])`).
 However, we did not observe a modulation of cold (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp2$beta[6]`, `r make_pvalue(stats_model_cold_exp2$p[6])`) ) and warm thermosensory ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_warm_exp2$beta[6]`, `r make_pvalue(stats_model_warm_exp2$p[6])`).
 
-These findings not only corroborated earlier results regarding the segmental organisation of the TGI [@fardo_organization_2018] but also suggested that both the thermosensory enhancement and illusory pain components of the illusion are modulated at the spinal cord level.
-These findings are consistent with previous results on the modulation of heat and pain ratings of TGI stimuli by conditioned pain modulation [@harper_conditioned_2017].
+The findings suggest that the thermosensory quality of the reference thermode (cold or warm) showed differential sensitivity to thermosensory and painful aspects of the TGI experience, and collectively suggested that both the thermosensory enhancement and illusory pain components of the illusion are modulated at the spinal cord level.
+This interpretation is consistent with a previous study using a similar dermatome manipulation, but a distinct method to quantify TGI perception [@fardo_organization_2018], as well as another study showing modulation of heat and pain ratings of TGI stimuli by conditioned pain modulation [@harper_conditioned_2017].
 All together these results support the role of spinal processes in the generation of distinct perceptual aspects of the TGI.
 
 ## Undetected proximodistal bias in TGI
