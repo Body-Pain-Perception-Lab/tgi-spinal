@@ -26,10 +26,10 @@ affiliation:
     institution : "Danish Pain Research Center, Aarhus University, Denmark"
 #date: "`r Sys.Date()`"
 output:
-  word_document:
-  html_document: default
   pdf_document:
     latex_engine: xelatex
+  html_document: default
+  word_document:
 bibliography: knitting files/Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion.bib
 link-citations: yes
 linkcolor: blue
@@ -141,11 +141,14 @@ plot1()
 ```
 
 In keeping with the unique heat and burning features of TGI, our results exhibited a more robust TGI when stimuli were confined within dermatomes compared to when applied across dermatomes, corresponding to non-adjacent spinal segments (Fig. 2).
+
 When rating the cold thermode (Exp. 1), participants reported a significantly reduced subjective experience of cold for TGI, but not non-TGI, stimuli applied within a dermatome compared to across dermatomes (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp1$beta[6]`, `r make_pvalue(stats_model_cold_exp1$p[6])`).
-However we did not observed such interaction effect for warm ($\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`) and burning ratings ($\beta$ = `r stats_model_burn_exp1$beta[6]`, `r make_pvalue(stats_model_burn_exp1$p[6])`).
+
+However we did not observed such interaction effect for warm ($\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`), but with a strong main effect of dermatome ($\beta$ = `r stats_model_warm_exp1$beta[2]`, `r make_pvalue(stats_model_warm_exp1$p[2])`)
+No significant interaction nor main effect was found for the burning ratings ($\beta$ = `r stats_model_burn_exp1$beta[6]`, `r make_pvalue(stats_model_burn_exp1$p[6])`, ($\beta$ = `r stats_model_burn_exp1$beta[2]`, `r make_pvalue(stats_model_burn_exp1$p[2])`, interaction, main effect respectively).
 
 In contrast, when rating the warm thermode (Exp. 2), participants reported markedly enhanced burning sensations for TGI, but not non-TGI, stimuli applied within a dermatome compared to across dermatomes (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp2$beta[6]`, `r make_pvalue(stats_model_burn_exp2$p[6])`).
-However, we did not observe a modulation of cold ($\beta$ = `r stats_model_cold_exp2$beta[6]`, `r make_pvalue(stats_model_cold_exp2$p[6])`) ) and warm thermosensory ratings ($\beta$ = `r stats_model_warm_exp2$beta[6]`, `r make_pvalue(stats_model_warm_exp2$p[6])`).
+However, we did not observe a modulation of cold ($\beta$ = `r stats_model_cold_exp2$beta[6]`, `r make_pvalue(stats_model_cold_exp2$p[6])`), nor main effect ($\beta$ = `r stats_model_cold_exp2$beta[2]`, `r make_pvalue(stats_model_cold_exp2$p[2])`) ) and warm thermosensory ratings ($\beta$ = `r stats_model_warm_exp2$beta[6]`, `r make_pvalue(stats_model_warm_exp2$p[6])`), also without a significant main effect of dermatome ($\beta$ = `r stats_model_warm_exp2$beta[2]`, `r make_pvalue(stats_model_warm_exp2$p[2])`).
 
 The findings suggest that the thermosensory quality of the reference thermode (cold or warm) showed differential sensitivity to thermosensory and painful aspects of the TGI experience, and collectively suggested that both the thermosensory enhancement and illusory pain components of the illusion are modulated at the spinal cord level.
 This interpretation is consistent with a previous study using a similar dermatome manipulation, but a distinct method to quantify TGI perception [@fardo_organization_2018], as well as another study showing modulation of heat and pain ratings of TGI stimuli by conditioned pain modulation [@harper_conditioned_2017].
