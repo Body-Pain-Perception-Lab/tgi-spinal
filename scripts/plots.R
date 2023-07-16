@@ -25,11 +25,11 @@ make_plot1 = function(vas_h1_diff,h1_diff_sum, title){
 }
 
 
-plot1 = function(){
+plot1 = function(include_zero = T){
   
   # experiment 1 file
   
-  experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'))
+  experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'), include_zero = include_zero)
   vas_h1_diff_exp1 = experiment1$vas_h1_diff
   h1_diff_sum_exp1 = experiment1$h1_diff_sum
   
@@ -41,7 +41,7 @@ plot1 = function(){
   
   # experiment 2 file
   
-  experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'))
+  experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
   vas_h1_diff_exp2 = experiment2$vas_h1_diff
   h1_diff_sum_exp2 = experiment2$h1_diff_sum
   
@@ -102,10 +102,10 @@ make_plot2 = function(vas_h2_diff,h2_diff_sum,title){
   return(experiment1_h2 = h2_diff_within / h2_diff_across)
 }
 
-plot2 = function(){
+plot2 = function(include_zero = T){
   
   # experiment 1 file
-  experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'))
+  experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'), include_zero = include_zero)
   vas_h2_diff_exp1 = experiment1$vas_h2_diff
   h2_diff_sum_exp1 = experiment1$h2_diff_sum
   
@@ -117,7 +117,7 @@ plot2 = function(){
   
   
   # experiment 2 file
-  experiment1 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'))
+  experiment1 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
   vas_h2_diff_exp2 = experiment1$vas_h2_diff
   h2_diff_sum_exp2 = experiment1$h2_diff_sum
   

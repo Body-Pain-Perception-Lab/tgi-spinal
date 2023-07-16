@@ -23,10 +23,10 @@ if(rerun){
   #caudal - rostral
   caudal_rostral = c(1,0,0,-1)
   #distral - proximal
-  distal_proximal = c(0,1,-1,0)
+  proximal_distal = c(0,-1,1,0)
   
   #define the matrix
-  cold = rbind(1/4,within_across,caudal_rostral,distal_proximal)
+  cold = rbind(1/4,within_across,caudal_rostral,proximal_distal)
   
   #solve it 
   cold = solve(cold)
@@ -39,8 +39,8 @@ if(rerun){
   
   ## hypothsis 1
   # Cold
-  model_cold_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + trial_n +
-                                  (1|ID) + (1|order),
+  model_cold_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + 
+                                trial_n + (1|ID) + (1|order),
                                 family = glmmTMB::beta_family(),
                                 ziformula = ~1+manipulation,
                                 data = df_long_exp1 %>% filter(quality == 'cold'),
@@ -70,7 +70,7 @@ if(rerun){
   # check n
   length(unique(df_resp_exp1$ID))
   
-  model_burn_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + 
+  model_burn_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + 
                                   trial_n + (1|ID) + (1|order),
                                 family = glmmTMB::beta_family(),
                                 ziformula = ~1+manipulation,

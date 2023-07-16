@@ -60,7 +60,7 @@ gren <- brewer.pal(8, "Greens")
 
 
 
-prep_data = function(file){
+prep_data = function(file, include_zero = T){
   
   if (file.exists(file)){
     df_res <- read.csv(file)
@@ -101,6 +101,13 @@ prep_data = function(file){
   # print
   print(paste0('Non responders: ', nNONRESP, '/', length(test$ID)))
   
+  if(!include_zero){
+    df_res = df_res %>% mutate(VASinit = ifelse(VASinit == 0, NA,VASinit),
+                      VASburn = ifelse(VASburn == 0, NA,VASburn),
+                      VASwarm = ifelse(VASwarm == 0, NA,VASwarm),
+                      VAScold = ifelse(VAScold == 0, NA,VAScold))
+  }
+  
   # Reorganise data-frame 
   # pivot longer the VAS response by each quality of sensation
   # do this for both RT and VAS
@@ -134,6 +141,7 @@ prep_data = function(file){
   # calculate means
   vas_meds <- aggregate(VAS ~ quality*manipulation*condition*cold_probe*ID, 
                         median, data = all_vas)
+  
   vas_h1 <- aggregate(VAS ~ quality*manipulation*condition*ID, mean, data = vas_meds)
   # change name of manipulation
   vas_h1$manipulation <- factor(vas_h1$manipulation,
@@ -143,7 +151,7 @@ prep_data = function(file){
                             withinvars = c('manipulation', 'quality', 'condition'))
   
   vas_h1_diff <- vas_h1 %>% 
-    pivot_wider(names_from = condition, values_from = VAS) %>% 
+    pivot_wider(names_from = condition, values_from = VAS) %>% tidyr::replace_na(list(within = 0, across = 0)) %>% 
     mutate(difference = within - across)
   # recode quality
   vas_h1_diff$quality <- factor(vas_h1_diff$quality,
@@ -159,6 +167,8 @@ prep_data = function(file){
   
   # Change name of manipulation
   vas_meds$manipulation <- factor(vas_meds$manipulation, labels = c('Non-TGI', 'TGI'))
+  
+  
   h2_sum <- aggregate(VAS~quality*manipulation*cold_probe, median, data = vas_meds)
   
   # organise data for plotting
@@ -184,7 +194,7 @@ prep_data = function(file){
   vas_h2_diff <- vas_meds %>% 
     select(-c(cold_code, xj, cold_probe)) %>% 
     pivot_wider(id_cols = c(ID, quality, manipulation, condition), 
-                names_from = cold_cond, values_from = VAS) %>% 
+                names_from = cold_cond, values_from = VAS) %>% tidyr::replace_na(list(prox_caud = 0, dist_rost = 0)) %>% 
     mutate(difference = prox_caud - dist_rost)
   # recode quality
   vas_h2_diff$quality <- factor(vas_h2_diff$quality,
