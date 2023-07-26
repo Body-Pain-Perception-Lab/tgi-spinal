@@ -111,11 +111,13 @@ VAS ratings were analysed using zero-inflated beta regressions.
 
 ```{r, warning = F, message = F, echo = F,include=FALSE}
 if (!require("pacman")) install.packages("pacman")
-  pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gamlss,
-                 ggeffects, gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
-                 modelsummary, MuMIn, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
-                 rsample, rstatix, simr, tibble, tidyverse, wesanderson, patchwork, cowplot
-                 )
+
+pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gamlss,
+               ggeffects, gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
+               modelsummary, MuMIn, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
+               rsample, rstatix, simr, tibble, tidyverse, wesanderson, patchwork, cowplot
+               )
+
 source(here::here("scripts","utility.R"))
 source(here::here("scripts","plots.R"))
   
@@ -136,7 +138,7 @@ ggdraw() +
     draw_image(magick::image_read(here::here("figures","figure1.PNG")), scale = 1)
 ```
 
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = " Difference in VAS ratings between within and across dermatome conditions for each type of stimulation (Non-TGI and TGI) in each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. Small dots are individual means, large dots are population means for each condition and error bars are 95% confidence intervals."}
+```{r, results="hide", fig.width = 7.2, fig.height = 7.2, warning = F, message = F, echo = F, fig.cap = " Difference in VAS ratings between within and across dermatome conditions for each type of stimulation (Non-TGI and TGI) in each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. Small dots are individual means, large dots are population means for each condition and error bars are 95% confidence intervals."}
 
 plot1(include_zero = F)
 

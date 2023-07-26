@@ -37,8 +37,9 @@ if(rerun){
   
   ######### Exp 1 (Hypothesis 1)
   
-  ## hypothsis 1
-  # Cold
+  ## hypothsis 1  
+  # Cold.
+
   model_cold_exp1 = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + 
                                 trial_n + (1|ID) + (1|order),
                                 family = glmmTMB::beta_family(),
@@ -81,12 +82,11 @@ if(rerun){
   
   stats_model_burn_exp1 = summary_stat(model_burn_exp1, 8,r)
   
-  
 
-  
-  
   ######### Exp 2 (Hypothesis 1)
 
+  
+  
   # Cold
   model_cold_exp2 = glmmTMB::glmmTMB(beta ~ manipulation*cold_probe  + trial_n +
                                        (1|ID) + (1|order),
