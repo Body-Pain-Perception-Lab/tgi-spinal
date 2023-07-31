@@ -1,43 +1,42 @@
 ---
 title: "Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion"
-author: 
-  - name : "Alexandra G. Mitchell"
-    affiliation : "1"
-  - name : "Jesper Fischer Ehmsen"
-    affiliation : "1"
-  - name : "Daniel Elmstrom Christensen"
-    affiliation : "1"
-  - name : "Anna Villaume Stuckert"
-    affiliation : "3"
-  - name : "Patrick Haggard"
-    affiliation : "4"  
-  - name : "Francesca Fardo"
-    affiliation : "1"  
-affiliation:
-  - id : "1"
-    institution : "Center of Functionally Integrative Neuroscience (CFIN), Department of Clinical Medicine, Aarhus University, Denmark"
-  - id : "2"
-    institution : "Interacting Minds Center (IMC), Department XXX, Aarhus University, Denmark"
-  - id : "3"
-    institution : "Departement of Neuroscience, University of Copenhagen, Denmark"
-  - id : "4"
-    institution : "Institute of Cognitive Neuroscience, University College London, United Kingdom"
-  - id : "5"
-    institution : "Danish Pain Research Center, Aarhus University, Denmark"
-#date: "`r Sys.Date()`"
+author: Alexandra G. Mitchell^1^,
+        Jesper Fischer Ehmsen^1^,
+        Daniel Elmstrom Christensen^1^,
+        Anna Villaume Stuckert^2^,
+        Patrick Haggard^3^,
+        Francesca Fardo^1,4^
 output:
+  word_document:
+      reference_docx: knitting files/test_markdown.docx
+  html_document:
+    css: knitting files/style.css
   pdf_document:
     latex_engine: xelatex
-  html_document: default
-  word_document:
 bibliography: knitting files/Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion.bib
 link-citations: yes
 linkcolor: blue
+serif: Times New Roman
 always_allow_html: yes
 editor_options: 
   markdown: 
     wrap: sentence
 ---
+
+
+::: {custom-style="Title text"}
+^1^Center of Functionally Integrative Neuroscience, Department of Clinical Medicine, Aarhus University, Denmark
+
+^2^Department of Neuroscience, Copenhagen University, Denmark
+
+^3^Institute of Cognitive Neuroscience, University College London, United Kingdom
+
+^4^Danish Pain Research Center, Department of Clinical Medicine, Aarhus University, Denmark
+:::
+
+<br>
+
+Corresponding authors: Alexandra G. Mitchell (agmitchell@cfin.au.dk) and Francesca Fardo (francesca@cfin.au.dk) 
 
 # Abstract
 
@@ -58,8 +57,8 @@ These results provide insights into the organisation of the spinal cord in relat
 The thermal grill illusion (TGI) is a perceptual phenomenon that challenges conventional understanding of pain perception.
 It is a sensation of burning heat or pain when harmless cold and warm temperatures are applied to the skin simultaneously [@craig_thermal_1994; @craig_functional_1996].
 Despite cold and warm temperatures being individually innocuous, their combination produces a contradictory burning sensation, even so the temperatures are insufficient to activate peripheral nociceptors.
-Thus researchers have attributed the generation of this illusion to complex mechanisms within the central nervous system [@craig_thermal_1994; @fardo_beyond_2020].
-In particular, recent studies have highlighted the involvement of the spinal cord as an initial site contributing to the TGI [@fardo_organization_2018; @harper_conditioned_2017].
+The generation of this illusion is thus attributed to central nervous system mechanisms [@craig_thermal_1994; @fardo_beyond_2020].
+Recent studies have highlighted the involvement of the spinal cord as an initial site contributing to the TGI [@fardo_organization_2018; @harper_conditioned_2017].
 However, the precise mechanisms underpinning integration of cold and warm thermal afferents in the spinal cord, alongside those responsible for the distinctive burning quality to this illusion, are yet to be elucidated.
 
 The TGI is often described as encompassing two distinct perceptual components - an illusion of heat and an illusion of pain [@defrin_spatial_2008, @fardo_beyond_2020]. The illusion of heat, also known as synthetic heat [@fruhstorfer_significance_2003; @green_localization_1977; -@green_synthetic_2002; -@green_temperature_2004], refers to non-painful sensations evoked by the thermal grill [@defrin_spatial_2008; @kern_pharmacological_2008; -@kern_effects_2008; @bouhassira_investigation_2005; @adam_relationships_2014].
@@ -151,8 +150,7 @@ plot1(include_zero = F)
 
 In keeping with the unique heat and burning features of TGI, our results exhibited a more robust TGI when stimuli were confined within dermatomes compared to when applied across dermatomes, corresponding to non-adjacent spinal segments (Fig. 2).
 
-When rating the cold thermode (Exp. 1), participants reported a significantly reduced subjective experience of cold for TGI, but not non-TGI, stimuli applied within a dermatome compared to across dermatomes (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp1$beta[6]`, `r make_pvalue(stats_model_cold_exp1$p[6])`).
-This interaction was not present for for warm ($\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`), but we did find a strong main effect of dermatome ($\beta$ = `r stats_model_warm_exp1$beta[2]`, `r make_pvalue(stats_model_warm_exp1$p[2])`) For the burning ratings we found No significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[6]`, `r make_pvalue(stats_model_burn_exp1$p[6])`) nor main effect ($\beta$ = `r stats_model_burn_exp1$beta[2]`, `r make_pvalue(stats_model_burn_exp1$p[2])`).
+When rating the cold thermode (Exp. 1), participants reported a significantly reduced subjective experience of cold for TGI, but not non-TGI, stimuli applied within a dermatome compared to across dermatomes (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp1$beta[6]`, `r make_pvalue(stats_model_cold_exp1$p[6])`). This interaction was not present for for warm ($\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`), but we did find a strong main effect of dermatome ($\beta$ = `r stats_model_warm_exp1$beta[2]`, `r make_pvalue(stats_model_warm_exp1$p[2])`) For the burning ratings we found No significant interaction  ($\beta$ = `r stats_model_burn_exp1$beta[6]`, `r make_pvalue(stats_model_burn_exp1$p[6])`) nor main effect ($\beta$ = `r stats_model_burn_exp1$beta[2]`, `r make_pvalue(stats_model_burn_exp1$p[2])`).
 
 In contrast, when rating the warm thermode, participants reported markedly enhanced burning sensations for TGI, but not non-TGI, (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp2$beta[6]`, `r make_pvalue(stats_model_burn_exp2$p[6])`).However, we did not observe suvh a modulation of cold percepts ($\beta$ = `r stats_model_cold_exp2$beta[6]`, `r make_pvalue(stats_model_cold_exp2$p[6])`), with no main effect ($\beta$ = `r stats_model_cold_exp2$beta[2]`, `r make_pvalue(stats_model_cold_exp2$p[2])`) for the warm thermosensory ratings we found no interaction ($\beta$ = `r stats_model_warm_exp2$beta[6]`, `r make_pvalue(stats_model_warm_exp2$p[6])`), and no main effect of dermatome ($\beta$ = `r stats_model_warm_exp2$beta[2]`, `r make_pvalue(stats_model_warm_exp2$p[2])`).
 
@@ -164,11 +162,12 @@ All together these results support the role of spinal processes in the generatio
 
 Previous research demonstrated a phenomenon known as distal inhibition, wherein heat pain ratings tend to increase when a participant evaluates a more distal compared to a more proximal stimulus among two warm stimuli presented on the forearm [@quevedo_psychophysicshyperalgesia_2004; @quevedo_illusion_2007].
 In our study, we sought to investigate whether this effect of distal inhibition would also influence TGI perception within a single dermatome (Fig. 3).
-We tested this effect with a two way interaction between condition (control / TGI) and the location of the cold thermode when it was placed within dermatome (distal / proximal).
-In the first experiment with the cold thermode as the reference we found no statistical significant interaction effect for the cold ratings ($\beta$ = `r stats_model_cold_exp1$beta[8]`, `r make_pvalue(stats_model_cold_exp1$p[8])`, however with a strong main effect of dermatome ($\beta$ = `r stats_model_cold_exp1$beta[4]`, `r make_pvalue(stats_model_cold_exp1$p[4])`) For the warm ratings we found no interaction ($\beta$ = `r stats_model_warm_exp1$beta[8]`, `r make_pvalue(stats_model_warm_exp1$p[8])`), nor main effect of dermatome ($\beta$ = `r stats_model_warm_exp1$beta[4]`, `r make_pvalue(stats_model_warm_exp1$p[4])`) For the burning ratings We found no significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`), but a significant main effect ( $\beta$ = `r stats_model_burn_exp1$beta[4]`, `r make_pvalue(stats_model_burn_exp1$p[4])`)
+We tested this effect with a two way interaction between condition (control / TGI) and the location of the cold thermode when it was placed within dermatome (distal / proximal). In the first experiment with the cold thermode as the reference we found no statistical significant interaction effect for the cold ratings ($\beta$ = `r stats_model_cold_exp1$beta[8]`, `r make_pvalue(stats_model_cold_exp1$p[8])`, however with a strong main effect of dermatome ($\beta$ = `r stats_model_cold_exp1$beta[4]`, `r make_pvalue(stats_model_cold_exp1$p[4])`) For the warm ratings we found no interaction ($\beta$ = `r stats_model_warm_exp1$beta[8]`, `r make_pvalue(stats_model_warm_exp1$p[8])`), nor main effect of dermatome ($\beta$ = `r stats_model_warm_exp1$beta[4]`, `r make_pvalue(stats_model_warm_exp1$p[4])`)
+For the burning ratings We found no significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`), but a significant main effect ( $\beta$ = `r stats_model_burn_exp1$beta[4]`, `r make_pvalue(stats_model_burn_exp1$p[4])`)
 
 For the second experiment with the warm thermode as the reference we found no interaction no interaction ($\beta$ = `r stats_model_burn_exp2$beta[8]`, `r make_pvalue(stats_model_burn_exp2$p[8])`), nor main effect ($\beta$ = `r stats_model_burn_exp2$beta[4]`, `r make_pvalue(stats_model_burn_exp2$p[4])`) for the burning ratings.
 For the warm ratings we found no interaction ($\beta$ = `r stats_model_warm_exp2$beta[8]`, `r make_pvalue(stats_model_warm_exp2$p[8])`), , nor main effect of dermatome ($\beta$ = `r stats_model_warm_exp2$beta[4]`, `r make_pvalue(stats_model_warm_exp2$p[4])`) and for the cold ratings no interaction ($\beta$ = `r stats_model_cold_exp2$beta[8]`, `r make_pvalue(stats_model_cold_exp2$p[8])`) but a main effect ($\beta$ = `r stats_model_cold_exp2$beta[4]`, `r make_pvalue(stats_model_cold_exp2$p[4])`).
+
 
 ```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Difference in VAS ratings between the proximal and distal dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
@@ -184,10 +183,15 @@ A main objective of this study was assessing spatial order effects along the ros
 We delivered an equal number of trials in which the cold stimulus was applied on a dermatome that mapped more rostrally or caudally compared to the warm or neutral stimuli.
 Like the previous analysis we investigated this relationship with a two way interaction here with the rostral - caudal axis being investigated.
 
-Results showed no statistical significant interaction effect for the cold ratings in the first experiment with the reference thermode being cold ($\beta$ = `r stats_model_cold_exp1$beta[7]`, `r make_pvalue(stats_model_cold_exp1$p[7])`, but a main effect ($\beta$ = `r stats_model_cold_exp1$beta[3]`, `r make_pvalue(stats_model_cold_exp1$p[3])`).
-For the warm ratings we found no statistically significant effect for warm watings ($\beta$ = `r stats_model_warm_exp1$beta[7]`, `r make_pvalue(stats_model_warm_exp1$p[7])`), but a statistical significant main effect ($\beta$ = `r stats_model_warm_exp1$beta[3]`, `r make_pvalue(stats_model_warm_exp1$p[3])`) The burning ratings showed no significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`), nor main effect ($\beta$ = `r stats_model_burn_exp1$beta[3]`, `r make_pvalue(stats_model_burn_exp1$p[3])`).
 
-In Experiment 2, with the warm thermode as the reference we found no significant interaction effect for the burning ratings ($\beta$ = `r stats_model_burn_exp2$beta[7]`, `r make_pvalue(stats_model_burn_exp2$p[7])`), but a significant main effect ($\beta$ = `r stats_model_burn_exp2$beta[3]`, `r make_pvalue(stats_model_burn_exp2$p[3])`) For the warm ratings we found no statistically significant interaction ($\beta$ = `r stats_model_warm_exp2$beta[7]`, `r make_pvalue(stats_model_warm_exp2$p[7])`), but a strong main effect ($\beta$ = `r stats_model_warm_exp2$beta[3]`, `r make_pvalue(stats_model_warm_exp2$p[3])`) For the cold ratings we found a significant interaction ($\beta$ = `r stats_model_cold_exp2$beta[7]`, `r make_pvalue(stats_model_cold_exp2$p[7])`)
+Results showed no statistical significant interaction effect for the cold ratings in the first experiment with the reference thermode being cold ($\beta$ = `r stats_model_cold_exp1$beta[7]`, `r make_pvalue(stats_model_cold_exp1$p[7])`, but a main effect ($\beta$ = `r stats_model_cold_exp1$beta[3]`, `r make_pvalue(stats_model_cold_exp1$p[3])`).
+For the warm ratings we found no statistically significant effect for warm watings ($\beta$ = `r stats_model_warm_exp1$beta[7]`, `r make_pvalue(stats_model_warm_exp1$p[7])`), but a statistical significant main effect ($\beta$ = `r stats_model_warm_exp1$beta[3]`, `r make_pvalue(stats_model_warm_exp1$p[3])`)
+The burning ratings showed no significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`), nor main effect ($\beta$ = `r stats_model_burn_exp1$beta[3]`, `r make_pvalue(stats_model_burn_exp1$p[3])`).
+
+In Experiment 2, with the warm thermode as the reference we found no significant interaction effect for the burning ratings ($\beta$ = `r stats_model_burn_exp2$beta[7]`, `r make_pvalue(stats_model_burn_exp2$p[7])`), but a significant main effect ($\beta$ = `r stats_model_burn_exp2$beta[3]`, `r make_pvalue(stats_model_burn_exp2$p[3])`)
+For the warm ratings we found no statistically significant interaction ($\beta$ = `r stats_model_warm_exp2$beta[7]`, `r make_pvalue(stats_model_warm_exp2$p[7])`), but a strong main effect ($\beta$ = `r stats_model_warm_exp2$beta[3]`, `r make_pvalue(stats_model_warm_exp2$p[3])`)
+For the cold ratings we found a significant interaction ($\beta$ = `r stats_model_cold_exp2$beta[7]`, `r make_pvalue(stats_model_cold_exp2$p[7])`)
+
 
 ```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Difference in VAS ratings between the Caudal and Rostral dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
@@ -332,42 +336,44 @@ This study was supported by a European Research Council Starting Grant (ERC-2020
 ::: {#refs}
 :::
 
+\newpage
+
 # Supplementary material
-
 ```{r,warning = F, message = F, echo = F}
+get_main_tables(model_cold_exp1,round = 2, title = "Cold reference on cold ratings") %>%
+  width(j=1, width = 2.5) %>%
+  width(j=c(2,3,4,5), width = 1.1)%>%
+  fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
+
+
+get_main_tables(model_warm_exp1,round = 2, title = "Cold reference on warm ratings") %>%
+  width(j=1, width = 2.5) %>%
+  width(j=c(2,3,4,5), width = 1.1)%>%
+  fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
+
+get_main_tables(model_burn_exp1,round = 2, title = "Cold reference on burning ratings") %>%
+  width(j=1, width = 2.5) %>%
+  width(j=c(2,3,4,5), width = 1.1)%>%
+  fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
+
+
+get_main_tables(model_cold_exp2,round = 2, title = "Warm reference on cold ratings") %>%
+  width(j=1, width = 2.5) %>%
+  width(j=c(2,3,4,5), width = 1.1)%>%
+  fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
 
 
-get_main_tables(model_cold_exp1,round = 2, title = "Cold reference on cold ratings") %>% 
-  width(j=1, width = 2.5) %>% 
-  width(j=c(2,3,4,5), width = 1.1)
+get_main_tables(model_warm_exp2,round = 2, title = "Warm reference on warm ratings") %>%
+  width(j=1, width = 2.5) %>%
+  width(j=c(2,3,4,5), width = 1.1)%>%
+  fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
-
-get_main_tables(model_warm_exp1,round = 2, title = "Cold reference on warm ratings") %>% 
-  width(j=1, width = 2.5) %>% 
-  width(j=c(2,3,4,5), width = 1.1)
-
-get_main_tables(model_burn_exp1,round = 2, title = "Cold reference on burning ratings") %>% 
-  width(j=1, width = 2.5) %>% 
-  width(j=c(2,3,4,5), width = 1.1)
-
-
-get_main_tables(model_cold_exp2,round = 2, title = "Warm reference on cold ratings") %>% 
-  width(j=1, width = 2.5) %>% 
-  width(j=c(2,3,4,5), width = 1.1)
-
-
-
-get_main_tables(model_warm_exp2,round = 2, title = "Warm reference on warm ratings") %>% 
-  width(j=1, width = 2.5) %>% 
-  width(j=c(2,3,4,5), width = 1.1)
-
-
-
-
-get_main_tables(model_burn_exp2,round = 2, title = "Warm reference on burning ratings") %>% 
-  width(j=1, width = 2.5) %>% 
-  width(j=c(2,3,4,5), width = 1.1)
+get_main_tables(model_burn_exp2,round = 2, title = "Warm reference on burning ratings") %>%
+  width(j=1, width = 2.5) %>%
+  width(j=c(2,3,4,5), width = 1.1)%>%
+  fontsize(size = 10, part = "all") %>% flextable::font(fontname = "Times New Roman", part = "all")
 
 
 ```
+
