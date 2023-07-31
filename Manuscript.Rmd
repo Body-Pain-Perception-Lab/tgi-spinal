@@ -26,9 +26,9 @@ affiliation:
     institution : "Danish Pain Research Center, Aarhus University, Denmark"
 #date: "`r Sys.Date()`"
 output:
-  html_document: default
   pdf_document:
     latex_engine: xelatex
+  html_document: default
   word_document:
 bibliography: knitting files/Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion.bib
 link-citations: yes
@@ -115,11 +115,13 @@ if (!require("pacman")) install.packages("pacman")
 pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gamlss,
                ggeffects, gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
                modelsummary, MuMIn, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
-               rsample, rstatix, simr, tibble, tidyverse, wesanderson, patchwork, cowplot
+               rsample, rstatix, simr, tibble, tidyverse, wesanderson, patchwork, cowplot,
+               flextable
                )
 
 source(here::here("scripts","utility.R"))
 source(here::here("scripts","plots.R"))
+source(here::here("scripts","supplementary.R"))
   
   
 #get models
@@ -131,6 +133,7 @@ stats = statistics(rerun = F)
 
 list2env(stats, envir=environment())
   
+
 ```
 
 ```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Four experimental conditions depicting an exemplar cold and warm thermode placement within and across dermatomes. Within dermatomes, the relative location of the cold thermode was proximal or distal. Across dermatomes, the relative location of the corresponding spinal segments was rostral or caudal. "}
@@ -138,7 +141,7 @@ ggdraw() +
     draw_image(magick::image_read(here::here("figures","figure1.PNG")), scale = 1)
 ```
 
-```{r, results="hide", fig.width = 7.2, fig.height = 7.2, warning = F, message = F, echo = F, fig.cap = " Difference in VAS ratings between within and across dermatome conditions for each type of stimulation (Non-TGI and TGI) in each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. Small dots are individual means, large dots are population means for each condition and error bars are 95% confidence intervals."}
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = " Difference in VAS ratings between within and across dermatome conditions for each type of stimulation (Non-TGI and TGI) in each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. Small dots are individual subject means, large dots are population means for each condition and error bars are 95% confidence intervals. A) first experiment with the cold thermode as the reference, and B second experiment with the warm thermode as referece."}
 
 plot1(include_zero = F)
 
@@ -167,12 +170,12 @@ For the second experiment with the warm thermode as the reference we found no in
 For the warm ratings we found no interaction ($\beta$ = `r stats_model_warm_exp2$beta[8]`, `r make_pvalue(stats_model_warm_exp2$p[8])`), , nor main effect of dermatome ($\beta$ = `r stats_model_warm_exp2$beta[4]`, `r make_pvalue(stats_model_warm_exp2$p[4])`) and for the cold ratings no interaction ($\beta$ = `r stats_model_cold_exp2$beta[8]`, `r make_pvalue(stats_model_cold_exp2$p[8])`) but a main effect ($\beta$ = `r stats_model_cold_exp2$beta[4]`, `r make_pvalue(stats_model_cold_exp2$p[4])`).
 
 
-```{r, results="hide", fig.width = 7.2, fig.height = 7.2, warning = F, message = F, echo = F, fig.cap = "Difference in VAS ratings between the two dermatome conditions. The top panel shows the difference between proximal and distal cold afferent locations (within dermatomes) and the bottom panel shows the difference between rostral and caudal cold afferent locations, relative to warm, across stimulation type (Non-TGI, TGI) and VAS rating quality (cold, warm and burning). Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Difference in VAS ratings between the proximal and distal dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
-plot2(include_zero = F)
+#plot2(include_zero = F)
 
 #plot2(include_zero = T)
-
+plot2_3(include_zero = F)[[1]]
 ```
 
 ## Directional effects in inter-segmental sensory integration
@@ -191,6 +194,10 @@ For the warm ratings we found no statistically significant interaction ($\beta$ 
 For the cold ratings we found a significant interaction ($\beta$ = `r stats_model_cold_exp2$beta[7]`, `r make_pvalue(stats_model_cold_exp2$p[7])`)
 
 
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Difference in VAS ratings between the Caudal and Rostral dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
+
+plot2_3(include_zero = F)[[2]]
+```
 
 The results indicated a notably enhanced TGI effect when the cold stimulus induced more caudal activity within the spinal cord, as depicted in Figure 3.
 These findings were consistent across both experiments for thermosensory ratings, albeit with minor deviations that corresponded with the particular stimulation quality being assessed.
@@ -329,3 +336,45 @@ This study was supported by a European Research Council Starting Grant (ERC-2020
 
 ::: {#refs}
 :::
+
+
+
+# Supplementary material
+```{r,warning = F, message = F, echo = F}
+
+
+
+get_main_tables(model_cold_exp1,round = 2, title = "Cold reference on cold ratings") %>% 
+  width(j=1, width = 2.5) %>% 
+  width(j=c(2,3,4,5), width = 1.1)
+
+
+get_main_tables(model_warm_exp1,round = 2, title = "Cold reference on warm ratings") %>% 
+  width(j=1, width = 2.5) %>% 
+  width(j=c(2,3,4,5), width = 1.1)
+
+get_main_tables(model_burn_exp1,round = 2, title = "Cold reference on burning ratings") %>% 
+  width(j=1, width = 2.5) %>% 
+  width(j=c(2,3,4,5), width = 1.1)
+
+
+get_main_tables(model_cold_exp2,round = 2, title = "Warm reference on cold ratings") %>% 
+  width(j=1, width = 2.5) %>% 
+  width(j=c(2,3,4,5), width = 1.1)
+
+
+
+get_main_tables(model_warm_exp2,round = 2, title = "Warm reference on warm ratings") %>% 
+  width(j=1, width = 2.5) %>% 
+  width(j=c(2,3,4,5), width = 1.1)
+
+
+
+
+get_main_tables(model_burn_exp2,round = 2, title = "Warm reference on burning ratings") %>% 
+  width(j=1, width = 2.5) %>% 
+  width(j=c(2,3,4,5), width = 1.1)
+
+
+```
+

@@ -1,6 +1,6 @@
 
 statistics = function(rerun){
-  #roudning
+  #rounding
   r = 2
   
   
@@ -157,8 +157,10 @@ if(rerun){
   
   statistics_to_save = ls()[grepl("stats", ls())]
   data_to_save = ls()[grepl("descript_", ls())]
+  models_to_save = ls()[grepl("model",ls())]
   
-  saving = c(statistics_to_save,data_to_save)
+  saving = c(statistics_to_save,data_to_save,models_to_save)
+  
   
   foo = function(name){
     variable = get(name, envir=environment())
@@ -167,15 +169,12 @@ if(rerun){
   
   savings = sapply(saving, foo)
   
-
-  #list2env(statistics, envir = sys.frame(sys.parent(0)))
   
-  #save(list = vars_to_save, file = here::here("Analysis","Workspace","Plotting_workspace.RData"))
   return(savings)
 }else{
   
   load(here::here("Workspace","stats.RData"))
   
-  return(stats)
+  return(savings)
 }
 }

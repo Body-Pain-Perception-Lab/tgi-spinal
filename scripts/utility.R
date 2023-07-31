@@ -41,15 +41,6 @@ summary_stat = function(model, coefficients, round){
 }
 
 
-
-
-
-
-
-
-
-
-
 # first colours
 blue <- brewer.pal(8, "Blues")
 grey <- brewer.pal(8, "Greys")
