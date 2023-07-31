@@ -23,7 +23,6 @@ editor_options:
     wrap: sentence
 ---
 
-
 ::: {custom-style="Title text"}
 ^1^Center of Functionally Integrative Neuroscience, Department of Clinical Medicine, Aarhus University, Denmark
 
@@ -36,7 +35,7 @@ editor_options:
 
 <br>
 
-Corresponding authors: Alexandra G. Mitchell (agmitchell@cfin.au.dk) and Francesca Fardo (francesca@cfin.au.dk) 
+Corresponding authors: Alexandra G. Mitchell ([agmitchell\@cfin.au.dk](mailto:agmitchell@cfin.au.dk){.email}) and Francesca Fardo ([francesca\@cfin.au.dk](mailto:francesca@cfin.au.dk){.email})
 
 # Abstract
 
@@ -135,12 +134,12 @@ list2env(stats, envir=environment())
 
 ```
 
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Four experimental conditions depicting an exemplar cold and warm thermode placement within and across dermatomes. Within dermatomes, the relative location of the cold thermode was proximal or distal. Across dermatomes, the relative location of the corresponding spinal segments was rostral or caudal. "}
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 1) Four experimental conditions depicting an exemplar cold and warm thermode placement within and across dermatomes. Within dermatomes, the relative location of the cold thermode was proximal or distal. Across dermatomes, the relative location of the corresponding spinal segments was rostral or caudal. "}
 ggdraw() +
     draw_image(magick::image_read(here::here("figures","figure1.PNG")), scale = 1)
 ```
 
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = " Difference in VAS ratings between within and across dermatome conditions for each type of stimulation (Non-TGI and TGI) in each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. Small dots are individual subject means, large dots are population means for each condition and error bars are 95% confidence intervals. A) first experiment with the cold thermode as the reference, and B second experiment with the warm thermode as referece."}
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 2) Difference in VAS ratings between within and across dermatome conditions for each type of stimulation (Non-TGI and TGI) in each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. Small dots are individual subject means, large dots are population means for each condition and error bars are 95% confidence intervals. A) first experiment with the cold thermode as the reference, and B second experiment with the warm thermode as referece."}
 
 plot1(include_zero = F)
 
@@ -150,7 +149,8 @@ plot1(include_zero = F)
 
 In keeping with the unique heat and burning features of TGI, our results exhibited a more robust TGI when stimuli were confined within dermatomes compared to when applied across dermatomes, corresponding to non-adjacent spinal segments (Fig. 2).
 
-When rating the cold thermode (Exp. 1), participants reported a significantly reduced subjective experience of cold for TGI, but not non-TGI, stimuli applied within a dermatome compared to across dermatomes (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp1$beta[6]`, `r make_pvalue(stats_model_cold_exp1$p[6])`). This interaction was not present for for warm ($\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`), but we did find a strong main effect of dermatome ($\beta$ = `r stats_model_warm_exp1$beta[2]`, `r make_pvalue(stats_model_warm_exp1$p[2])`) For the burning ratings we found No significant interaction  ($\beta$ = `r stats_model_burn_exp1$beta[6]`, `r make_pvalue(stats_model_burn_exp1$p[6])`) nor main effect ($\beta$ = `r stats_model_burn_exp1$beta[2]`, `r make_pvalue(stats_model_burn_exp1$p[2])`).
+When rating the cold thermode (Exp. 1), participants reported a significantly reduced subjective experience of cold for TGI, but not non-TGI, stimuli applied within a dermatome compared to across dermatomes (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp1$beta[6]`, `r make_pvalue(stats_model_cold_exp1$p[6])`).
+This interaction was not present for for warm ($\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`), but we did find a strong main effect of dermatome ($\beta$ = `r stats_model_warm_exp1$beta[2]`, `r make_pvalue(stats_model_warm_exp1$p[2])`) For the burning ratings we found No significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[6]`, `r make_pvalue(stats_model_burn_exp1$p[6])`) nor main effect ($\beta$ = `r stats_model_burn_exp1$beta[2]`, `r make_pvalue(stats_model_burn_exp1$p[2])`).
 
 In contrast, when rating the warm thermode, participants reported markedly enhanced burning sensations for TGI, but not non-TGI, (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp2$beta[6]`, `r make_pvalue(stats_model_burn_exp2$p[6])`).However, we did not observe suvh a modulation of cold percepts ($\beta$ = `r stats_model_cold_exp2$beta[6]`, `r make_pvalue(stats_model_cold_exp2$p[6])`), with no main effect ($\beta$ = `r stats_model_cold_exp2$beta[2]`, `r make_pvalue(stats_model_cold_exp2$p[2])`) for the warm thermosensory ratings we found no interaction ($\beta$ = `r stats_model_warm_exp2$beta[6]`, `r make_pvalue(stats_model_warm_exp2$p[6])`), and no main effect of dermatome ($\beta$ = `r stats_model_warm_exp2$beta[2]`, `r make_pvalue(stats_model_warm_exp2$p[2])`).
 
@@ -162,14 +162,13 @@ All together these results support the role of spinal processes in the generatio
 
 Previous research demonstrated a phenomenon known as distal inhibition, wherein heat pain ratings tend to increase when a participant evaluates a more distal compared to a more proximal stimulus among two warm stimuli presented on the forearm [@quevedo_psychophysicshyperalgesia_2004; @quevedo_illusion_2007].
 In our study, we sought to investigate whether this effect of distal inhibition would also influence TGI perception within a single dermatome (Fig. 3).
-We tested this effect with a two way interaction between condition (control / TGI) and the location of the cold thermode when it was placed within dermatome (distal / proximal). In the first experiment with the cold thermode as the reference we found no statistical significant interaction effect for the cold ratings ($\beta$ = `r stats_model_cold_exp1$beta[8]`, `r make_pvalue(stats_model_cold_exp1$p[8])`, however with a strong main effect of dermatome ($\beta$ = `r stats_model_cold_exp1$beta[4]`, `r make_pvalue(stats_model_cold_exp1$p[4])`) For the warm ratings we found no interaction ($\beta$ = `r stats_model_warm_exp1$beta[8]`, `r make_pvalue(stats_model_warm_exp1$p[8])`), nor main effect of dermatome ($\beta$ = `r stats_model_warm_exp1$beta[4]`, `r make_pvalue(stats_model_warm_exp1$p[4])`)
-For the burning ratings We found no significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`), but a significant main effect ( $\beta$ = `r stats_model_burn_exp1$beta[4]`, `r make_pvalue(stats_model_burn_exp1$p[4])`)
+We tested this effect with a two way interaction between condition (control / TGI) and the location of the cold thermode when it was placed within dermatome (distal / proximal).
+In the first experiment with the cold thermode as the reference we found no statistical significant interaction effect for the cold ratings ($\beta$ = `r stats_model_cold_exp1$beta[8]`, `r make_pvalue(stats_model_cold_exp1$p[8])`, however with a strong main effect of dermatome ($\beta$ = `r stats_model_cold_exp1$beta[4]`, `r make_pvalue(stats_model_cold_exp1$p[4])`) For the warm ratings we found no interaction ($\beta$ = `r stats_model_warm_exp1$beta[8]`, `r make_pvalue(stats_model_warm_exp1$p[8])`), nor main effect of dermatome ($\beta$ = `r stats_model_warm_exp1$beta[4]`, `r make_pvalue(stats_model_warm_exp1$p[4])`) For the burning ratings We found no significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`), but a significant main effect ( $\beta$ = `r stats_model_burn_exp1$beta[4]`, `r make_pvalue(stats_model_burn_exp1$p[4])`)
 
 For the second experiment with the warm thermode as the reference we found no interaction no interaction ($\beta$ = `r stats_model_burn_exp2$beta[8]`, `r make_pvalue(stats_model_burn_exp2$p[8])`), nor main effect ($\beta$ = `r stats_model_burn_exp2$beta[4]`, `r make_pvalue(stats_model_burn_exp2$p[4])`) for the burning ratings.
 For the warm ratings we found no interaction ($\beta$ = `r stats_model_warm_exp2$beta[8]`, `r make_pvalue(stats_model_warm_exp2$p[8])`), , nor main effect of dermatome ($\beta$ = `r stats_model_warm_exp2$beta[4]`, `r make_pvalue(stats_model_warm_exp2$p[4])`) and for the cold ratings no interaction ($\beta$ = `r stats_model_cold_exp2$beta[8]`, `r make_pvalue(stats_model_cold_exp2$p[8])`) but a main effect ($\beta$ = `r stats_model_cold_exp2$beta[4]`, `r make_pvalue(stats_model_cold_exp2$p[4])`).
 
-
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Difference in VAS ratings between the proximal and distal dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 3) Difference in VAS ratings between the proximal and distal dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
 #plot2(include_zero = F)
 
@@ -183,17 +182,12 @@ A main objective of this study was assessing spatial order effects along the ros
 We delivered an equal number of trials in which the cold stimulus was applied on a dermatome that mapped more rostrally or caudally compared to the warm or neutral stimuli.
 Like the previous analysis we investigated this relationship with a two way interaction here with the rostral - caudal axis being investigated.
 
-
 Results showed no statistical significant interaction effect for the cold ratings in the first experiment with the reference thermode being cold ($\beta$ = `r stats_model_cold_exp1$beta[7]`, `r make_pvalue(stats_model_cold_exp1$p[7])`, but a main effect ($\beta$ = `r stats_model_cold_exp1$beta[3]`, `r make_pvalue(stats_model_cold_exp1$p[3])`).
-For the warm ratings we found no statistically significant effect for warm watings ($\beta$ = `r stats_model_warm_exp1$beta[7]`, `r make_pvalue(stats_model_warm_exp1$p[7])`), but a statistical significant main effect ($\beta$ = `r stats_model_warm_exp1$beta[3]`, `r make_pvalue(stats_model_warm_exp1$p[3])`)
-The burning ratings showed no significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`), nor main effect ($\beta$ = `r stats_model_burn_exp1$beta[3]`, `r make_pvalue(stats_model_burn_exp1$p[3])`).
+For the warm ratings we found no statistically significant effect for warm watings ($\beta$ = `r stats_model_warm_exp1$beta[7]`, `r make_pvalue(stats_model_warm_exp1$p[7])`), but a statistical significant main effect ($\beta$ = `r stats_model_warm_exp1$beta[3]`, `r make_pvalue(stats_model_warm_exp1$p[3])`) The burning ratings showed no significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`), nor main effect ($\beta$ = `r stats_model_burn_exp1$beta[3]`, `r make_pvalue(stats_model_burn_exp1$p[3])`).
 
-In Experiment 2, with the warm thermode as the reference we found no significant interaction effect for the burning ratings ($\beta$ = `r stats_model_burn_exp2$beta[7]`, `r make_pvalue(stats_model_burn_exp2$p[7])`), but a significant main effect ($\beta$ = `r stats_model_burn_exp2$beta[3]`, `r make_pvalue(stats_model_burn_exp2$p[3])`)
-For the warm ratings we found no statistically significant interaction ($\beta$ = `r stats_model_warm_exp2$beta[7]`, `r make_pvalue(stats_model_warm_exp2$p[7])`), but a strong main effect ($\beta$ = `r stats_model_warm_exp2$beta[3]`, `r make_pvalue(stats_model_warm_exp2$p[3])`)
-For the cold ratings we found a significant interaction ($\beta$ = `r stats_model_cold_exp2$beta[7]`, `r make_pvalue(stats_model_cold_exp2$p[7])`)
+In Experiment 2, with the warm thermode as the reference we found no significant interaction effect for the burning ratings ($\beta$ = `r stats_model_burn_exp2$beta[7]`, `r make_pvalue(stats_model_burn_exp2$p[7])`), but a significant main effect ($\beta$ = `r stats_model_burn_exp2$beta[3]`, `r make_pvalue(stats_model_burn_exp2$p[3])`) For the warm ratings we found no statistically significant interaction ($\beta$ = `r stats_model_warm_exp2$beta[7]`, `r make_pvalue(stats_model_warm_exp2$p[7])`), but a strong main effect ($\beta$ = `r stats_model_warm_exp2$beta[3]`, `r make_pvalue(stats_model_warm_exp2$p[3])`) For the cold ratings we found a significant interaction ($\beta$ = `r stats_model_cold_exp2$beta[7]`, `r make_pvalue(stats_model_cold_exp2$p[7])`)
 
-
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Difference in VAS ratings between the Caudal and Rostral dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 4) Difference in VAS ratings between the Caudal and Rostral dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
 plot2_3(include_zero = F)[[2]]
 ```
@@ -339,6 +333,7 @@ This study was supported by a European Research Council Starting Grant (ERC-2020
 \newpage
 
 # Supplementary material
+
 ```{r,warning = F, message = F, echo = F}
 get_main_tables(model_cold_exp1,round = 2, title = "Cold reference on cold ratings") %>%
   width(j=1, width = 2.5) %>%
@@ -376,4 +371,3 @@ get_main_tables(model_burn_exp2,round = 2, title = "Warm reference on burning ra
 
 
 ```
-
