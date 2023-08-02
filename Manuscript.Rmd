@@ -13,6 +13,7 @@ output:
     css: knitting files/style.css
   pdf_document:
     latex_engine: xelatex
+    indent: true
 bibliography: knitting files/Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion.bib
 link-citations: yes
 linkcolor: blue
@@ -68,7 +69,7 @@ The hallmark of both illusory components is a qualitative change in perception w
 Historically, the thermosensory and painful components of the TGI were explained by distinct spinal and supraspinal mechanisms, respectively.
 The enhanced perception of heat in TGI was explained by a spinal inhibitory mechanism, drawing from observations in an animal model where simultaneous application of cold and warm temperatures reduced the activity of cold-specific spinal neurons compared to when cold was applied alone [@craig_thermal_1994]. Instead, the illusory pain component was ascribed to a disinhibition mechanism at the level of the thalamus, primarily based on the observations of unremitting pain following thalamic lesions [@craig_thermal_1994; -@craig_new_1998].
 
-Recent human studies on TGI provided differing interpretations of the spinal or supraspinal origin of the illusion.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Recent human studies on TGI provided differing interpretations of the spinal or supraspinal origin of the illusion.
 Two studies posited that the illusory pain component of the TGI depends uniquely on supraspinal mechanisms.
 This interpretation was based on the observed modulation of the illusion in accordance with a spatiotopic rather than somatotopic representation of the body [@marotta_transforming_2015].
 Further, the illusion remained unaltered during concomitant tactile stimulation, suggesting ineffectiveness of tactile gating - a spinally-mediated process involving inhibition of nociceptive activity by concurrent somatosensory activity [@ferre_ineffectiveness_2018].
@@ -232,17 +233,20 @@ Prior to commencing the study, all participants were fully informed about the pr
 All thermal stimuli were delivered using two NTE-3 Thermal Sensitivity Testers (PhysiTemp Instruments LLC) controlled by PhysiTemp NTE-3 software (version 5.4b).
 The procedure involved measurements of heat and cold pain thresholds, calibration of cold-warm temperature pairs eliciting TGI, and an experimental task where TGI and non-TGI stimuli were applied on dermatomes that mapped onto adjacent or non-adjacent spinal segments.
 To measure cold and heat pain thresholds, we gradually adjusted the temperature of one thermode until the participant indicated an experience of pain by pressing a stop button or reached the maximum temperature cut-offs of 5ºC or 50ºC.
+
 We calibrated TGI stimuli by identifying a cold-warm temperature pair based on specific criteria: (1) consistently eliciting a burning sensation of at least 15 on a scale ranging from 0 to 100, (2) consistently avoiding a burning sensation (less than 15) when the cold-neutral (Exp. 1) or warm-neutral (Exp. 2) stimuli were presented, (3) both cold and warm temperatures falling within the innocuous range based on individual cold and heat pain thresholds.
 For pain threshold measurements and TGI calibration, we positioned the probes within a single dermatome.
 To address our experimental questions, we presented the calibrated TGI stimuli, as well as cold-neutral (Exp. 1) or warm-neutral (Exp. 2) non-TGI stimuli using two thermodes.
 In non-TGI stimuli the cold or warm temperatures were set to match the temperature used for TGI stimulation, but paired with a neutral temperature set at 30ºC.
+
 The two thermodes were positioned on the internal surface of either forearm, with a constant spacing value between 4 and 5 cm in each direction, depending on the participant's forearm size.
 The positioning of the thermodes was either within the same dermatome (i.e., C6 and T1) or across dermatomes mapped onto non-adjacent spinal segments (i.e. C6 - T1).
 Further, we manipulated the spatial arrangement of the temperature pairs, by systematically presenting an equal number of trials where the cold thermode was applied on a proximal or distal location within a dermatome, or was applied on a dermatome that mapped onto a rostral or caudal segment along the spinal cord.
-We based the demarcation of the dermatome boundaries on the American Spinal Injury Association (ASIA) map (Fardo et al., 2018) and positioned the thermodes in relation to standard anatomical landmarks.
+We based the demarcation of the dermatome boundaries on the American Spinal Injury Association (ASIA) map and positioned the thermodes in relation to standard anatomical landmarks.
 Proximo-distal coordinates referred to locations on the skin closer to the elbow or the wrist, whereas rostral-caudal coordinates referred to spinal segments closer to the head or the lower back.
 The possible spatial arrangements corresponded to the four conditions depicted in Figure 1.
 The order of the stimuli (TGI vs. non-TGI), the dermatome condition (within vs. across) and the relative placement of the colder temperature (proximal vs. distal or rostral vs. caudal) were pseudo-randomised and counterbalanced between participants.
+
 During each trial, the experimenter positioned two thermodes, mounted on a stand using two independent clamps, on the participant's skin for 10 seconds.
 An auditory cue (300Hz, 100ms) indicated the end of the stimulation period, after which the experimenter removed the thermodes from the participant's skin.
 Participants then rated the most intense cold, warm or burning sensation they perceived during the stimulation period using three separated computerised VAS scales.
@@ -256,6 +260,7 @@ Each thermode configuration was tested three consecutive times, on three differe
 An auditory tone of 500Hz lasting 100ms was played to indicate to the experimenter when to rearrange the thermode configuration to stimulate different dermatomes depending on a pseudo-randomisation order.
 Each of the four experimental conditions was repeated 12 times, with both the right and left forearms stimulated, and a minimum of five trials between the re-stimulation of the same skin location.
 This ensured that the same skin locations were not stimulated consecutively to minimise carry-over effects.
+
 Experiments 1 and 2 were conducted in two independent groups of participants and followed exactly the same procedure except for two elements.
 In Experiment 1, participants rated the sensations localised underneath the colder thermode, and the non-TGI stimuli corresponded to cold-neutral pairs.
 In Experiment 2, participants rated the sensations localised underneath the warmer thermode, and the non-TGI stimuli corresponded to warm-neutral pairs.
@@ -327,46 +332,46 @@ This study was supported by a European Research Council Starting Grant (ERC-2020
 # Supplementary material
 
 ```{r,warning = F, message = F, echo = F}
-get_main_tables(model_cold_exp1,round = 2, title = "Cold reference on cold ratings") %>%
-  width(j=1, width = 2.5) %>%
-  width(j=c(2,3,4,5), width = 1.1)%>%
+get_main_tables(model_cold_exp1,round = 2, title = "Exp. 1: Cold reference on cold ratings") %>%
+  width(j = 1, width = 2.5) %>%
+  width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
 
-get_main_tables(model_warm_exp1,round = 2, title = "Cold reference on warm ratings") %>%
-  width(j=1, width = 2.5) %>%
-  width(j=c(2,3,4,5), width = 1.1)%>%
+get_main_tables(model_warm_exp1,round = 2, title = "Exp. 1: Cold reference on warm ratings") %>%
+  width(j = 1, width = 2.5) %>%
+  width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
-get_main_tables(model_burn_exp1,round = 2, title = "Cold reference on burning ratings") %>%
-  width(j=1, width = 2.5) %>%
-  width(j=c(2,3,4,5), width = 1.1)%>%
-  fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
-
-
-get_main_tables(model_cold_exp2,round = 2, title = "Warm reference on cold ratings") %>%
-  width(j=1, width = 2.5) %>%
-  width(j=c(2,3,4,5), width = 1.1)%>%
+get_main_tables(model_burn_exp1,round = 2, title = "Exp.1: Cold reference on burning ratings") %>%
+  width(j = 1, width = 2.5) %>%
+  width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
 
-
-get_main_tables(model_warm_exp2,round = 2, title = "Warm reference on warm ratings") %>%
-  width(j=1, width = 2.5) %>%
-  width(j=c(2,3,4,5), width = 1.1)%>%
+get_main_tables(model_cold_exp2,round = 2, title = "Exp. 2: Warm reference on cold ratings") %>%
+  width(j = 1, width = 2.5) %>%
+  width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
-get_main_tables(model_burn_exp2,round = 2, title = "Warm reference on burning ratings") %>%
-  width(j=1, width = 2.5) %>%
-  width(j=c(2,3,4,5), width = 1.1)%>%
+
+
+get_main_tables(model_warm_exp2,round = 2, title = "Exp. 2: Warm reference on warm ratings") %>%
+  width(j = 1, width = 2.5) %>%
+  width(j = c(2,3,4,5), width = 1.1)%>%
+  fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
+
+get_main_tables(model_burn_exp2,round = 2, title = "Exp. 2: Warm reference on burning ratings") %>%
+  width(j = 1, width = 2.5) %>%
+  width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all") %>% flextable::font(fontname = "Times New Roman", part = "all")
 
 
 ```
 
-Cuts
+\newpage
 
-From "Proximodistal bias in cold perception":
+## Proximodistal bias in cold perceptionxs
 
 Experiment 1: warm ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_warm_exp1$beta[8]`, `r make_pvalue(stats_model_warm_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_warm_exp1$beta[4]`, `r make_pvalue(stats_model_warm_exp1$p[4])`) or burning ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_burn_exp1$beta[4]`, `r make_pvalue(stats_model_burn_exp1$p[4])`)
 
