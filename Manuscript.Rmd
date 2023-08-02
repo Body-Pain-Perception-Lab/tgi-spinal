@@ -166,16 +166,13 @@ All together these results support the role of spinal processes in the generatio
 
 ## Proximodistal bias in cold perception
 
-Previous research demonstrated a phenomenon known as distal inhibition, wherein heat pain ratings tend to increase when a participant evaluates a more distal compared to a more proximal stimulus among two warm stimuli [@quevedo_psychophysicshyperalgesia_2004; @quevedo_illusion_2007].
-We tested the generazability of this distal inhibition effect to the perception of mild temperatures in TGI and non-TGI stimuli within single dermatomes (Fig. 3).
+Previous research demonstrated a phenomenon known as distal inhibition, wherein heat pain ratings tend to increase when a participant evaluates a more distal compared to a more proximal stimulus among two heat stimuli [@quevedo_psychophysicshyperalgesia_2004; @quevedo_illusion_2007].
+We tested the occurence of this distal inhibition effect to the perception of mild temperatures in TGI and non-TGI stimuli within single dermatomes (Fig. 3).
 We found that cold perception was modulated by the proximodistal location of the reference thermode, with enhanced cold ratings when the reference thermode was located more proximally, irrespective of whether the stimulus was TGI or non-TGI, in both Exp. 1 (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp1$beta[8]`, `r make_pvalue(stats_model_cold_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_cold_exp1$beta[4]`, `r make_pvalue(stats_model_cold_exp1$p[4])`) and Exp. 2 (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp2$beta[8]`, `r make_pvalue(stats_model_cold_exp2$p[8])`; dermatome main effect: $\beta$ = `r stats_model_cold_exp2$beta[4]`, `r make_pvalue(stats_model_cold_exp2$p[4])`).
-These findings extend the notion of distal inhibition to innocuous cold perception.
+These findings suggest that the notion of distal inhibition can be extended to innocuous cold perception.
 
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 3) Difference in VAS ratings between the proximal and distal dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 3) Difference in VAS ratings between the proximal and distal location of the reference thermode in the within dermatome condition and by stimulation type (Non-TGI, TGI) for all VAS rating types (cold, warm, burn). A, experiment with the cold thermode as reference, and B with the warm thermode as reference. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
-#plot2(include_zero = F)
-
-#plot2(include_zero = T)
 plot2_3(include_zero = F)[[1]]
 ```
 
@@ -183,7 +180,6 @@ plot2_3(include_zero = F)[[1]]
 
 A main objective of this study was assessing spatial order effects along the rostrocaudal axis at the spinal level.
 We delivered an equal number of trials in which the cold stimulus was applied on a dermatome that mapped more rostrally or caudally compared to the warm or neutral stimuli.
-Like the previous analysis we investigated this relationship with a two way interaction here with the rostral - caudal axis being investigated.
 
 Results showed no statistical significant interaction effect for the cold ratings in the first experiment with the reference thermode being cold ($\beta$ = `r stats_model_cold_exp1$beta[7]`, `r make_pvalue(stats_model_cold_exp1$p[7])`, but a main effect ($\beta$ = `r stats_model_cold_exp1$beta[3]`, `r make_pvalue(stats_model_cold_exp1$p[3])`).
 For the warm ratings we found no statistically significant effect for warm watings ($\beta$ = `r stats_model_warm_exp1$beta[7]`, `r make_pvalue(stats_model_warm_exp1$p[7])`), but a statistical significant main effect ($\beta$ = `r stats_model_warm_exp1$beta[3]`, `r make_pvalue(stats_model_warm_exp1$p[3])`) The burning ratings showed no significant interaction ($\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`), nor main effect ($\beta$ = `r stats_model_burn_exp1$beta[3]`, `r make_pvalue(stats_model_burn_exp1$p[3])`).
