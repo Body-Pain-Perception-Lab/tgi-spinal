@@ -302,7 +302,7 @@ All data and code for the analysis are available in the [github repository](http
 Author contributions listed alphabetically according to [CRediT taxonomy](https://credit.niso.org):
 
 -   Conceptualization: DEC, JFE, FF, PH, AGM.
--   Data curation: JEF, AGM.
+-   Data curation: JFE, AGM.
 -   Formal analysis: JFE, FF, AGM.
 -   Funding acquisition: FF.
 -   Investigation: DEC, JFE, AGM.
@@ -311,9 +311,9 @@ Author contributions listed alphabetically according to [CRediT taxonomy](https:
 -   Resources: FF, AGM.
 -   Software: JFE, FF, AGM.
 -   Supervision: FF, AGM.
--   Visualization: FF, AGM.
+-   Visualization: JFE, FF, AGM.
 -   Writing -- original draft: FF, AGM.
--   Writing -- review & editing: FF, AGM. (+ others who will provide feedback)
+-   Writing -- review & editing: JFE, FF, PH, AGM, AVS.
 
 # Acknowledgements
 
