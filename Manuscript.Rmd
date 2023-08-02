@@ -13,7 +13,7 @@ output:
     css: knitting files/style.css
   pdf_document:
     latex_engine: xelatex
-    indent: true
+indent: true
 bibliography: knitting files/Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion.bib
 link-citations: yes
 linkcolor: blue
@@ -69,7 +69,7 @@ The hallmark of both illusory components is a qualitative change in perception w
 Historically, the thermosensory and painful components of the TGI were explained by distinct spinal and supraspinal mechanisms, respectively.
 The enhanced perception of heat in TGI was explained by a spinal inhibitory mechanism, drawing from observations in an animal model where simultaneous application of cold and warm temperatures reduced the activity of cold-specific spinal neurons compared to when cold was applied alone [@craig_thermal_1994]. Instead, the illusory pain component was ascribed to a disinhibition mechanism at the level of the thalamus, primarily based on the observations of unremitting pain following thalamic lesions [@craig_thermal_1994; -@craig_new_1998].
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Recent human studies on TGI provided differing interpretations of the spinal or supraspinal origin of the illusion.
+Recent human studies on TGI provided differing interpretations of the spinal or supraspinal origin of the illusion.
 Two studies posited that the illusory pain component of the TGI depends uniquely on supraspinal mechanisms.
 This interpretation was based on the observed modulation of the illusion in accordance with a spatiotopic rather than somatotopic representation of the body [@marotta_transforming_2015].
 Further, the illusion remained unaltered during concomitant tactile stimulation, suggesting ineffectiveness of tactile gating - a spinally-mediated process involving inhibition of nociceptive activity by concurrent somatosensory activity [@ferre_ineffectiveness_2018].
@@ -167,8 +167,9 @@ All together these results support the role of spinal processes in the generatio
 
 Previous research demonstrated a phenomenon known as distal inhibition, wherein heat pain ratings tend to increase when a participant evaluates a more distal compared to a more proximal stimulus among two heat stimuli [@quevedo_psychophysicshyperalgesia_2004; @quevedo_illusion_2007].
 We tested the occurence of this distal inhibition effect to the perception of mild temperatures in TGI and non-TGI stimuli within single dermatomes (Fig. 3).
-We found that cold perception was modulated by the proximodistal location of the reference thermode, with enhanced cold ratings when the reference thermode was located more proximally, irrespective of whether the stimulus was TGI or non-TGI, in both Exp. 1 (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp1$beta[8]`, `r make_pvalue(stats_model_cold_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_cold_exp1$beta[4]`, `r make_pvalue(stats_model_cold_exp1$p[4])`) and Exp. 2 (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp2$beta[8]`, `r make_pvalue(stats_model_cold_exp2$p[8])`; dermatome main effect: $\beta$ = `r stats_model_cold_exp2$beta[4]`, `r make_pvalue(stats_model_cold_exp2$p[4])`).
-These findings suggest that the notion of distal inhibition can be extended to innocuous cold perception.
+We found that cold and burn perception was modulated by the proximodistal location of the cold thermode, with enhanced cold ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp1$beta[8]`, `r make_pvalue(stats_model_cold_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_cold_exp1$beta[4]`, `r make_pvalue(stats_model_cold_exp1$p[4])`) and burn ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_burn_exp1$beta[4]`, `r make_pvalue(stats_model_burn_exp1$p[4])`) when the cold thermode was located more proximally, irrespective of whether the stimulus was TGI or non-TGI.
+We found a similar finding for cold perception (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp2$beta[8]`, `r make_pvalue(stats_model_cold_exp2$p[8])`; dermatome main effect: $\beta$ = `r stats_model_cold_exp2$beta[4]`, `r make_pvalue(stats_model_cold_exp2$p[4])`), when participants assessed the warm thermode.
+These findings suggest that the notion of distal inhibition can be extended to innocuous cold perception and burning sensations at objectively mild temperatures.
 
 ```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 3) Difference in VAS ratings between the proximal and distal location of the reference thermode in the within dermatome condition and by stimulation type (Non-TGI, TGI) for all VAS rating types (cold, warm, burn). A, experiment with the cold thermode as reference, and B with the warm thermode as reference. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
@@ -181,12 +182,11 @@ A main objective of this study was assessing spatial order effects along the ros
 We delivered an equal number of trials in which the cold stimulus was applied on a dermatome that mapped more rostrally or caudally compared to the warm or neutral stimuli, in the across dermatome condition.
 When rating either the cold thermode (Exp. 1, Fig. 4A) or the warm thermode (Exp.2, Fig. 4B), participants reported a reduced subjective experience of cold, alongside an enhanced perception of warmth when the cold thermode was applied on a dermatome that mapped onto a more caudal segment.
 In Exp. 1, the modulation of thermosensory ratings corresponded to significant rostralcaudal main effects for both cold ratings (stimulation by rostrocaudal location interaction: $\beta$ = `r stats_model_cold_exp1$beta[7]`, `r make_pvalue(stats_model_cold_exp1$p[7])`; rostrocaudal main effect: $\beta$ = `r stats_model_cold_exp1$beta[3]`, `r make_pvalue(stats_model_cold_exp1$p[3])`), and warm ratings (stimulation by rostrocaudal location interaction: $\beta$ = `r stats_model_warm_exp1$beta[7]`, `r make_pvalue(stats_model_warm_exp1$p[7])`; rostrocaudal main effect: $\beta$ = `r stats_model_warm_exp1$beta[3]`, `r make_pvalue(stats_model_warm_exp1$p[3])`).
-In Exp. 2, the modulation of cold ratings was specific for TGI stimuli (stimulation by rostrocaudal location interaction: $\beta$ = `r stats_model_cold_exp2$beta[7]`, `r make_pvalue(stats_model_cold_exp2$p[7])`), while the modulation of warm ratings was significant irrespective of stimulation type (stimulation by rostrocaudal interaction: $\beta$ = `r stats_model_warm_exp2$beta[7]`, `r make_pvalue(stats_model_warm_exp2$p[7])`); rostrocaudal main effect: $\beta$ = `r stats_model_warm_exp2$beta[3]`, `r make_pvalue(stats_model_warm_exp2$p[3])`).
-We observed no modulation of burning ratings depending on the rostrocaudal mapping of cold-related activity in either Exp. 1 (stimulation by rostrocaudal location: $\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`; rostrocaudal main effect ($\beta$ = `r stats_model_burn_exp1$beta[3]`, `r make_pvalue(stats_model_burn_exp1$p[3])`) or Exp. 2 (stimulation by rostrocaudal location: $\beta$ = `r stats_model_burn_exp2$beta[7]`, `r make_pvalue(stats_model_burn_exp2$p[7])`); rostrocaudal main effect: $\beta$ = `r stats_model_burn_exp2$beta[3]`, `r make_pvalue(stats_model_burn_exp2$p[3])`).
+In Exp. 2, the modulation of cold ratings was specific for TGI stimuli (stimulation by rostrocaudal location interaction: $\beta$ = `r stats_model_cold_exp2$beta[7]`, `r make_pvalue(stats_model_cold_exp2$p[7])`), while the modulation of warm ratings was significant irrespective of stimulation type (stimulation by rostrocaudal interaction: $\beta$ = `r stats_model_warm_exp2$beta[7]`, `r make_pvalue(stats_model_warm_exp2$p[7])`; rostrocaudal main effect: $\beta$ = `r stats_model_warm_exp2$beta[3]`, `r make_pvalue(stats_model_warm_exp2$p[3])`).
+Similarly to warm ratings, we showed a modulation of burning ratings depending on the rostrocaudal mapping of cold-related activity irrespective of stimulation type in Exp. 2 (stimulation by rostrocaudal location: $\beta$ = `r stats_model_burn_exp2$beta[7]`, `r make_pvalue(stats_model_burn_exp2$p[7])`; rostrocaudal main effect: $\beta$ = `r stats_model_burn_exp2$beta[3]`, `r make_pvalue(stats_model_burn_exp2$p[3])`).
 The results indicated a notably enhanced TGI effect when the cold stimulus induced more caudal activity within the spinal cord.
-While reduced cold perception was specific for TGI stimuli, participants reported enhanced warm perception irrespective of stimulation type.
-
-## 
+While reduced cold perception was more specific for TGI stimuli, participants reported enhanced warm and burning perception irrespective of stimulation type.
+Overall these effects are in line with the interpretation that the reference stimulation is a crucial factor in assessing thermosensory and burning components of TGI perception.
 
 ```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 4) Difference in VAS ratings between the Caudal and Rostral dermatome conditions and  the stimulation type (Non-TGI, TGI) for all VAS rating types (Cold, warm, Burning). A, first experiment with the cold  thermode as the reference, and B with the warm thermode as referce. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
@@ -337,26 +337,25 @@ get_main_tables(model_cold_exp1,round = 2, title = "Exp. 1: Cold reference on co
   width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
-
-get_main_tables(model_warm_exp1,round = 2, title = "Exp. 1: Cold reference on warm ratings") %>%
+get_main_tables(model_cold_exp2,round = 2, title = "Exp. 1: Cold reference on warm ratings") %>%
   width(j = 1, width = 2.5) %>%
   width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
-get_main_tables(model_burn_exp1,round = 2, title = "Exp.1: Cold reference on burning ratings") %>%
-  width(j = 1, width = 2.5) %>%
-  width(j = c(2,3,4,5), width = 1.1)%>%
-  fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
-
-
-get_main_tables(model_cold_exp2,round = 2, title = "Exp. 2: Warm reference on cold ratings") %>%
+get_main_tables(model_warm_exp1,round = 2, title = "Exp.1: Cold reference on burning ratings") %>%
   width(j = 1, width = 2.5) %>%
   width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
 
+get_main_tables(model_warm_exp2,round = 2, title = "Exp. 2: Warm reference on cold ratings") %>%
+  width(j = 1, width = 2.5) %>%
+  width(j = c(2,3,4,5), width = 1.1)%>%
+  fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
 
-get_main_tables(model_warm_exp2,round = 2, title = "Exp. 2: Warm reference on warm ratings") %>%
+
+
+get_main_tables(model_burn_exp1,round = 2, title = "Exp. 2: Warm reference on warm ratings") %>%
   width(j = 1, width = 2.5) %>%
   width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
@@ -371,8 +370,12 @@ get_main_tables(model_burn_exp2,round = 2, title = "Exp. 2: Warm reference on bu
 
 \newpage
 
-## Proximodistal bias in cold perceptionxs
+## Proximodistal bias in cold perception
 
-Experiment 1: warm ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_warm_exp1$beta[8]`, `r make_pvalue(stats_model_warm_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_warm_exp1$beta[4]`, `r make_pvalue(stats_model_warm_exp1$p[4])`) or burning ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_burn_exp1$beta[4]`, `r make_pvalue(stats_model_burn_exp1$p[4])`)
+Experiment 1: warm ratings (stimulation by dermatome interaction: \$\\beta\$ = r stats_model_warm_exp1\$beta[8], r make_pvalue(stats_model_warm_exp1\$p[8]); dermatome main effect: $\beta$ = `r stats_model_warm_exp1$beta[4]`, `r make_pvalue(stats_model_warm_exp1$p[4])`) or burning ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_burn_exp1$beta[4]`, `r make_pvalue(stats_model_burn_exp1$p[4])`)
 
 Experiment 2: warm ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_warm_exp2$beta[8]`, `r make_pvalue(stats_model_warm_exp2$p[8])`); dermatome main effect: $\beta$ = `r stats_model_warm_exp2$beta[4]`, `r make_pvalue(stats_model_warm_exp2$p[4])`) or burning ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp2$beta[8]`, `r make_pvalue(stats_model_burn_exp2$p[8])`); dermatome main effect: $\beta$ = `r stats_model_burn_exp2$beta[4]`, `r make_pvalue(stats_model_burn_exp2$p[4])`).
+
+## Directional effects in inter-segmental sensory integration
+
+Experiment 1: burn ratings (stimulation by rostrocaudal location: $\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`; rostrocaudal main effect ($\beta$ = `r stats_model_burn_exp1$beta[3]`, `r make_pvalue(stats_model_burn_exp1$p[3])`)
