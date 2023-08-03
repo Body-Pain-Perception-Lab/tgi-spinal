@@ -36,7 +36,10 @@ editor_options:
 
 <br>
 
+::: {custom-style="Corresponding authors text"}
 Corresponding authors: Alexandra G. Mitchell ([agmitchell\@cfin.au.dk](mailto:agmitchell@cfin.au.dk){.email}) and Francesca Fardo ([francesca\@cfin.au.dk](mailto:francesca@cfin.au.dk){.email})
+:::
+
 
 \newpage
 
