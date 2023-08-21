@@ -93,7 +93,7 @@ Additionally, we investigated spatial order effects associated with the integrat
 At the dermatome level, we used body-related coordinates to define proximal (towards the elbow) and distal (towards the wrist) locations.
 At the spinal level, we used segment-related coordinates to define more rostral (towards the head) and more caudal (towards the lower back) locations (Figure 1B).
 Given that the spinal cord is organised along a rostral-caudal axis, where each dermatome is represented across multiple spinal segments through the Lissauer tract [@kerr_neuroanatomical_1975; @lamotte_distribution_1977; @wall_brief_1999], this study provides indirect insights into the spinal mechanisms underpinning thermosensory integration and the generation of the TGI.
-If the experience of the TGI is influenced by the relative location of warm and cold afferents in different spinal segments, this finding would provide compelling, additional evidence that the spine serves as an initial site for the cold-warm integration that produces perceptions of illusory heat and pain. 
+If the experience of the TGI is influenced by the relative location of warm and cold afferents in different spinal segments, this finding would provide compelling, additional evidence that the spine serves as an initial site for the cold-warm integration that produces perceptions of illusory heat and pain.
 
 # Results and discussion
 
@@ -102,16 +102,19 @@ Thermosensory enhancement refers to an amplified perception of heat or cold when
 Notably, the majority of individuals experience an intensification of heat rather than cold [@fardo_beyond_2020].
 Illusory pain, on the other hand, denotes the perception of a burning sensation elicited by the pairing of warm and cold stimuli, an experience that is largely absent or significantly diminished when each stimulus is presented alone or combined with a neutral temperature.
 Thus, indicators of a stronger TGI are reduced cold ratings, coupled with heightened warm and burning ratings.
+The last of these is generally considered to be the most salient feature of the TGI, and has received the most attention within the TGI literature.
 
-To investigate thermosensory and burning components of the TGI, participants received pairs of temperatures on their forearms and were asked to quantify the levels of cold, warmth, and burning they experienced during each stimulation.
-These stimuli consisted of either cold-warm pairs (TGI stimuli), which potentially evoked an illusion of heat and pain, or control stimuli that involved pairing a cold or a warm stimulus of identical temperature as in the TGI condition with a baseline temperature of 30°C (non-TGI stimuli).
-All stimulation pairs were presented at a fixed distance on the skin, either within the same dermatome or across dermatomes that mapped onto non-adjacent spinal segments.
-For each stimulation, participants reported their ratings using three sequential VAS scales ranging from 0, indicating the lack of a sensation, to 100, indicating an extreme sensation.
-For each instance of stimulation, participants were guided to focus their reporting on the sensations originating from a specific thermode.
-While the participants were unaware, this location corresponded to either the colder stimulus (Exp. 1) or the warmer stimulus (Exp. 2) of the paired temperatures.
-VAS ratings were analysed using zero-inflated beta regressions.
+While most previous studies have focused on the TGI as a single experience, explicitly understood as an experience of or like pain, our approach differed.
+We instructed participants to report the sensation from just one of the thermal components, corresponding to the cold thermode location (Experiment 1) or the warm thermode location (Experiment 2).
+Importantly, the aim of this method was not to isolate any possible independent effect of warm and cold stimulation during TGI, but rather to ensure consistency in participants\' ratings across trials and different stimulus conditions. 
 
-## Thermosensory and burning components of TGI perception are spinally mediated
+To investigate both the thermosensory and burning components in each experiment, we asked participants to provide a subjective evaluation of multiple sensory qualities - cold, warmth and burning (pain).
+Stimuli consisted of either cold-warm pairs (TGI stimuli), which potentially evoked an illusion of heat and pain, or control stimuli that involved pairing a cold (Exp. 1) or a warm (Exp. 2) stimulus of identical temperature as in the TGI condition with a baseline temperature of 30°C (non-TGI stimuli).
+All stimulation pairs were presented at a fixed distance on the skin, either within the same dermatome or across dermatomes that mapped onto non-adjacent spinal segments (Figure 1A and B).
+After ten seconds of stimulation, participants reported their ratings using three sequential VAS scales ranging from 0, indicating the lack of the corresponding sensory quality, to 100, indicating an extreme sensation (Figure 1C), presented in a random order.
+For each instance of stimulation, participants were guided to focus their reporting on the sensations originating either thermode \'A\' or \'B\' which corresponded to either the cold (Exp. 1) or warm (Exp. 2) thermode.
+This labelling was used to ensure participants were not immediately aware of the temperature associated with each probe.
+VAS ratings for each sensation were analysed using mixed-effects zero-inflated beta regressions, where VAS ratings that equaled zero for non-TGI and TGI stimulation were modelled separately to VAS ratings above zero.
 
 ```{r, warning = F, message = F, echo = F,include=FALSE}
 if (!require("pacman")) install.packages("pacman")
@@ -140,22 +143,18 @@ list2env(stats, envir=environment())
 
 ```
 
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 1) Four experimental conditions depicting an exemplar cold and warm thermode placement within and across dermatomes. Within dermatomes, the relative location of the cold thermode was proximal or distal. Across dermatomes, the relative location of the corresponding spinal segments was rostral or caudal. "}
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 1) A and B) Placement and distance of thermodes on the inner forearm, showing corresponding spinal mapping for all four conditions. Within dermatomes, the relative location of the cold thermode was proximal or distal. Across dermatomes, the relative location of the corresponding spinal segments was rostral or caudal. Within dermatome conditions also included warm and cold thermodes in C6 (not depicted here), as well as T1. C) The three VAS participants used to report sensation coming from the reference probe, presented for each trial in a randomised order."}
 ggdraw() +
     draw_image(magick::image_read(here::here("figures","figure1_v2.PNG")), scale = 1)
 ```
 
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 2) Difference in VAS ratings between within and across dermatome conditions for each type of stimulation (Non-TGI and TGI) in each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. Small dots are individual subject means, large dots are population means for each condition and error bars are 95% confidence intervals. A) first experiment with the cold thermode as the reference, and B second experiment with the warm thermode as referece."}
+## Thermosensory and burning components of TGI perception are spinally mediated
 
-plot1(include_zero = F)
-#plot1(include_zero = T)
-
-```
-
-In keeping with the unique heat and burning features of TGI, our results exhibited a more robust TGI when stimuli were confined within dermatomes compared to when applied across dermatomes, corresponding to non-adjacent spinal segments.
-When rating the cold thermode (Exp. 1, Fig. 2A), participants reported a reduced subjective experience of cold for TGI, but not non-TGI, stimuli applied within a dermatome compared to across dermatomes (stimulation by dermatome interaction: $\beta$ = `r stats_model_cold_exp1$beta[6]`, `r make_pvalue(stats_model_cold_exp1$p[6])`), alongside an increased subjective experience of warmth for both TGI and non-TGI stimuli (stimulation by dermatome interaction: $\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`; dermatome main effect: $\beta$ = `r stats_model_warm_exp1$beta[2]`, `r make_pvalue(stats_model_warm_exp1$p[2])`).
+The typical heat and burning perception associated with TGI was more robust when stimuli were confined within dermatomes compared to when applied across dermatomes, corresponding to non-adjacent spinal segments.
+When rating the cold thermode (Exp. 1, Fig. 2A), participants reported a stronger reduction in the subjective experience of cold specifically for TGI stimuli applied within a dermatome compared to across dermatomes.
+The results of the zero-inflated beta regression show a stimulation by dermatome interaction (cold ratings: $\beta$ = `r stats_model_cold_exp1$beta[6]`, `r make_pvalue(stats_model_cold_exp1$p[6])`), alongside an increased subjective experience of warmth for both TGI and non-TGI stimuli (dermatome main effect: $\beta$ = `r stats_model_warm_exp1$beta[2]`, `r make_pvalue(stats_model_warm_exp1$p[2]);`stimulation by dermatome interaction: $\beta$ = `r stats_model_warm_exp1$beta[6]`, `r make_pvalue(stats_model_warm_exp1$p[6])`).
 Further, participants reported no significant modulation of burning ratings depending on the dermatome condition (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp1$beta[6]`, `r make_pvalue(stats_model_burn_exp1$p[6])`; dermatome main effect: $\beta$ = `r stats_model_burn_exp1$beta[2]`, `r make_pvalue(stats_model_burn_exp1$p[2])`).
-These results indicated that when participants assessed the cold thermode, the greatest modulation in TGI perception was related to cold perception, with within-dermatome TGI stimuli perceived as the least cold.
+These results indicated that when participants judged the cold thermode, the greatest modulation in TGI perception was related to cold perception, with within-dermatome TGI stimuli perceived as the least cold.
 While the modulation of cold perception was specific for TGI, increased warmth was reported irrespective of whether the cold thermode was paired with a warm (TGI stimuli) or neutral temperature (non-TGI stimuli) within a dermatome.
 Overall, these findings are in line with the notion that TGI can be considered a misperception of cold [@fardo_organization_2018; @fardo_beyond_2020].
 
@@ -166,6 +165,13 @@ Overall, these results indicated that when participants assessed the warm thermo
 The findings suggest that the thermosensory quality of the reference thermode (cold or warm) showed differential sensitivity to thermosensory and painful aspects of the TGI experience, and collectively suggested that both qualitative components of the illusion are modulated at the spinal cord level.
 This interpretation is consistent with a previous study using a similar dermatome manipulation, but a distinct method to quantify TGI perception [@fardo_organization_2018], as well as another study showing modulation of heat and pain ratings of TGI stimuli by conditioned pain modulation [@harper_conditioned_2017].
 All together these results support the role of spinal processes in the generation of distinct perceptual aspects of the TGI, and highlight the importance of the reference stimulus when assessing thermosensory and burning components of TGI perception.
+
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 2) Difference in VAS ratings between within and across dermatome conditions for each type of stimulation (Non-TGI and TGI) in each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. Small dots are individual subject means, large dots are population means for each condition and error bars are 95% confidence intervals. A) first experiment with the cold thermode as the reference, and B second experiment with the warm thermode as referece."}
+
+plot1(include_zero = F)
+#plot1(include_zero = T)
+
+```
 
 ## Proximodistal bias in cold perception
 
