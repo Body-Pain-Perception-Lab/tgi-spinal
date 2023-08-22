@@ -142,7 +142,7 @@ sPlot = function(include_zero = T){
   experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'), include_zero = include_zero)
   vas_meds = experiment1$vas_meds
   h2_sum = experiment1$h2_sum
-  main_title = 'Experiment 1: Cold thermode'
+  main_title = 'Reference: Cold Thermode'
     
   
   s_plotA = make_sPlot(vas_meds = vas_meds, h2_sum = h2_sum, 
@@ -172,7 +172,7 @@ sPlot = function(include_zero = T){
   experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
   vas_meds = experiment2$vas_meds
   h2_sum = experiment2$h2_sum
-  main_title = 'Experiment 2: warm thermode'
+  main_title = 'Reference: Warm Thermode'
   
   s_plotD = make_sPlot(vas_meds = vas_meds, h2_sum = h2_sum, 
                        VAS_type = 'cold', title = 'Cold ratings', l_pos = 'right') +
@@ -200,7 +200,7 @@ sPlot = function(include_zero = T){
   #compile the two experiments
   s_plot_out = ggarrange(s_plot_1, s_plot_2,
                          nrow = 1, ncol = 2,
-                         widths = c(1,1.5))
+                         widths = c(1,1.2))
   
   s_plot_out
   

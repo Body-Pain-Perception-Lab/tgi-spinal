@@ -421,7 +421,7 @@ get_main_tables(model_burn_exp2,round = 2, title = "Exp. 2: Warm reference on bu
 
 \newpage
 
-```{r, results="hide", fig.width = 8, fig.height = 10, warning = F, message = F, echo = F, fig.cap = "Figure S1: Individual median VAS ratings for Experiment 1 (A-C) and Experiment 2 (D-F) across stimulus manipulation, and spatial location. Proximal and distal locations are within dermatome, rostral and caudal locations are across dermatomes. All spatial locations refer to the location of the cold thermode, compared to the warm. Box plots show median and interquartile range."}
+```{r, results="hide", fig.width = 7.2, fig.height = 9, warning = F, message = F, echo = F, fig.cap = "Figure S1: Individual median VAS ratings for Experiment 1 (A-C) and Experiment 2 (D-F) across stimulus manipulation, and spatial location. Proximal and distal locations are within dermatome, rostral and caudal locations are across dermatomes. All spatial locations refer to the location of the cold thermode, compared to the warm. Box plots show median and interquartile range. Data presented here include trials where VAS ratings equal 0, which are modelled seperately in the main analyses"}
 
 # supplementary first panel
 sPlot(include_zero = T)
