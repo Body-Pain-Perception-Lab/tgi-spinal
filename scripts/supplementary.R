@@ -200,7 +200,7 @@ sPlot = function(include_zero = T){
   #compile the two experiments
   s_plot_out = ggarrange(s_plot_1, s_plot_2,
                          nrow = 1, ncol = 2,
-                         widths = c(1,1.2))
+                         widths = c(1,1.4))
   
   s_plot_out
   
