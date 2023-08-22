@@ -214,6 +214,7 @@ prep_data = function(file, include_zero = T){
   return(list(all_vas = all_vas,
               init_burn = init_burn,
               vas_meds = vas_meds,
+              h2_sum = h2_sum,
               vas_h1_diff = vas_h1_diff,
               h1_diff_sum = h1_diff_sum,
               vas_h2_diff = vas_h2_diff,
