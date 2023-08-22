@@ -173,7 +173,7 @@ if(rerun){
   return(savings)
 }else{
   
-  load(here::here("Workspace","stats.RData"))
+  load(file.path("Workspace","stats.RData"))
   
   return(savings)
 }

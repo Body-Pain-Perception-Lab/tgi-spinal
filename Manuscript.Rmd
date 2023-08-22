@@ -126,26 +126,22 @@ pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gam
                flextable
                )
 
-source(here::here("scripts","utility.R"))
-source(here::here("scripts","plots.R"))
-source(here::here("scripts","supplementary.R"))
-  
-  
-#get models
-source(here::here("scripts","models.R"))
+# functions and data
+source(file.path("scripts","utility.R"))
+source(file.path("scripts","plots.R"))
+source(file.path("scripts","supplementary.R"))
+source(file.path("scripts","models.R"))
   
 stats = statistics(rerun = F)
 
 #save.image("~/tgi-spinal/Workspace/stats.RData")
 
 list2env(stats, envir=environment())
-  
-
 ```
 
 ```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 1: A and B) Placement and distance of thermodes on the inner forearm, showing corresponding spinal mapping for all four conditions. Within dermatomes, the relative location of the cold thermode was proximal or distal. Across dermatomes, the relative location of the corresponding spinal segments was rostral or caudal. Within dermatome conditions also included warm and cold thermodes in C6 (not depicted here), as well as T1. C) The three VAS participants used to report sensation coming from the reference probe, presented for each trial in a randomised order."}
 ggdraw() +
-    draw_image(magick::image_read(here::here("figures","figure1_v2.PNG")), scale = 1)
+    draw_image(magick::image_read(file.path("figures","figure1_v2.PNG")), scale = 1)
 ```
 
 ## Thermosensory and burning components of TGI perception are spinally mediated
@@ -323,7 +319,7 @@ The beta distribution is suitable for modelling VAS rating data, as they are pro
 Additionally, the zero-inflation was needed due to the presence of an excess number of zero values in specific ratings and conditions.
 Specifically, we anticipated an over-representation of zero values for thermosensory ratings that were counterfactual to the objective stimulation quality (i.e., cold ratings of warm stimuli and warm ratings of cold stimuli) and burning ratings of non-TGI stimuli.
 The latter stimuli were designed to not elicit an illusion or trigger a weaker illusion as compared to the TGI stimuli.
-We carried out the statistical analyses using the \'glmmTMB\' package in R (version `r sessionInfo()$otherPkgs$glmmTMB$Version`), and statistical significance was set at p \< .05.
+We carried out the statistical analyses using the 'glmmTMB' package in R (version `r sessionInfo()$otherPkgs$glmmTMB$Version`), and statistical significance was set at p \< .05.
 
 For data presentation purposes, the median VAS ratings for each sensory quality (cold, warm, burning) were calculated per simulation type (TGI, non-TGI), dermatome (within, across) and spatial location (proximo-distal, rostro-caudal) for each participant.
 For hypothesis one, these values were further averaged so there were only four values per participant, for each sensory quality (within and across dermatome ratings for TGI and non-TGI stimuli).
@@ -354,7 +350,8 @@ Author contributions listed alphabetically according to [CRediT taxonomy](https:
 
 # Acknowledgements
 
-We would like to thank XXX for their help with participant recruitment and data collection.
+We thank Małgorzata Basińska, Patrik Molnár, Sára A. Szabó for their help with participant recruitment and data collection.
+We also thank Michael Clements for the collection of pilot data that was instrumental in refining the experimental design.
 This study was supported by a European Research Council Starting Grant (ERC-2020-StG-948788).
 
 \newpage
@@ -368,12 +365,18 @@ This study was supported by a European Research Council Starting Grant (ERC-2020
 
 # Supplementary material
 
+Tables of main effects and interactions for each sensory quality (cold, warm, burning) for experiment 1 and experiment 2.
+
+## Cold ratings
+
 ```{r,warning = F, message = F, echo = F}
 get_main_tables(model_cold_exp1,round = 2, title = "Exp. 1: Cold reference on cold ratings") %>%
   width(j = 1, width = 2.5) %>%
   width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
+```
 
+```{r,warning = F, message = F, echo = F}
 get_main_tables(model_cold_exp2,round = 2, title = "Exp. 2: Warm reference on cold ratings") %>%
   width(j = 1, width = 2.5) %>%
   width(j = c(2,3,4,5), width = 1.1)%>%
@@ -382,13 +385,16 @@ get_main_tables(model_cold_exp2,round = 2, title = "Exp. 2: Warm reference on co
 
 \newpage
 
-```{r,warning = F, message = F, echo = F}
+## Warm ratings
 
+```{r,warning = F, message = F, echo = F}
 get_main_tables(model_warm_exp1,round = 2, title = "Exp.1: Cold reference on warm ratings") %>%
   width(j = 1, width = 2.5) %>%
   width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
+```
 
+```{r,warning = F, message = F, echo = F}
 get_main_tables(model_warm_exp2,round = 2, title = "Exp. 2: Warm reference on warm ratings") %>%
   width(j = 1, width = 2.5) %>%
   width(j = c(2,3,4,5), width = 1.1)%>%
@@ -397,13 +403,16 @@ get_main_tables(model_warm_exp2,round = 2, title = "Exp. 2: Warm reference on wa
 
 \newpage
 
-```{r,warning = F, message = F, echo = F}
+## Burning ratings
 
+```{r,warning = F, message = F, echo = F}
 get_main_tables(model_burn_exp1,round = 2, title = "Exp. 1: Cold reference on burning ratings") %>%
   width(j = 1, width = 2.5) %>%
   width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all")%>% flextable::font(fontname = "Times New Roman", part = "all")
+```
 
+```{r,warning = F, message = F, echo = F}
 get_main_tables(model_burn_exp2,round = 2, title = "Exp. 2: Warm reference on burning ratings") %>%
   width(j = 1, width = 2.5) %>%
   width(j = c(2,3,4,5), width = 1.1)%>%
@@ -411,13 +420,3 @@ get_main_tables(model_burn_exp2,round = 2, title = "Exp. 2: Warm reference on bu
 ```
 
 \newpage
-
-## Proximodistal bias in cold perception
-
-Experiment 1: warm ratings (stimulation by dermatome interaction: \$\\beta\$ = r stats_model_warm_exp1\$beta[8], r make_pvalue(stats_model_warm_exp1\$p[8]); dermatome main effect: $\beta$ = `r stats_model_warm_exp1$beta[4]`, `r make_pvalue(stats_model_warm_exp1$p[4])`) or burning ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp1$beta[8]`, `r make_pvalue(stats_model_burn_exp1$p[8])`; dermatome main effect: $\beta$ = `r stats_model_burn_exp1$beta[4]`, `r make_pvalue(stats_model_burn_exp1$p[4])`)
-
-Experiment 2: warm ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_warm_exp2$beta[8]`, `r make_pvalue(stats_model_warm_exp2$p[8])`); dermatome main effect: $\beta$ = `r stats_model_warm_exp2$beta[4]`, `r make_pvalue(stats_model_warm_exp2$p[4])`) or burning ratings (stimulation by dermatome interaction: $\beta$ = `r stats_model_burn_exp2$beta[8]`, `r make_pvalue(stats_model_burn_exp2$p[8])`); dermatome main effect: $\beta$ = `r stats_model_burn_exp2$beta[4]`, `r make_pvalue(stats_model_burn_exp2$p[4])`).
-
-## Directional effects in inter-segmental sensory integration
-
-Experiment 1: burn ratings (stimulation by rostrocaudal location: $\beta$ = `r stats_model_burn_exp1$beta[7]`, `r make_pvalue(stats_model_burn_exp1$p[7])`; rostrocaudal main effect ($\beta$ = `r stats_model_burn_exp1$beta[3]`, `r make_pvalue(stats_model_burn_exp1$p[3])`)
