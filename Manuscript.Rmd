@@ -2,19 +2,20 @@
 title: "Disentangling the spinal mechanisms of illusory heat and burning sensations in the Thermal Grill Illusion"
 author: Alexandra G. Mitchell^1^,
         Jesper Fischer Ehmsen^1^,
-        Daniel Elmstrom Christensen^1^,
+        Daniel Elmstrøm Christensen^1^,
         Anna Villaume Stuckert^2^,
         Patrick Haggard^3^,
         Francesca Fardo^1,4^
 output:
   word_document:
-      reference_docx: knitting files/test_markdown.docx
+      reference_docx: knitting_files/test_markdown.docx
   html_document:
-    css: knitting files/style.css
+    css: knitting_files/style.css
   pdf_document:
     latex_engine: xelatex
 indent: true
-bibliography: knitting files/tgi-spine2.bib
+bibliography: knitting_files/tgi-spine2.bib
+csl: knitting_files/nature.csl
 link-citations: yes
 linkcolor: blue
 serif: Times New Roman
