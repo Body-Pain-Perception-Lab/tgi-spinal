@@ -18,7 +18,10 @@ make_plot1 = function(vas_h1_diff,h1_diff_sum, title){
          y = 'Within - Across VAS Ratings', x = NULL) +
     theme_classic() +
     theme(legend.position = 'none',
-          axis.text = element_text(size = 10)) +
+          axis.text = element_text(size = 9),
+          axis.title = element_text(size = 11),
+          strip.text = element_text(size = 10),
+          title = element_text(size=10)) +
     coord_cartesian(ylim = c(-30,30))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
@@ -39,8 +42,7 @@ plot1 = function(include_zero = T){
   
   h1_diff_plot_exp1 = make_plot1(vas_h1_diff = vas_h1_diff_exp1,
                                  h1_diff_sum = h1_diff_sum_exp1,
-                                 title = "Reference: Cold Thermode") +
-                                 theme(title = element_text(size = 10))
+                                 title = "Reference: Cold Thermode") 
   
   
   # experiment 2 file
@@ -54,8 +56,7 @@ plot1 = function(include_zero = T){
                                  title = "Reference: Warm Thermode") +
                                  theme(axis.text.y=element_blank(),
                                        axis.ticks.y=element_blank(),
-                                       axis.title.y=element_blank(),
-                                       title = element_text(size = 10))
+                                       axis.title.y=element_blank())
   
   plot1 = h1_diff_plot_exp1+h1_diff_plot_exp2 +
           plot_annotation(tag_levels = list(c("A","B")))
@@ -93,7 +94,11 @@ make_plot2 = function(vas_h2_diff,h2_diff_sum,title){
          y = 'Proximal - Distal VAS Ratings', x = NULL) +
     facet_wrap(~quality) +
     theme_classic() +
-    theme(legend.position = 'none')+
+    theme(legend.position = 'none',
+          axis.text = element_text(size = 9),
+          axis.title = element_text(size = 11),
+          strip.text = element_text(size = 10),
+          title = element_text(size = 10))+
     coord_cartesian(ylim = c(-60,60))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
@@ -117,7 +122,11 @@ make_plot2 = function(vas_h2_diff,h2_diff_sum,title){
          y = 'Caudal - Rostral VAS Ratings', x = NULL) +
     facet_wrap(~quality) +
     theme_classic() +
-    theme(legend.position = 'none')+
+    theme(legend.position = 'none',
+          axis.text = element_text(size = 9),
+          axis.title = element_text(size = 11),
+          strip.text = element_text(size = 10),
+          title = element_text(size = 10))+
     coord_cartesian(ylim = c(-60,60))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
@@ -177,16 +186,14 @@ plot2_3 = function(include_zero = T){
     (experiment2_h2_warm[[2]]+
        theme(axis.text.y=element_blank(),
              axis.ticks.y=element_blank(),
-             axis.title.y=element_blank(),
-             title = element_text(size = 10)))+
+             axis.title.y=element_blank()))+
     plot_annotation(tag_levels = list("A","B"))
   
   plot3 = experiment1_h2[[3]]+
     (experiment2_h2_warm[[3]]+
        theme(axis.text.y=element_blank(),
              axis.ticks.y=element_blank(),
-             axis.title.y=element_blank(),
-             title = element_text(size = 10)))+
+             axis.title.y=element_blank()))+
     plot_annotation(tag_levels = list("A","B"))
   
   # save plots
