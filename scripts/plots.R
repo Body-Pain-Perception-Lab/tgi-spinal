@@ -1,4 +1,4 @@
-
+# plots for hypothesis 1
 make_plot1 = function(vas_h1_diff,h1_diff_sum, title){
   
   # now plot the difference
@@ -17,7 +17,8 @@ make_plot1 = function(vas_h1_diff,h1_diff_sum, title){
     labs(title = paste0(title),
          y = 'Within - Across VAS Ratings', x = NULL) +
     theme_classic() +
-    theme(legend.position = 'none')+
+    theme(legend.position = 'none',
+          axis.text = element_text(size = 10)) +
     coord_cartesian(ylim = c(-30,30))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
@@ -60,9 +61,15 @@ plot1 = function(include_zero = T){
           plot_annotation(tag_levels = list(c("A","B")))
   
   plot1
+  
+  # save plot
+  ggsave(file.path("figures", "Figure2.tiff"), plot = plot1, device = NULL, 
+         width = 7.2, height = 5, dpi = 600)
+  
   return(plot1)
 }
 
+# plots for hypothesis 2
 make_plot2 = function(vas_h2_diff,h2_diff_sum,title){
   
   
@@ -182,7 +189,13 @@ plot2_3 = function(include_zero = T){
              title = element_text(size = 10)))+
     plot_annotation(tag_levels = list("A","B"))
   
+  # save plots
+  ggsave(file.path("figures", "Figure3.tiff"), plot = plot2, device = NULL, 
+         width = 7.2, height = 5, dpi = 600)
+  ggsave(file.path("figures", "Figure4.tiff"), plot = plot3, device = NULL, 
+         width = 7.2, height = 5, dpi = 600)
   
   return(list(plot2,plot3))
+
 }
 

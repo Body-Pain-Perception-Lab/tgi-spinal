@@ -326,8 +326,11 @@ For data presentation purposes, the median VAS ratings for each sensory quality 
 For hypothesis one, these values were further averaged so there were only four values per participant, for each sensory quality (within and across dermatome ratings for TGI and non-TGI stimuli).
 For analysis of burning VAS ratings, only those participants who were deemed as TGI responders (n = 32 for Exp. 1 and n = 37 for Exp. 2) were included.
 
+## Data availability
+
 The experimental procedure, power analyses to determine sample size and statistical approach were preregistered for both [experiment 1](https://osf.io/4xcn5/) and [experiment 2](https://osf.io/dhg8u/).
-All data and code for the analysis are available in the [github repository](https://github.com/Body-Pain-Perception-Lab/tgi-spinal/tree/Markdown-manuscript), ensuring the reproducibility of our findings.
+
+All raw data and code for the analysis are available in the [github repository](https://github.com/Body-Pain-Perception-Lab/tgi-spinal/tree/Markdown-manuscript). This, and a wiki guide to analysing the data, can be accessed through the project's [OSF page](https://osf.io/uyrtq/).
 
 \newpage
 
