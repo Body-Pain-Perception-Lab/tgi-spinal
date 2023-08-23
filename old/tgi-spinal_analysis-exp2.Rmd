@@ -1,9 +1,11 @@
 ---
 title: "TGI Spinal Analysis Code Experiment 2"
 author: "A.G. Mitchell"
-date: "2023-04-14"
+date: "2022-12-02"
 output: html_document
 ---
+
+DATA ANALYSIS SCRIPT FOR TGI-SPINE EXPERIMENT 2
 
 ```{r setup, include=FALSE, message = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -17,10 +19,17 @@ if (!require("pacman")) install.packages("pacman")
                  )
 ```
 
+# Load in data
 ```{r paths}
-# paths
-datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/exp2/Raw/'
-anaPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/exp2/Analysis/'
+# experiment 1 file
+dat_file <- file.path("data", 'STGI_exp2_compiled-data.csv')
+# load all data file
+if (file.exists(dat_file)){
+  df_res <- read.csv(dat_file)
+  } else {
+    print('Data file does not exist, check data is in current directory. 
+          If not, run tgi-compiler.Rmd')
+  }
 ```
 
 # Responder check
@@ -74,12 +83,17 @@ df_long2 <- df_res %>%
   pivot_longer(cols = c(RTinit, RTburn, RTwarm, RTcold),
                names_to = 'quality',
                values_to = 'RT')
+
 # remove the VAS & RT from quality column
 df_long$quality <- substr(df_long$quality, 4, 7)
 df_long2$quality <- substr(df_long2$quality, 3, 6)
+
 # remove columns from both then merge
-df_long <- df_long[, c(1:12,17:19)]
-df_long2 <- df_long2[, c(1:12,17:19)]
+df_long <- df_long %>% 
+  select(-c(coolTemp, warmTemp, Order, Manipulation.first))
+df_long2 <- df_long2 %>% 
+  select(-c(coolTemp, warmTemp, Order, Manipulation.first))
+
 df_long <- merge(df_long, df_long2)
 
 # then remove NaNs
@@ -133,7 +147,7 @@ ggplot(h1_sum, aes(colour = quality, group = manipulation, alpha = manipulation)
   facet_wrap(~quality) +
   scale_colour_manual(values = c(blue[5], oran[5], purp[5])) +
   scale_alpha_discrete(range = c(0.6, 1)) +
-  ylim(0,70) +
+  ylim(0,50) +
   theme_bw() 
 ```
 
@@ -170,8 +184,9 @@ ggplot(data = vas_h1_diff, aes(colour = quality)) +
   theme(legend.position = 'none') -> h1_diff_plot
 
 h1_diff_plot
-ggsave('h1_difference.png', h1_diff_plot, path = anaPath, device = NULL, 
-       width = 7, height = 4.5, dpi = 1000)
+
+ggsave(here::here("figures", "E2_H1_difference.png"), plot = h1_diff_plot, 
+       device = NULL, width = 9, height = 5, dpi = 600)
 ```
 
 Hypothesis 2 a & b: relative location of warm and cold
@@ -198,7 +213,6 @@ nudge2 = .1
 ```
 
 # All dat plot
-
 ```{r}
 # plot all data
 # COLD
@@ -398,8 +412,8 @@ h2_plot <- ggarrange(h2_cold_plot, h2_warm_plot, h2_burn_plot,
                      nrow = 2, ncol = 2)
 h2_plot
 
-ggsave('h2_alldat_plot.png', h2_plot, device = NULL, path = anaPath,
-       width = 10, height = 7, dpi = 600)
+ggsave(here::here("figures", "E2_H2_allDat.png"), plot = h2_plot, 
+       device = NULL, width = 9, height = 5, dpi = 600)
 ```
 
 # Differences
@@ -472,8 +486,8 @@ h2diff_plot <- ggarrange(h2_diff_within, h2_diff_across,
                      nrow = 2, ncol = 1)
 h2diff_plot
 
-ggsave('h2_diff_plot.png', h2diff_plot, device = NULL, path = anaPath,
-       width = 6, height = 9, dpi = 600)
+ggsave(here::here("figures", "E2_H2_difference.png"), plot = h2diff_plot, 
+       device = NULL, width = 9, height = 5, dpi = 600)
 ```
 
 # Plot 32 burn responders seperately
@@ -510,6 +524,8 @@ df_long$beta <- df_long$beta/100
 # transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
 #df_long$VAS <- df_long$VAS/100
 df_long$ID <- factor(df_long$ID)
+
+df_long_exp2 = df_long
 ```
 
 Running models as pre-registered: 
@@ -520,7 +536,7 @@ model.cold = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + tria
                                 (1|ID) + (1|order),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df_long %>% filter(quality == 'cold'),
+                      data = df_long_exp2 %>% filter(quality == 'cold'),
                       na.action = na.omit) 
 mc <- summary(model.cold)
 mc
@@ -528,6 +544,7 @@ mc
 Anova(model.cold)
 # get Rsq with the mumin package
 ```
+
 # Marginal effect plots of full model - cold
 ```{r}
 cold_eff <- ggeffects::ggpredict(model.cold, terms = c('cold_cond', 'manipulation', 'condition'),
@@ -596,13 +613,15 @@ model.warm = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond +
                                 trial_n + (1|ID) + (1|order),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df_long %>% filter(quality == 'warm'),
+                      data = df_long_exp2 %>% filter(quality == 'warm'),
                       na.action = na.omit) 
 mw <- summary(model.warm)
 mw
 
 Anova(model.warm)
+# save results
 ```
+
 # Marginal effect plots of full model - warm
 ```{r}
 warm_eff <- ggeffects::ggpredict(model.warm, terms = c('cold_cond', 'manipulation', 'condition'),
@@ -668,17 +687,17 @@ The burning hypothesis is only for participants that experience burning TGI
 (aka are responders)
 ```{r burnmod}
 # First, remove non-responders
-df_resp <- df_long %>% 
+df_resp_exp2 <- df_long_exp2 %>% 
   filter(responder == 1)
 # check n
-n <- count(df_resp, 'ID')
+n <- count(df_resp_exp2, 'ID')
 length(n$ID)
 # Try and model all with ratings
 model.burn = glmmTMB::glmmTMB(beta ~ manipulation * condition * cold_cond + 
                                 trial_n + (1|ID) + (1|order),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = df_resp %>% filter(quality == 'burn'),
+                      data = df_resp_exp2 %>% filter(quality == 'burn'),
                       na.action = na.omit) 
 mb <- summary(model.burn)
 mb
@@ -786,7 +805,7 @@ ggplot(cold_zeff, aes(x, predicted, colour = x)) +
   geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
                 width = .05, size = .8) +
   labs(y = 'Predicted proportion of zeros', x = NULL) +
-  ylim(.20,.60) +
+  ylim(0,.25) +
   scale_colour_manual(values = c(blue[4], blue[7])) +
   theme_classic() + 
   theme(legend.position = 'none',
@@ -799,7 +818,7 @@ ggplot(warm_zeff, aes(x, predicted, colour = x)) +
   geom_errorbar(aes(x, ymin = conf.low, ymax = conf.high),
                 width = .05, size = .8) +
   labs(y = 'Predicted proportion of zeros', x = NULL) +
-  ylim(0,.25) +
+  ylim(.45,.7) +
   scale_colour_manual(values = c(oran[4], oran[7])) +
   theme_classic() + 
   theme(legend.position = 'none',
@@ -854,9 +873,10 @@ plot_eff <- ggarrange(plot_cold_eff, plot_warm_eff, plot_burn_eff,
                       ncol = 1, nrow = 3)
 plot_eff
 
-ggsave('h2_effects_plot.png', plot_eff, device = NULL, path = anaPath,
-       width = 9, height = 8, dpi = 600)
+ggsave(here::here("figures", "E2_marginalEffects.png"), plot = plot_eff, 
+       device = NULL, width = 9, height = 5, dpi = 600)
 ```
+
 # Run model checks on all
 ```{r checks, warning=FALSE}
 # cold assumption - on n = 50
@@ -869,6 +889,7 @@ plot(mw.assump)
 mb.assump <- simulateResiduals(model.burn, n = 1000)
 plot(mb.assump)
 ```
+
 # EXPLORATORY HYPOTHESES
 # Correlation between quality (cold/warm/burn)
 
@@ -897,11 +918,11 @@ ggplot(df_means, aes(colour = quality)) +
   theme_bw()
 
 # correlate
-qual_cor <- hetcor(df_corr, type = 'pearson')
+qual_cor <- hetcor(df_corr, type = 'spearman')
 cormat <- qual_cor$correlations
 
 # significance values
-p <- cor.mtest(df_corr, type ='pearson')$p
+p <- cor.mtest(df_corr, type ='spearman')$p
 
 # correlation matrix
 # plotting correlations between variables
@@ -920,30 +941,33 @@ ggplot(df_corr, aes(x = CNTcold, y =CNTwarm)) +
   geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
   geom_text(aes(label = paste0("R = ",
                                round(cormat[1,3], 2))),
-            x=8, y=90, size = 5) +
+            x=78, y=91, size = 5) +
   labs(x = 'Cold Ratings', y = 'Warm Ratings') +
-  xlim(0,100) + ylim(-15,100) +
-  theme_bw() -> CNT_cw_plot
+  xlim(0,100) + ylim(-10,100) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 12)) -> CNT_cw_plot
 
 ggplot(df_corr, aes(x = CNTcold, y = CNTburn)) +
   geom_smooth(method='lm', colour = 'black', alpha = .5) +
   geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
   geom_text(aes(label = paste0("R = ",
                                round(cormat[1,5], 2))),
-            x=8, y=90, size = 5) +
+            x=78, y=91, size = 5) +
   labs(x = 'Cold Ratings', y = 'Burn Ratings') +
-  xlim(0,100) + ylim(-15,100) +
-  theme_bw() -> CNT_cb_plot
+  xlim(0,100) + ylim(-10,100) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 12)) -> CNT_cb_plot
 
 ggplot(df_corr, aes(x = CNTwarm, y = CNTburn)) +
   geom_smooth(method='lm', colour = 'black', alpha = .5) +
   geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
   geom_text(aes(label = paste0("R = ",
                                round(cormat[3,5], 2))),
-            x=8, y=90, size = 5) +
+            x=78, y=91, size = 5) +
   labs(x = 'Warm Ratings', y = 'Burn Ratings') +
-  xlim(0,100) + ylim(-15,100) +
-  theme_bw() -> CNT_wb_plot
+  xlim(0,100) + ylim(-10,100) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 12)) -> CNT_wb_plot
 
 # combine non TGI
 CNT_corr_plot <- ggarrange(CNT_cw_plot, CNT_cb_plot, CNT_wb_plot,
@@ -951,7 +975,7 @@ CNT_corr_plot <- ggarrange(CNT_cw_plot, CNT_cb_plot, CNT_wb_plot,
                            labels = c('A','B','C'))
 CNT_corr_plot <- annotate_figure(CNT_corr_plot, 
                                  top = text_grob("Non-TGI", 
-                                                 size = 12))
+                                                 size = 14))
 
 
 # TGI plots
@@ -960,30 +984,33 @@ ggplot(df_corr, aes(x = TGIcold, y = TGIwarm)) +
   geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
   geom_text(aes(label = paste0("R = ",
                                round(cormat[2,4], 2))),
-            x=8, y=90, size = 5) +
+            x=78, y=91, size = 5) +
   labs(x = 'Cold Ratings', y = 'Warm Ratings') +
-  xlim(0,100) + ylim(-15,100) +
-  theme_bw() -> TGI_cw_plot
+  xlim(0,100) + ylim(-10,100) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 12)) -> TGI_cw_plot
 
 ggplot(df_corr, aes(x = TGIcold, y = TGIburn)) +
   geom_smooth(method='lm', colour = 'black', alpha = .5) +
   geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
   geom_text(aes(label = paste0("R = ",
                                round(cormat[2,6], 2))),
-            x=8, y=90, size = 5) +
+            x=78, y=91, size = 5) +
   labs(x = 'Cold Ratings', y = 'Burn Ratings') +
-  xlim(0,100) + ylim(-15,100) +
-  theme_bw() -> TGI_cb_plot
+  xlim(0,100) + ylim(-10,100) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 12)) -> TGI_cb_plot
 
 ggplot(df_corr, aes(x = TGIwarm, y = TGIburn)) +
   geom_smooth(method='lm', colour = 'black', alpha = .5) +
   geom_point(size = 1.5, shape = 21, colour = 'grey10', fill = 'grey60') +
   geom_text(aes(label = paste0("R = ",
                                round(cormat[4,6], 2))),
-            x=8, y=90, size = 5) +
+            x=78, y=91, size = 5) +
   labs(x = 'Warm Ratings', y = 'Burn Ratings') +
-  xlim(0,100) + ylim(-15,100) +
-  theme_bw() -> TGI_wb_plot
+  xlim(0,100) + ylim(-10,100) +
+  theme_bw() +
+  theme(axis.title = element_text(size = 12)) -> TGI_wb_plot
 
 # combine TGI
 TGI_corr_plot <- ggarrange(TGI_cw_plot, TGI_cb_plot, TGI_wb_plot,
@@ -991,15 +1018,15 @@ TGI_corr_plot <- ggarrange(TGI_cw_plot, TGI_cb_plot, TGI_wb_plot,
                            labels = c('D','E','F'))
 TGI_corr_plot <- annotate_figure(TGI_corr_plot, 
                                  top = text_grob("TGI", 
-                                                 size = 12))
+                                                 size = 14))
 
 # put two together
 corr_plot <- ggarrange(CNT_corr_plot, TGI_corr_plot,
                        nrow = 2, ncol = 1)
 corr_plot
 
-ggsave('stgi_correlations.png', corr_plot, device = NULL, path = anaPath, 
-       width = 14, height = 9, dpi = 1000)
+ggsave(here::here("figures", "E2_correlations.png"), plot = corr_plot, 
+       device = NULL, width = 9, height = 5, dpi = 600)
 ```
 
 # Initial burn
@@ -1025,9 +1052,9 @@ Directly compare proximal-distal and rostral-caudal results for each quality
 # Cold - within and across
 ```{r cold_indiv}
 # seperate data-frames
-within <- df_long %>% 
+within_exp2 <- df_long_exp2 %>% 
   filter(condition == 'within')
-across <-  df_long %>% 
+across_exp2 <-  df_long_exp2 %>% 
   filter(condition == 'across')
 
 # within
@@ -1035,7 +1062,7 @@ model.wcold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = within %>% filter(quality == 'cold'),
+                      data = within_exp2 %>% filter(quality == 'cold'),
                       na.action = na.omit) 
 mwc <- summary(model.wcold)
 mwc
@@ -1045,7 +1072,7 @@ model.acold = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = across %>% filter(quality == 'cold'),
+                      data = across_exp2 %>% filter(quality == 'cold'),
                       na.action = na.omit) 
 mac <- summary(model.acold)
 mac
@@ -1058,7 +1085,7 @@ model.wwarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = within %>% filter(quality == 'warm'),
+                      data = within_exp2 %>% filter(quality == 'warm'),
                       na.action = na.omit) 
 mww <- summary(model.wwarm)
 mww
@@ -1068,7 +1095,7 @@ model.awarm = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = across %>% filter(quality == 'warm'),
+                      data = across_exp2 %>% filter(quality == 'warm'),
                       na.action = na.omit) 
 maw <- summary(model.awarm)
 maw
@@ -1077,9 +1104,9 @@ maw
 # Burn - within and across
 ```{r burn_indiv}
 # isolate responders only
-within <- df_long %>% 
+within_exp2 <- df_long_exp2 %>% 
   filter(condition == 'within' & responder == 1)
-across <-  df_long %>% 
+across_exp2 <-  df_long_exp2 %>% 
   filter(condition == 'across' & responder == 1)
 
 # within
@@ -1087,7 +1114,7 @@ model.wburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = within %>% filter(quality == 'burn'),
+                      data = within_exp2 %>% filter(quality == 'burn'),
                       na.action = na.omit) 
 mwb <- summary(model.wburn)
 mwb
@@ -1097,7 +1124,7 @@ model.aburn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + procedure + tr
                                 (1|ID),
                       family = glmmTMB::beta_family(),
                       ziformula = ~1+manipulation,
-                      data = across %>% filter(quality == 'burn'),
+                      data = across_exp2 %>% filter(quality == 'burn'),
                       na.action = na.omit) 
 mab <- summary(model.aburn)
 mab

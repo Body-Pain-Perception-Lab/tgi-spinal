@@ -1,0 +1,175 @@
+---
+title: "tester"
+output: html_document
+date: "2023-07-13"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+
+```{r, fig.width=10, fig.height=5}
+experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'))
+experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'))
+
+df_long_exp1 = experiment1$df_long
+df_long_exp2 = experiment2$df_long
+
+
+######### Exp 1 (Hypothesis 1)
+df_long_exp1 = df_long_exp1 %>% mutate(cold_probe = as.factor(cold_probe), manipulation = as.factor(manipulation))
+
+
+##constats:
+
+levels(df_long_exp1$cold_probe)
+#within - across
+within_across = c(-1/2,1/2,1/2,-1/2)
+caudal_rostral = c(1,0,0,-1)
+distal_proximal = c(0,1,-1,0)
+
+cold = rbind(1/4,within_across,caudal_rostral,distal_proximal)
+
+cold = solve(cold)
+
+cold = cold[,-1]
+
+
+model_cold_exp1 = glmmTMB::glmmTMB(beta ~ cold_probe *manipulation+trial_n+(1|ID) + (1|order),
+                            family = glmmTMB::beta_family(),
+                            ziformula = ~1+manipulation,
+                            data = df_long_exp1 %>% filter(quality == 'cold'),
+                            na.action = na.omit,
+                            contrasts=list(cold_probe = cold))
+
+
+model_cold_exp = glmmTMB::glmmTMB(beta ~ cold_probe *manipulation+trial_n+(1|ID) + (1|order),
+                            family = glmmTMB::beta_family(),
+                            ziformula = ~1+manipulation,
+                            data = df_long_exp1 %>% filter(quality == 'cold'),
+                            na.action = na.omit,contrasts=list(cold_probe = cold))
+
+
+
+mm = glmmTMB::glmmTMB(beta ~ cold_probe *manipulation+trial_n+(1|ID) + (1|order),
+                            family = glmmTMB::beta_family(),
+                            ziformula = ~1+manipulation,
+                            data = df_long_exp1 %>% filter(quality == 'cold') %>% mutate(cold_probe = relevel(cold_probe, ref = "rostral")),
+                            na.action = na.omit)
+
+summary(mm)
+
+model_cold = glmmTMB::glmmTMB(beta ~ manipulation * condition + trial_n +
+                              (1|ID) + (1|order),
+                            family = glmmTMB::beta_family(),
+                            ziformula = ~1+manipulation,
+                            data = df_long_exp1 %>% filter(quality == 'cold'),
+                            na.action = na.omit) 
+
+
+
+summary(model_cold)
+summary(model_cold_exp1)
+summary(model_cold_exp)
+
+
+summary(model_cold_exp1)
+lsmeans(model_cold_exp1, c("manipulation","cold_probe"))
+
+summary(model_cold)
+lsmeans(model_cold, c("manipulation","condition"))
+  
+
+
+model_warm = glmmTMB::glmmTMB(beta ~ manipulation * condition + trial_n +
+                              (1|ID) + (1|order),
+                            family = glmmTMB::beta_family(),
+                            ziformula = ~1+manipulation,
+                            data = df_long_exp1 %>% filter(quality == 'warm'),
+                            na.action = na.omit) 
+
+
+
+plot(ggeffect(model_cold, terms = c("condition","manipulation")))
+
+
+plot(ggeffect(model_warm, terms = c("condition","manipulation")))
+
+
+
+meaneffects = df_long_exp1 %>% filter(quality == 'warm', beta != 0) %>% group_by(manipulation,condition) %>% summarize(mean = mean(beta), se = sd(beta)/sqrt(n()))
+
+
+plot2 = df_long_exp1 %>% filter(quality == 'warm', beta != 0) %>% group_by(ID, manipulation,condition) %>% summarize(mean = mean(beta)) %>% ggplot(aes(x = manipulation, y = mean, col = condition))+geom_point(position = position_dodge(width = 0.3))+
+  geom_pointrange(data = meaneffects, aes(x = manipulation, col = condition, y = mean, ymin = mean-2*se, ymax = mean+2*se), size = 0.5, linewidth = 1.5,position = position_dodge(width = 0.5))+theme_classic()+
+  geom_line(
+    data = meaneffects,
+    aes(x = manipulation, y = mean, group = condition, col = condition),
+    position = position_dodge(width = 0.5),
+    size = 1.2)+ggtitle("Without 0")
+
+
+meaneffects2 = df_long_exp1 %>% filter(quality == 'warm') %>% group_by(manipulation,condition) %>% summarize(mean = mean(beta), se = sd(beta)/sqrt(n()))
+
+
+plot1 = df_long_exp1 %>% filter(quality == 'warm') %>% group_by(ID, manipulation,condition) %>% summarize(mean = mean(beta)) %>% ggplot(aes(x = manipulation, y = mean, col = condition))+geom_point(position = position_dodge(width = 0.3))+
+  geom_pointrange(data = meaneffects2, aes(x = manipulation, col = condition, y = mean, ymin = mean-2*se, ymax = mean+2*se), size = 0.5, linewidth = 1.5,position = position_dodge(width = 0.5))+theme_classic()+
+  geom_line(
+    data = meaneffects2,
+    aes(x = manipulation, y = mean, group = condition, col = condition),
+    position = position_dodge(width = 0.5),
+    size = 1.2)+ggtitle("With 0")
+
+
+plot1+plot2
+
+
+
+model_burn = glmmTMB::glmmTMB(beta ~ manipulation * cold_probe + trial_n +
+                              (1|ID) + (1|order),
+                            family = glmmTMB::beta_family(),
+                            ziformula = ~1+manipulation,
+                            data = df_long_exp1 %>% filter(quality == 'burn'),
+                            na.action = na.omit) 
+
+
+plot(ggeffect(model_burn, terms = c("manipulation")))
+
+
+quality = "burn"
+
+
+meaneffects = df_long_exp1 %>% filter(quality == 'burn', beta != 0) %>% group_by(manipulation,cold_probe) %>% summarize(mean = mean(beta), se = sd(beta)/sqrt(n()))
+
+
+plot2 = df_long_exp1 %>% filter(quality == 'burn', beta != 0) %>% group_by(ID, manipulation,cold_probe) %>% summarize(mean = mean(beta)) %>% ggplot(aes(x = manipulation, y = mean, col = cold_probe))+geom_point(position = position_dodge(width = 0.3))+
+  geom_pointrange(data = meaneffects, aes(x = manipulation, col = cold_probe, y = mean, ymin = mean-2*se, ymax = mean+2*se), size = 0.5, linewidth = 1.5,position = position_dodge(width = 0.5))+theme_classic()+
+  geom_line(
+    data = meaneffects,
+    aes(x = manipulation, y = mean, group = cold_probe, col = cold_probe),
+    position = position_dodge(width = 0.5),
+    size = 1.2)+ggtitle("Without 0")
+
+
+meaneffects2 = df_long_exp1 %>% filter(quality == 'burn') %>% group_by(manipulation,cold_probe) %>% summarize(mean = mean(beta, na.rm = T), se = sd(beta, na.rm =T)/sqrt(n()))
+
+
+plot1 = df_long_exp1 %>% filter(quality == 'burn') %>% group_by(ID, manipulation,cold_probe) %>% summarize(mean = mean(beta)) %>% ggplot(aes(x = manipulation, y = mean, col = cold_probe))+geom_point(position = position_dodge(width = 0.3))+
+  geom_pointrange(data = meaneffects2, aes(x = manipulation, col = cold_probe, y = mean, ymin = mean-2*se, ymax = mean+2*se), size = 0.5, linewidth = 1.5,position = position_dodge(width = 0.5))+theme_classic()+
+  geom_line(
+    data = meaneffects2,
+    aes(x = manipulation, y = mean, group = cold_probe, col = cold_probe),
+    position = position_dodge(width = 0.5),
+    size = 1.2)+ggtitle("With 0")
+
+
+plot1+plot2
+```
+
+
+
+

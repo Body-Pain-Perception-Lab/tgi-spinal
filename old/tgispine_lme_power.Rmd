@@ -1,0 +1,178 @@
+---
+title: "TGI-spinal-power"
+author: "A.G. Mitchell"
+date: '2022-04-28'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#library(lme4)
+library(simr)
+library(broom)
+library(brms)
+library(modelsummary)
+library(tibble)
+library(DHARMa)
+library(glmmTMB)
+library(reshape2)
+library(tidyverse)
+library(plyr)
+
+set.seed(1234)  # Make everything reproducible
+
+# Define the goodness-of-fit stats to include in modelsummary()
+gof_stuff <- tribble(
+  ~raw, ~clean, ~fmt,
+  "nobs", "N", 0,
+  "r.squared", "R²", 3
+)
+
+# setting working directory
+datPath <- '/Users/au706616/Documents/Experiments/SPINALTGI/Raw/'
+knitr::opts_knit$set(root.dir = datPath)
+```
+
+# Getting data and reformatting to fit model
+```{r}
+# import compiled data
+df <- read.csv('STGI_compiled-data.csv')
+
+# need to recode levels for cold_probe to reduce number of levels from 4 to 2
+df$cold_location[df$cold_probe == 'distal'] <- 'dist_rostr' 
+df$cold_location[df$cold_probe == 'rostral'] <- 'dist_rostr'
+df$cold_location[df$cold_probe == 'proximal'] <- 'prox_caud'
+df$cold_location[df$cold_probe == 'caudal'] <- 'prox_caud'
+df$cold_location <- as.factor(df$cold_location)
+
+# reshape data so that there is one rating column per participant, with a VAS column = type of rating
+df_VAS <- melt(df, measure.vars= c("VAScold", "VASwarm","VASburn"), 
+                        id.vars=c("ID","trial_n","manipulation","order",
+                                  "trial_type","arm","condition","cold_location"),
+             variable.name = 'VAS', value.name = 'rating')
+# rename the VAS ratings
+df_VAS <- df_VAS %>% 
+  mutate(VAS = revalue(VAS, c("VAScold" = "cold",
+                                    "VASwarm" = "warm",
+                                    "VASburn" = "burn")))
+
+# to run zero inflated regressions need to make sure no values = 100, as cannot model them, so simply minus a very small fraction from those values
+df_VAS$beta <- ifelse(df_VAS$rating==100, df_VAS$beta-0.0001, df_VAS$beta <- df_VAS$rating)
+
+# transform variables into proportions (aka divide by 100), this makes the effect size estimates more logical
+df_VAS$beta <- df_VAS$beta/100
+df_VAS$ID <- factor(df_VAS$ID)
+
+# Summarise data per rating, per participant
+df_sum <- aggregate(rating~ID*manipulation*condition*cold_location*order*VAS, 
+                    median, data = df_VAS)
+```
+
+# Plotting data distributions to see what kind of model family is required
+```{r}
+ggplot(data = df_VAS) +
+  geom_density(aes(beta, fill = manipulation), alpha = .5) +
+  facet_wrap(~VAS) +
+  theme_classic()
+```
+
+# Now to model effects! Try a zero inflated regression model
+```{r}
+# First model cold VAS
+model.cold = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation,
+                      data = df_VAS[df_VAS$VAS == 'cold' ,],
+                      na.action = na.omit) 
+# then model warm VAS
+model.warm = glmmTMB::glmmTMB(beta ~ manipulation + condition + cold_location + trial_n +
+                                (1|ID),
+                      family = glmmTMB::beta_family(),
+                      ziformula = ~1+manipulation)
+# model summaries
+summary(model.cold)
+summary(model.warm)
+```
+# Look at model assumptions
+```{r}
+# cold assumption
+model.cold.assmup <- simulateResiduals(model.cold, n = 1000)
+plot(model.cold.assmup)
+```
+
+```{r}
+# warm assumption
+model.warm.assump <- simulateResiduals(model.warm, n = 1000)
+plot(model.warm.assump)
+```
+
+Cold model power analysis
+# Run power analyses!!
+# Cold first, then warm
+# Create a model with more data points per variable, to extract more power
+```{r}
+# First, let's try to add 30 observations per variable combination, which would mean N = 30
+model.cold.ex <- extend(model.cold, within = 'manipulation+condition+cold_location', n=30)
+summary(model.cold.ex)
+# check that number of data points per variable does = 30
+dat_model <- xtabs(~ manipulation + condition + cold_location, data=getData(model.cold.ex))
+print(dat_model)
+
+# Extract coefficients (effect sizes) of interest from pilot data model
+modelc.coefs <- model.cold.ex %>% summary() %>% 
+  coef()
+
+# extract relevant effect sizes
+tgi_effect <- fixef(model.cold.ex)[['cond']][['manipulationTGI']]
+cond_effect <- fixef(model.cold.ex)[['cond']][['conditionwithin']]
+cold_loc_effect <- fixef(model.cold.ex)[['cond']][['cold_locationprox_caud']]
+
+# power analysis - using smallest effect size
+(model.cold.ex)[['cond']][['cold_locationprox_caud']] <- cold_loc_effect
+pwr.cold <- powerSim(model.cold.ex)
+print(pwr.cold)
+
+# power curve
+# can run a power curve to determine the point of trade off between N observations and power
+pc.cold <- powerCurve(model.cold.ex, within='manipulation+condition+cold_location', 
+                      breaks= seq(1, 30, by = 3))
+print(pc.cold)
+```
+
+# Plot power curve!
+```{r}
+plot(pc.cold) # a good visualisation :)
+```
+
+Now let's do the same for warm!
+# Warm model
+```{r}
+model.warm <- lmerTest::lmer(rating ~ manipulation + condition + cold_location +
+                     (1|ID),
+                   data = df_sum[df_sum$VAS == 'warm' ,])
+summary(model.warm)
+```
+
+# Extend the model observations to n = 50, and extract smallest effect size of interest
+```{r}
+# using n050 here as expecting smaller effect sizes
+model.warmN <- extend(model.warm, within = 'manipulation+condition+cold_location', n=50)
+# extracting effect sizes from the extended model
+tgi_effect <- fixef(model.warmN)["manipulationTGI"]
+cond_effect <- fixef(model.warmN)["conditionwithin"]
+cold_loc_effect <- fixef(model.warmN)["cold_locationprox_caud"]
+# add smallest effect size - same as cold model
+fixef(model.coldN)["cold_locationprox_caud"] <- cold_loc_effect
+
+# then run power analysis
+pwr.warm <- powerSim(model.warmN)
+print(pwr.warm)
+```
+# Run a power curve on these data with n = 50
+```{r}
+# can run a power curve to determine the point of trade off between N observations and power
+pc.warm <- powerCurve(model.warmN, within='manipulation+condition+cold_location', 
+                      breaks= seq(1, 50, by = 5))
+print(pc.warm)
+```

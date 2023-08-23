@@ -1,0 +1,133 @@
+---
+title: "testing"
+author: "jesper fischer ehmsen"
+date: "2023-07-26"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+<style type="text/css">
+  body{
+  font-size: 14pt;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_load(boot, broom, broom.mixed, brms, car, caret, corrplot, DHARMa, gamlss,
+               ggeffects, gghalves, ggpol, ggpubr, glmmTMB, groupdata2, lme4, lmerTest, 
+               modelsummary, MuMIn, polycor, RColorBrewer, rcompanion, reshape2, Rmisc,
+               rsample, rstatix, simr, tibble, tidyverse, wesanderson, patchwork, cowplot,
+               sjPlot
+               )
+
+source(here::here("scripts","utility.R"))
+source(here::here("scripts","plots.R"))
+source(here::here("scripts","models.R"))
+```
+
+
+Loading the data and defining the contrast:
+
+```{r, warning=FALSE, results='hide'}
+experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'))
+
+df_long_exp2 = experiment2$df_long %>% 
+  mutate(cold_probe = as.factor(cold_probe), manipulation = as.factor(manipulation))
+## Define constrats such that we both get within / across (i.e. distal & proximal vs rostral & caudual)
+levels(df_long_exp2$cold_probe)
+# "caudal"   "distal"   "proximal" "rostral" 
+
+#within - across
+within_across = c(-1/2,1/2,1/2,-1/2)
+#caudal - rostral
+caudal_rostral = c(1,0,0,-1)
+#distral - proximal
+proximal_distal = c(0,-1,1,0)
+
+#define the matrix
+cold = rbind(1/4,within_across,caudal_rostral,proximal_distal)
+
+#solve it 
+cold = solve(cold)
+```
+
+looking at just one subject and modeling it with a normal linear regression. 
+
+
+First my way:
+
+```{r, warning=FALSE}
+df_long_exp1_cold = df_long_exp2 %>% filter(quality == 'cold') %>% filter(ID == 45)
+
+model_cold_exp = lm(beta ~ manipulation * cold_probe,
+                              data = df_long_exp1_cold,
+                              na.action = na.omit,
+                              contrasts=list(cold_probe = cold) 
+                              ) 
+tab_model(model_cold_exp, digits = 4)
+```
+<br>
+<br>
+
+The interaction between TGI and Within / across is here $\beta$ = 0.0592 p = 0.180
+
+Then the other way:
+
+```{r, warning=FALSE}
+model_cold_exp1 = lm(beta ~ manipulation * cold_cond * condition,
+                              data = df_long_exp1_cold,
+                              na.action = na.omit
+                              ) 
+
+tab_model(model_cold_exp1, digits = 4)
+```
+<br>
+<br>
+here the interaction between TGI and Within / across is $\beta$ = -0.0456 p = 0.464
+
+
+
+The difference seems to be the following:
+<br>
+if we group by the three conditions and then take only take the reference level for the cold_condition i.e. dist_rostr and then compute the difference in manipulation (control / TGI) across the difference in condition (within / across) (i.e the manipulation * condition interaction), we get the estimate from the second model i.e. -0.0456.
+
+```{r, warning=FALSE}
+df_long_exp1_cold %>% group_by(manipulation,condition, cold_cond) %>% 
+  summarize(mean = mean(beta)) %>% filter(cold_cond == "dist_rostr") %>% mutate(cold_cond = NULL) %>% 
+  pivot_wider(names_from = c(condition,manipulation), values_from = mean) %>%
+  mutate(dif_cnt = within_CNT-across_CNT,
+         dif_TGI = within_TGI-across_TGI) %>% 
+  mutate(dif_dif = dif_TGI-dif_cnt) %>% .$dif_dif
+```
+
+<br>
+<br>
+
+If we on the other hand just group by manipulation and condition i.e. not filtering by dist_rostr we get the second estimate i.e. 0.0592.
+
+```{r, warning=FALSE}
+df_long_exp1_cold %>% group_by(manipulation,condition) %>% 
+  summarize(mean = mean(beta)) %>% 
+  pivot_wider(names_from = c(condition,manipulation), values_from = mean) %>%
+  mutate(dif_cnt = within_CNT-across_CNT,dif_TGI = within_TGI-across_TGI) %>% 
+  mutate(dif_dif = dif_TGI-dif_cnt) %>% .$dif_dif
+
+```
+
+<br>
+<br>
+
+One can also double check this with a model that only contained the manipulation and condition as factors:
+```{r, warning=FALSE}
+model_cold_exp2 = lm(beta ~ manipulation * condition,
+                              data = df_long_exp1_cold,
+                              na.action = na.omit
+                              ) 
+
+tab_model(model_cold_exp2, digits = 4)
+```
+
+
