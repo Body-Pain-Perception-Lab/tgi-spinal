@@ -328,9 +328,9 @@ For analysis of burning VAS ratings, only those participants who were deemed as 
 
 ## Data availability
 
-The experimental procedure, power analyses to determine sample size and statistical approach were preregistered for both [experiment 1](https://osf.io/4xcn5/) and [experiment 2](https://osf.io/dhg8u/).
+The experimental procedure, power analyses to determine sample size and statistical approach were preregistered for both experiment 1 (https://osf.io/4xcn5/) and experiment 2 (https://osf.io/dhg8u/).
 
-All raw data and code for the analysis are available in the [github repository](https://github.com/Body-Pain-Perception-Lab/tgi-spinal/tree/Markdown-manuscript). This, and a wiki guide to analysing the data, can be accessed through the project's [OSF page](https://osf.io/uyrtq/).
+All raw data and code for the analysis are available in the GitHub repository (https://github.com/Body-Pain-Perception-Lab/tgi-spinal). This, and a wiki guide to analysing the data, can be accessed through the project's OSF page (https://osf.io/uyrtq/).
 
 \newpage
 
