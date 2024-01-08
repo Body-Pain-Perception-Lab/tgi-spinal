@@ -199,6 +199,8 @@ All raw data and code for the analysis are available in the GitHub repository (h
 \newpage
 
 # Results
+
+
 ## Thermosensory and burning components of TGI perception are spinally mediated
 
 The typical heat and burning perception associated with TGI was more robust when stimuli were confined within dermatomes compared to when applied across dermatomes, corresponding to non-adjacent spinal segments.
