@@ -208,3 +208,52 @@ sPlot = function(include_zero = T){
   
 }
 
+sPlot1 = function(include_zero = T){
+  ## figures with thresholds and TGI temperatures
+  exp1_temps <- read.csv(file.path("data", 'STGI_exp1_temperatures.csv'))
+  exp2_temps <- read.csv(file.path("data", 'STGI_exp2_temperatures.csv'))
+  # modify data
+  exp1_temps <- exp1_temps %>% 
+    mutate(EXP = 'exp1') 
+  exp2_temps <- exp2_temps %>% 
+    mutate(EXP = 'exp2')
+  # combine both
+  temps <- rbind(exp1_temps, exp2_temps)
+  
+  thresh <- temps %>% 
+    pivot_longer(cols = c(CPT,HPT), names_to = 'TEMP', values_to = 'THRESH') %>% 
+    select(-c(CTGI, WTGI))
+  
+  tgi <- temps %>%   
+    pivot_longer(cols = c(CTGI, WTGI), names_to = 'TEMP', values_to = 'TGI') %>% 
+    mutate(TEMP = fct_recode(TEMP, 'cold' = 'CTGI', 'warm' = 'WTGI')) %>% 
+    select(-c(CPT,HPT))
+  
+  thr_plot <- ggplot(data = thresh, aes(color = TEMP, fill = TEMP)) +
+    geom_point(aes(TEMP, THRESH, group = ID), position = position_dodge(.2),
+               shape = 20, alpha = .8, size = 2) +
+    #geom_line(aes(TEMP, THRESH, group = ID), position = position_dodge(.2),
+    #          alpha = .2) +
+    scale_color_manual(values = c(blue[5], oran[5])) +
+    labs(x = NULL, y = 'Temperature (ºC)', title = 'Pain thresholds') +
+    ylim(0,50) +
+    facet_wrap(~EXP) +
+    theme_classic() +
+    theme(legend.position = 'none')
+  
+  tgi_plot <- ggplot(data = tgi, aes(color = TEMP, fill = TEMP)) +
+    geom_line(aes(TEMP, TGI, group = ID), position = position_dodge(.2),
+              alpha = .3, colour = 'grey75', size = .8) +
+    geom_point(aes(TEMP, TGI, group = ID), position = position_dodge(.2),
+               shape = 20, alpha = .8, size = 2) +
+    scale_color_manual(values = c(blue[5], oran[5])) +
+    labs(x = NULL, y = '', title = 'TGI temperatures') +
+    ylim(0,50) +
+    facet_wrap(~EXP) +
+    theme_classic() +
+    theme(legend.position = 'none')
+  
+  out_plot <- ggarrange(thr_plot, tgi_plot)
+
+  return(out_plot)
+}

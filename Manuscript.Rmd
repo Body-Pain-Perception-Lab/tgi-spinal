@@ -397,3 +397,9 @@ get_main_tables(model_burn_exp2,round = 2, title = "Exp. 2: Warm reference on bu
   width(j = c(2,3,4,5), width = 1.1)%>%
   fontsize(size = 10, part = "all") %>% flextable::font(fontname = "Times New Roman", part = "all")
 ```
+
+\newpage
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 5: Difference between the caudal and rostral dermatome conditions and the stimulation type (Non-TGI, TGI) for all VAS rating types (cold, warm, burn). Higher values represent higher ratings when the cold probe is located in dermatomes that are related to more caudal spinal segments (T1) than the warm probe (C6). A) experiment one where participants judged sensations at the location of the cold thermode and B) experiment two where participants judged sensations at the location of the warm thermode. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
+
+plot2_3(include_zero = F)[[2]]
+```

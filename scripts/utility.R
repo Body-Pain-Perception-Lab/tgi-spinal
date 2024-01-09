@@ -49,8 +49,6 @@ oran <- brewer.pal(8, "Oranges")
 gren <- brewer.pal(8, "Greens")
 
 
-
-
 prep_data = function(file, include_zero = T){
   
   if (file.exists(file)){
