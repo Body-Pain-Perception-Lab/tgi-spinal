@@ -63,150 +63,11 @@ FitFlextableToPage <- function(ft, pgwidth = 6){
   return(ft_out)
 }
 
-make_sPlot = function(vas_meds, h2_sum, VAS_type, title, l_pos){
-  
-  # plot all data, with 0s
-  plot = ggplot(data = vas_meds %>% 
-           filter(quality == VAS_type),
-         mapping = aes(x = xj, y = VAS, colour = manipulation, fill = manipulation)) +
-    geom_boxjitter(data = vas_meds %>% 
-                     filter(quality == VAS_type, cold_probe == 'proximal', manipulation == 'Non-TGI'),
-                   position = position_nudge(x = -.1), width = .2,
-                   errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-                   outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-    geom_boxjitter(data = vas_meds %>% 
-                     filter(quality == VAS_type, cold_probe == 'proximal', manipulation == 'TGI'),
-                   position = position_nudge(x = .1), width = .2,
-                   errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-                   outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-    geom_boxjitter(data = vas_meds %>% 
-                     filter(quality == VAS_type, cold_probe == 'distal', manipulation == 'Non-TGI'),
-                   position = position_nudge(x = -.1), width = .2,
-                   errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-                   outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-    geom_boxjitter(data = vas_meds %>% 
-                     filter(quality == VAS_type, cold_probe == 'distal', manipulation == 'TGI'),
-                   position = position_nudge(x = .1), width = .2,
-                   errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-                   outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-    geom_boxjitter(data = vas_meds %>% 
-                     filter(quality == VAS_type, cold_probe == 'rostral', manipulation == 'Non-TGI'),
-                   position = position_nudge(x = -.1), width = .2,
-                   errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-                   outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-    geom_boxjitter(data = vas_meds %>% 
-                     filter(quality == VAS_type, cold_probe == 'rostral', manipulation == 'TGI'),
-                   position = position_nudge(x = .1), width = .2,
-                   errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-                   outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-    geom_boxjitter(data = vas_meds %>% 
-                     filter(quality == VAS_type, cold_probe == 'caudal', manipulation == 'Non-TGI'),
-                   position = position_nudge(x = -.1), width = .2,
-                   errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-                   outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-    geom_boxjitter(data = vas_meds %>% 
-                     filter(quality == VAS_type, cold_probe == 'caudal', manipulation == 'TGI'),
-                   position = position_nudge(x = .1), width = .2,
-                   errorbar.length = .2, jitter.shape = 21, jitter.size = 1.5,
-                   outlier.shape = NA, errorbar.draw = TRUE, lwd = 0.7) +
-    geom_line(data = h2_sum %>% 
-                filter(quality == VAS_type, manipulation == 'Non-TGI'),
-              aes(as.numeric(cold_code), VAS), 
-              position = position_nudge(x = -.1)) + 
-    geom_line(data = h2_sum %>% 
-                filter(quality == VAS_type, manipulation == 'TGI'),
-              aes(as.numeric(cold_code), VAS), 
-              position = position_nudge(x = .1)) +
-    scale_x_continuous(breaks = c(1,2,3,4), labels = c('proximal','distal','rostral','caudal')) +
-    labs(title = title, x = NULL, 
-         y = 'VAS Rating (0-100)') +
-    ylim(-0.5,100) +
-    theme_classic() +
-    theme(legend.position = l_pos,
-          legend.title = element_blank(),
-          axis.text = element_text(size = 11),
-          axis.title = element_text(size = 12))
-
-  
-  plot
-  return(plot)
-  
-}
 
 # make supplementary figures for experiment 1 and experiment 2
 # plot ratings in seperate panels
 # plot experiments seperately (numerical input 1 or 2)
 
-sPlot = function(include_zero = T){
-  # first experiment 1
-  experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'), include_zero = include_zero)
-  vas_meds = experiment1$vas_meds
-  h2_sum = experiment1$h2_sum
-  main_title = 'Reference: Cold Thermode'
-    
-  
-  s_plotA = make_sPlot(vas_meds = vas_meds, h2_sum = h2_sum, 
-                        VAS_type = 'cold', title = 'Cold ratings', l_pos = 'none') +
-              scale_colour_manual(values = c(blue[5], blue[7])) +
-              scale_fill_manual(values = c(blue[2], blue[4])) +
-              theme(title = element_text(size = 10))
-  
-  s_plotB = make_sPlot(vas_meds = vas_meds, h2_sum = h2_sum, 
-                        VAS_type = 'warm', title = 'Warm ratings', l_pos = 'none') +
-              scale_colour_manual(values = c(oran[5], oran[7])) +
-              scale_fill_manual(values = c(oran[2], oran[4])) +
-              theme(title = element_text(size = 10))
-  
-  s_plotC = make_sPlot(vas_meds = vas_meds, h2_sum = h2_sum, 
-                        VAS_type = 'burn', title = 'Burning ratings', l_pos = 'none') +
-              scale_colour_manual(values = c(purp[5], purp[7])) +
-              scale_fill_manual(values = c(purp[2], purp[4])) +
-              theme(title = element_text(size = 10))
-  
-  s_plot_1 = ggarrange(s_plotA, s_plotB, s_plotC,
-                         nrow = 3, ncol = 1,
-                         labels = c('A','B','C')) +
-                plot_annotation(title = main_title)
-  
-  # then experiment 2
-  experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
-  vas_meds = experiment2$vas_meds
-  h2_sum = experiment2$h2_sum
-  main_title = 'Reference: Warm Thermode'
-  
-  s_plotD = make_sPlot(vas_meds = vas_meds, h2_sum = h2_sum, 
-                       VAS_type = 'cold', title = 'Cold ratings', l_pos = 'right') +
-    scale_colour_manual(values = c(blue[5], blue[7])) +
-    scale_fill_manual(values = c(blue[2], blue[4])) +
-    theme(title = element_text(size = 10))
-  
-  s_plotE = make_sPlot(vas_meds = vas_meds, h2_sum = h2_sum, 
-                       VAS_type = 'warm', title = 'Warm ratings', l_pos = 'right') +
-    scale_colour_manual(values = c(oran[5], oran[7])) +
-    scale_fill_manual(values = c(oran[2], oran[4])) +
-    theme(title = element_text(size = 10))
-  
-  s_plotF = make_sPlot(vas_meds = vas_meds, h2_sum = h2_sum, 
-                       VAS_type = 'burn', title = 'Burning ratings', l_pos = 'right') +
-    scale_colour_manual(values = c(purp[5], purp[7])) +
-    scale_fill_manual(values = c(purp[2], purp[4])) +
-    theme(title = element_text(size = 10))
-  
-  s_plot_2 = ggarrange(s_plotD, s_plotE, s_plotF,
-                       nrow = 3, ncol = 1,
-                       labels = c('D','E','F')) +
-    plot_annotation(title = main_title)
-  
-  #compile the two experiments
-  s_plot_out = ggarrange(s_plot_1, s_plot_2,
-                         nrow = 1, ncol = 2,
-                         widths = c(1,1.4))
-  
-  s_plot_out
-  
-  return(s_plot_out)
-  
-}
 
 sPlot1 = function(include_zero = T){
   ## figures with thresholds and TGI temperatures
@@ -234,16 +95,20 @@ sPlot1 = function(include_zero = T){
                shape = 20, alpha = .8, size = 2) +
     #geom_line(aes(TEMP, THRESH, group = ID), position = position_dodge(.2),
     #          alpha = .2) +
-    scale_color_manual(values = c(blue[5], oran[5])) +
+    scale_color_manual(values = c(blue[8], oran[8])) +
     labs(x = NULL, y = 'Temperature (ºC)', title = 'Pain thresholds') +
     ylim(0,50) +
     facet_wrap(~EXP) +
     theme_classic() +
-    theme(legend.position = 'none')
+    theme(legend.position = 'none',
+          axis.text = element_text(size = 9),
+          axis.title = element_text(size = 11),
+          strip.text = element_text(size = 10),
+          title = element_text(size = 10))
   
   tgi_plot <- ggplot(data = tgi, aes(color = TEMP, fill = TEMP)) +
     geom_line(aes(TEMP, TGI, group = ID), position = position_dodge(.2),
-              alpha = .3, colour = 'grey75', size = .8) +
+              alpha = .2, colour = 'grey75', size = .7) +
     geom_point(aes(TEMP, TGI, group = ID), position = position_dodge(.2),
                shape = 20, alpha = .8, size = 2) +
     scale_color_manual(values = c(blue[5], oran[5])) +
@@ -251,9 +116,15 @@ sPlot1 = function(include_zero = T){
     ylim(0,50) +
     facet_wrap(~EXP) +
     theme_classic() +
-    theme(legend.position = 'none')
+    theme(legend.position = 'none',
+          axis.text = element_text(size = 9),
+          axis.title = element_text(size = 11),
+          strip.text = element_text(size = 10),
+          title = element_text(size = 10))
   
   out_plot <- ggarrange(thr_plot, tgi_plot)
+  ggsave(file.path("figures", "FigureS1.png"), plot = out_plot, device = NULL, 
+         width = 7.2, height = 5, dpi = 600)
 
   return(out_plot)
 }
