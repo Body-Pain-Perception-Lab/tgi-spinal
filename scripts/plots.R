@@ -136,6 +136,8 @@ f2_plot = function(include_zero = T){
                          widths = c(1,1.4))
   
   s_plot_out
+  ggsave(file.path("figures", "Figure2.png"), plot = s_plot_out, device = NULL, 
+         width = 7.2, height = 5, dpi = 600)
   
   return(s_plot_out)
   
@@ -143,6 +145,9 @@ f2_plot = function(include_zero = T){
 
 # plots for hypothesis 1
 make_plot1 = function(vas_h1_diff, h1_diff_sum, title){
+  
+ 
+  # now turn all NAs into 0, just for visualisation purposes
   
   # now plot the difference
   plot = data = vas_h1_diff %>% ggplot(aes(colour = quality)) +
@@ -167,7 +172,7 @@ make_plot1 = function(vas_h1_diff, h1_diff_sum, title){
           axis.title = element_text(size = 11),
           strip.text = element_text(size = 10),
           title = element_text(size=10)) +
-    #coord_cartesian(ylim = c(-60,60))+
+    coord_cartesian(ylim = c(-60,60))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
   plot
@@ -179,9 +184,18 @@ f3_plot = function(include_zero = T){
   
   # experiment 1 file
   
-  experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'), include_zero = include_zero)
+  experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'), 
+                          include_zero = include_zero)
   vas_h1_diff_exp1 = experiment1$vas_h1_diff
   h1_diff_sum_exp1 = experiment1$h1_diff_sum
+  diff_temp <- experiment1$diff_temp
+  
+  # first make sure missing data is included in the plot as 0 for visualisation purposes
+  vas_h1_diff_exp1 <- merge(vas_h1_diff_exp1, diff_temp,
+                            by = c('ID','manipulation','quality'), all.y = TRUE)
+  # make all NAs = 0
+  vas_h1_diff_exp1 <- vas_h1_diff_exp1 %>% 
+    replace_na(list(within = 0, across = 0, difference = 0))
   
   
   h1_diff_plot_exp1 = make_plot1(vas_h1_diff = vas_h1_diff_exp1,
@@ -194,6 +208,14 @@ f3_plot = function(include_zero = T){
   experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
   vas_h1_diff_exp2 = experiment2$vas_h1_diff
   h1_diff_sum_exp2 = experiment2$h1_diff_sum
+  diff_temp = experiment2$diff_temp
+  
+  # first make sure missing data is included in the plot as 0 for visualisation purposes
+  vas_h1_diff_exp2 <- merge(vas_h1_diff_exp2, diff_temp,
+                            by = c('ID','manipulation','quality'), all.y = TRUE)
+  # make all NAs = 0
+  vas_h1_diff_exp2 <- vas_h1_diff_exp2 %>% 
+    replace_na(list(within = 0, across = 0, difference = 0))
   
   h1_diff_plot_exp2 = make_plot1(vas_h1_diff = vas_h1_diff_exp2,
                                  h1_diff_sum = h1_diff_sum_exp2,
@@ -245,7 +267,7 @@ make_plot2 = function(vas_h2_diff,h2_diff_sum,title){
           axis.title = element_text(size = 11),
           strip.text = element_text(size = 10),
           title = element_text(size = 10))+
-    #coord_cartesian(ylim = c(-60,60))+
+    coord_cartesian(ylim = c(-60,60))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
   # plot the differences - across
@@ -275,7 +297,7 @@ make_plot2 = function(vas_h2_diff,h2_diff_sum,title){
           axis.title = element_text(size = 11),
           strip.text = element_text(size = 10),
           title = element_text(size = 10))+
-    #coord_cartesian(ylim = c(-60,60))+
+    coord_cartesian(ylim = c(-60,60))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
   experiment1_h2 = h2_diff_within / h2_diff_across
@@ -288,6 +310,7 @@ plot2 = function(include_zero = T){
   experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'), include_zero = include_zero)
   vas_h2_diff_exp1 = experiment1$vas_h2_diff
   h2_diff_sum_exp1 = experiment1$h2_diff_sum
+  diff_temp = experiment1$diff_temp
   
   
   experiment1_h2 = make_plot2(vas_h2_diff_exp1,h2_diff_sum_exp1, title = "Reference: Cold Thermode")[[1]]+plot_annotation(tag_levels = list("A","B"))

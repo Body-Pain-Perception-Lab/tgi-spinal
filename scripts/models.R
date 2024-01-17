@@ -10,8 +10,10 @@ if(rerun){
   experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'))
   experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'))
   
-  df_long_exp1 = experiment1$df_long %>% mutate(cold_probe = as.factor(cold_probe), manipulation = as.factor(manipulation))
-  df_long_exp2 = experiment2$df_long %>% mutate(cold_probe = as.factor(cold_probe), manipulation = as.factor(manipulation))
+  df_long_exp1 = experiment1$df_long %>% 
+    mutate(cold_probe = as.factor(cold_probe), manipulation = as.factor(manipulation))
+  df_long_exp2 = experiment2$df_long %>% 
+    mutate(cold_probe = as.factor(cold_probe), manipulation = as.factor(manipulation))
   
   
   ## Define constrats such that we both get within / across (i.e. distal & proximal vs rostral & caudual)

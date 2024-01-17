@@ -127,11 +127,12 @@ prep_data = function(file, include_zero = T){
   init_burn <- filter(df_long, quality == 'init')
   all_vas <- filter(df_long, quality != 'init')
   
-  # calculate means
+  # calculate medians and means for plots
   vas_meds <- aggregate(VAS ~ quality*manipulation*condition*cold_probe*ID, 
                         median, data = all_vas)
   
   vas_h1 <- aggregate(VAS ~ quality*manipulation*condition*ID, mean, data = vas_meds)
+  
   # change name of manipulation
   vas_h1$manipulation <- factor(vas_h1$manipulation,
                                 labels = c('Non-TGI', 'TGI'))
@@ -139,9 +140,35 @@ prep_data = function(file, include_zero = T){
   h1_sum <- summarySEwithin(data = vas_h1, measurevar = 'VAS',
                             withinvars = c('manipulation', 'quality', 'condition'))
   
+  
   vas_h1_diff <- vas_h1 %>% 
-    pivot_wider(names_from = condition, values_from = VAS) %>% tidyr::replace_na(list(within = 0, across = 0)) %>% 
+    pivot_wider(names_from = condition, values_from = VAS) %>% 
+    tidyr::replace_na(list(within = 0, across = 0)) %>% 
     mutate(difference = within - across)
+  
+  # with !include_zeros nan trials are excluded which leads to missing plot data
+  # these should be replaced with zeros for visualisation purposes 
+  # (which is a true representative of the difference between the actual data anyway)
+  
+  # first, create dataframe with true length for all data
+  nPP <- count(vas_h1_diff, ID)
+  diff_temp <- nPP %>% 
+    slice(rep(row_number(), 6)) %>% 
+    select(-n) %>% 
+    mutate(ID = sort(ID, decreasing = FALSE))
+  
+  quality <- c('cold','warm','burn')
+  manipulation <- c(repmat(1,3,1), repmat(2,3,1))
+  
+  diff_temp$quality <- matrix(rep(quality, 80))
+  diff_temp$manipulation <- matrix(rep(manipulation, 40))
+  
+  diff_temp <- diff_temp %>% 
+    dplyr::mutate(manipulation = recode(manipulation, '1' = 'Non-TGI', '2' = 'TGI'))
+
+  
+# add IDs to 
+  
   # recode quality
   vas_h1_diff$quality <- factor(vas_h1_diff$quality,
                                 levels = c('cold', 'warm', 'burn'))
@@ -183,8 +210,10 @@ prep_data = function(file, include_zero = T){
   vas_h2_diff <- vas_meds %>% 
     select(-c(cold_code, xj, cold_probe)) %>% 
     pivot_wider(id_cols = c(ID, quality, manipulation, condition), 
-                names_from = cold_cond, values_from = VAS) %>% tidyr::replace_na(list(prox_caud = 0, dist_rost = 0)) %>% 
+                names_from = cold_cond, values_from = VAS) %>% 
+    tidyr::replace_na(list(prox_caud = 0, dist_rost = 0)) %>% 
     mutate(difference = prox_caud - dist_rost)
+  
   # recode quality
   vas_h2_diff$quality <- factor(vas_h2_diff$quality,
                                 levels = c('cold', 'warm', 'burn'))
@@ -217,7 +246,8 @@ prep_data = function(file, include_zero = T){
               h1_diff_sum = h1_diff_sum,
               vas_h2_diff = vas_h2_diff,
               h2_diff_sum = h2_diff_sum,
-              df_long = df_long))
+              df_long = df_long,
+              diff_temp = diff_temp))
 }
 
 
