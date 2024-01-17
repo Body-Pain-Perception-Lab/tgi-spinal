@@ -69,7 +69,6 @@ make_sPlot = function(vas_meds, h2_sum, VAS_type, title, l_pos){
 }
 
 
-
 # make figure 2
 f2_plot = function(include_zero = T){
   # first experiment 1
@@ -143,7 +142,7 @@ f2_plot = function(include_zero = T){
 }
 
 # plots for hypothesis 1
-make_plot1 = function(vas_h1_diff,h1_diff_sum, title){
+make_plot1 = function(vas_h1_diff, h1_diff_sum, title){
   
   # now plot the difference
   plot = data = vas_h1_diff %>% ggplot(aes(colour = quality)) +
@@ -168,7 +167,7 @@ make_plot1 = function(vas_h1_diff,h1_diff_sum, title){
           axis.title = element_text(size = 11),
           strip.text = element_text(size = 10),
           title = element_text(size=10)) +
-    coord_cartesian(ylim = c(-60,60))+
+    #coord_cartesian(ylim = c(-60,60))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
   plot
@@ -246,7 +245,7 @@ make_plot2 = function(vas_h2_diff,h2_diff_sum,title){
           axis.title = element_text(size = 11),
           strip.text = element_text(size = 10),
           title = element_text(size = 10))+
-    coord_cartesian(ylim = c(-60,60))+
+    #coord_cartesian(ylim = c(-60,60))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
   # plot the differences - across
@@ -276,7 +275,7 @@ make_plot2 = function(vas_h2_diff,h2_diff_sum,title){
           axis.title = element_text(size = 11),
           strip.text = element_text(size = 10),
           title = element_text(size = 10))+
-    coord_cartesian(ylim = c(-60,60))+
+    #coord_cartesian(ylim = c(-60,60))+
     scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) 
   
   experiment1_h2 = h2_diff_within / h2_diff_across

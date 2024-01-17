@@ -68,12 +68,7 @@ list2env(stats, envir=environment())
 
 # Abstract
 
-The Thermal Grill Illusion (TGI), a phenomenon in which the juxtaposition of innocuous warm and cold temperatures on the skin elicits a burning sensation, offers a unique perspective to how pain occurs in response to harmless stimuli.
-We investigated the role of the spinal cord in the generation of the TGI across two experiments (total n = 80).
-We applied heat and cold stimuli to dermatomes, areas of skin innervated by a single spinal nerve, that mapped onto adjacent or nonadjacent spinal segments.
-Enhanced warm and burning ratings during the TGI were observed when cold and warm stimuli were confined within the same dermatome.
-Further, heat perception was enhanced when the cold stimulus projected to the segment caudal to the warm stimulus, compared to the opposite spatial arrangement.
-Our results are consistent with spatial spread and integration of thermosensory information in the spinal cord.
+The Thermal Grill Illusion (TGI), a phenomenon in which the juxtaposition of innocuous warm and cold temperatures on the skin elicits a burning sensation, offers a unique perspective to how pain occurs in response to harmless stimuli. We investigated the role of the spinal cord in the generation of the TGI across two experiments (total n = 80). We applied heat and cold stimuli to dermatomes, areas of skin innervated by a single spinal nerve, that mapped onto adjacent or nonadjacent spinal segments. Enhanced warm and burning ratings during the TGI were observed when cold and warm stimuli were confined within the same dermatome. Further, we found the spatial organisation of warm and cold stimuli within and across dermatomes affected TGI perception. Specifically, the heat perception was enhanced when the cold stimulus projected to the segment more caudal to the warm stimulus, compared to the opposite spatial arrangement. This suggests the perception of TGI is enhanced when cold afferents are projected to spinal segments positioned caudally in relation to those receiving warm afferents. Our results indicate distinct interaction of sensory pathways based on the segmental arrangement of afferent fibres and are consistent with current interpretations of the spread and integration of thermosensory information along the spinal cord.
 
 \newpage
 
@@ -97,12 +92,13 @@ In this paper our objective was to directly investigate the hypothesis that ther
 ## Participants
 
 The study entailed two separate experiments, collectively involving 80 healthy volunteers.
-Forty participants took part in experiment 1 (`r descript_exp1_gender %>% filter(Gender == "F") %>% .$number` females and `r descript_exp1_gender %>% filter(Gender == "M") %>% .$number` males, mean age = `r descript_exp1_age$mean_age` years old, SD = `r descript_exp1_age$sd_age`, range = `r descript_exp1_age$min_age` - `r descript_exp1_age$max_age`) and another 40 participants in experiment 2 (`r descript_exp2_gender %>% filter(Gender == "F") %>% .$number` females and `r descript_exp2_gender %>% filter(Gender == "M") %>% .$number` males and `r descript_exp2_gender %>% filter(Gender != "M" & Gender != "F") %>% .$number` non-binary, mean age = `r descript_exp2_age$mean_age` years old, SD = `r descript_exp2_age$sd_age`, range = `r descript_exp2_age$min_age` - `r descript_exp2_age$max_age`). The research methodology complied with the principles set forth in the Declaration of Helsinki and received ethical approval from the Institutional Review Board (IRB) at the Danish Neuroscience Center, Aarhus University, Denmark. Prior to commencing the study, all participants were fully informed about the procedures and provided their voluntary consent.
+Forty participants took part in experiment 1 (`r descript_exp1_gender %>% filter(Gender == "F") %>% .$number` females and `r descript_exp1_gender %>% filter(Gender == "M") %>% .$number` males, mean age = `r descript_exp1_age$mean_age` years old, SD = `r descript_exp1_age$sd_age`, range = `r descript_exp1_age$min_age` - `r descript_exp1_age$max_age`) and another 40 participants in experiment 2 (`r descript_exp2_gender %>% filter(Gender == "F") %>% .$number` females and `r descript_exp2_gender %>% filter(Gender == "M") %>% .$number` males and `r descript_exp2_gender %>% filter(Gender != "M" & Gender != "F") %>% .$number` non-binary, mean age = `r descript_exp2_age$mean_age` years old, SD = `r descript_exp2_age$sd_age`, range = `r descript_exp2_age$min_age` - `r descript_exp2_age$max_age`). Data collection for experiments 1 and 2 took place between August - December 2022 and January - May 2023 respectively and there were no participants that took part in both experiments. The research methodology complied with the principles set forth in the Declaration of Helsinki and received ethical approval from the Institutional Review Board (IRB) at the Danish Neuroscience Center, Aarhus University, Denmark. Prior to commencing the study, all participants were fully informed about the procedures and provided their voluntary consent.
 
-## Stimuli and procedure
+## Stimuli
 
-All thermal stimuli were delivered using two NTE-3 Thermal Sensitivity Testers (PhysiTemp Instruments LLC) controlled by PhysiTemp NTE-3 software (version 5.4b).
-The procedure involved measurements of heat and cold pain thresholds, calibration of cold-warm temperature pairs eliciting TGI, and an experimental task where TGI and non-TGI stimuli were applied on dermatomes that mapped onto adjacent or nonadjacent spinal segments.
+All thermal stimuli were delivered using two NTE-3 Thermal Sensitivity Testers (PhysiTemp Instruments LLC, 10mm in diameter) controlled by PhysiTemp NTE-3 software (version 5.4b).
+The procedure involved measurements of heat and cold pain thresholds, calibration of cold-warm temperature pairs eliciting TGI, and an experimental task where TGI and non-TGI stimuli were applied on dermatomes that mapped onto adjacent or nonadjacent spinal segments. The thermodes were heated or cooled to the required stimulus temperature prior to being placed on the participant’s skin. If the skin temperature affected the surface temperature of the probe, the experimenter waited to start the trial until the desired temperature was reached. The maximum rate of temperature change of the probes was 1ºC/s.
+
 
 The Thermal Grill Illusion (TGI) is characterised by two key phenomena: thermosensory enhancement and illusory pain. Thermosensory enhancement refers to an amplified perception of heat or cold when cold and warm stimuli are simultaneously applied, as opposed to when each stimulus is presented individually or paired with a neutral temperature. Notably, the majority of individuals experience an intensification of heat rather than cold [@fardo_beyond_2020]. 
 Illusory pain, on the other hand, denotes the perception of a burning sensation elicited by the pairing of warm and cold stimuli, an experience that is largely absent or significantly diminished when each stimulus is presented alone or combined with a neutral temperature. 
@@ -112,16 +108,17 @@ While most previous studies have focused on the TGI as a single experience, expl
 We instructed participants to report the sensation from just one of the thermal components, corresponding to the cold thermode location (Exp. 1) or the warm thermode location (Exp. 2).
 Importantly, the aim of this method was not to isolate any possible independent effect of warm and cold stimulation during TGI, but rather to ensure consistency in participants' ratings across trials and different stimulus conditions.To investigate both the thermosensory and burning components in each experiment, we asked participants to provide a subjective evaluation of multiple sensory qualities - cold, warmth and burning (pain).
 Stimuli consisted of either cold-warm pairs (TGI stimuli), which potentially evoked an illusion of heat and pain, or control stimuli that involved pairing a cold (Exp. 1) or a warm (Exp. 2) stimulus of identical temperature as in the TGI condition with a baseline temperature of 30°C (non-TGI stimuli).
-All stimulation pairs were presented at a fixed distance on the skin, either within the same dermatome or across dermatomes that mapped onto non-adjacent spinal segments (Figure 1A and B).
+All stimulation pairs were presented at a fixed distance on the skin, either within the same dermatome or across dermatomes that mapped onto non-adjacent spinal segments (Figure 1). This arrangement of cold and warm probes on the skin was specifically chosen to be able to explore the spinal mechanisms of the TGI and similar set-ups, using two probes to induce TGI, have been used previously in healthy human participants [@fardo_organization_2018; @defrin_spatial_2008]. 
 
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 1: A and B) Placement and distance of thermodes on the inner forearm, showing corresponding spinal mapping for all four conditions. Within dermatomes, the relative location of the cold thermode was proximal or distal. Across dermatomes, the relative location of the corresponding spinal segments was rostral or caudal. Within dermatome conditions also included warm and cold thermodes in C6 (not depicted here), as well as T1. C) The three VAS participants used to report sensation coming from the reference probe, presented for each trial in a randomised order."}
+
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 1: (A) An example sequence of an experiment. The order of pain threshold blocks 1 and 2 and experimental sessions 1 and 2 were counterbalanced evenly across participants. (B) Placement and distance of thermodes on the inner forearm. (C) The three Visual Analogue Scales (cold, warm, burning) participants used to report sensation coming from the reference probe, presented in a randomised order for every trial. (D) The corresponding spinal mapping of the probe placement for all four conditions. Within dermatomes, the relative location of the cold thermode was proximal or distal. Across dermatomes, the relative location of the corresponding spinal segments was rostral or caudal. Within dermatome conditions also included warm and cold thermodes in C6 (not depicted here), as well as T1. The size of the stimulus site in panels C and D probe is not to scale."}
 ggdraw() +
-    draw_image(magick::image_read(file.path("figures","figure1_v2.tiff")), scale = 1)
+    draw_image(magick::image_read(file.path("figures","figure1_v3.png")), scale = 1)
 ```
 
 ## Procedure
 
-We measured cold and heat pain thresholds in a stepwise manner, the order of which was counterbalanced across participants.
+An outline of the procedure for each experiment is found in Figure 1A. We measured cold and heat pain thresholds in a stepwise manner, the order of which was counterbalanced across participants.
 For cold pain, a single thermode at a starting temperature of 25ºC was held on the participant's dorsal forearm for five seconds.
 After which, the participant verbally reported (yes/no) any experience of pain.
 If the participant reported no pain, the temperature of the thermode was lowered by 5ºC, and placed back on the skin for another five seconds after which the participant reported whether they experienced pain.
@@ -129,14 +126,15 @@ This step was repeated either until the participant responded 'yes' or the therm
 If the participant responded 'yes' before the minimum temperature, the temperature of the thermode was increased by 1ºC until the participant no longer experienced pain.
 The cold pain threshold was identified as the highest temperature at which the participant reported a painful experience.
 The same steps were repeated for heat pain, but with increasing intervals of 5ºC and with a starting temperature of 35ºC and a maximum temperature of 45ºC.
-The heat pain threshold was identified as the lowest temperature at which the participant reported a painful experience.
+The heat pain threshold was identified as the lowest temperature at which the participant reported a painful experience. Heat and cold pain thresholding procedures were completed once per participant.
 
-We calibrated TGI stimuli by identifying a cold-warm temperature pair based on specific criteria: (1) consistently eliciting a burning sensation of at least 15 on a scale ranging from 0 to 100, (2) consistently avoiding a burning sensation (less than 15) when the cold-neutral (Exp. 1) or warm-neutral (Exp. 2) stimuli were presented, (3) both cold and warm temperatures falling within the innocuous range based on individual cold and heat pain thresholds.
+We calibrated TGI stimuli by identifying a cold-warm temperature pair based on specific criteria: (1) consistently eliciting a burning sensation of at least 15 on a scale ranging from 0 to 100, (2) consistently avoiding a burning sensation (less than 15) when the cold-neutral (Exp. 1) or warm-neutral (Exp. 2) stimuli were presented, (3) both cold and warm temperatures falling within the innocuous range based on individual cold and heat pain thresholds. TGI temperature pairs, starting at 25ºC and 35ºC were presented on the participant’s forearm for 10 seconds. After 10 seconds, the participant had to rate the perceived burning (in a VAS scale from 0 - 100) coming from either the cold (experiment 1) or warm (experiment 2) probe. If the participant did not rate their perceived burning as above 15 on the scale, the experimenter increased the temperature on the warm probe, and decreased the temperature on the cold probe systematically. They then placed the probes at a different location on the forearm and repeated the trial. If the participant rated above 15ºC, the temperature combination was repeated another six times. To determine the TGI temperatures, the participant needed to rate the probe as above 15 on the burning VAS four times out of six. A list of temperatures used to calibrate the TGI stimuli can be found in the Supplementary Materials. In situations where the participant did not consistently report burning for temperatures that were below their pain thresholds, the maximum and minimum possible temperatures were used (2ºC below their thresholds).
 For pain threshold measurements and TGI calibration, we positioned the probes within a single dermatome.
+
 To address our experimental questions, we presented the calibrated TGI stimuli, as well as cold-neutral (Exp. 1) or warm-neutral (Exp. 2) non-TGI stimuli using two thermodes.
 In non-TGI stimuli the cold or warm temperatures were set to match the temperature used for TGI stimulation, but paired with a neutral temperature set at 30ºC.
 
-The two thermodes were positioned on the internal surface of either forearm, with a constant spacing value between 4 and 5 cm in each direction, depending on the participant's forearm size.
+The two thermodes were positioned on the internal surface of either forearm, with a constant spacing of 5 cm in each direction (Fig. 1B). In rare cases where the participant’s forearm was too narrow to position the probes at 5 cm apart across dermatomes, this distance was adjusted either 4.5 or 4 cm.
 The positioning of the thermodes was either within the same dermatome (C6 and T1) or across dermatomes mapped onto non-adjacent spinal segments (i.e. C6 - T1).
 Further, we manipulated the spatial arrangement of the temperature pairs, by systematically presenting an equal number of trials where the cold thermode was applied on a proximal or distal location within a dermatome, or was applied on a dermatome that mapped onto a rostral or caudal segment along the spinal cord.
 We based the demarcation of the dermatome boundaries on the American Spinal Injury Association (ASIA) map and positioned the thermodes in relation to standard anatomical landmarks.
@@ -246,7 +244,7 @@ These findings suggest that the notion of distal inhibition can be extended to i
 
 ```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 4: Difference between the proximal and distal location of the reference thermode in the within dermatome condition and by stimulation type (Non-TGI, TGI) for all VAS rating types (cold, warm, burn). Higher values show higher ratings when the cold probe is more proximal than the warm probe. A) experiment one where participants judged sensations at the location of the cold thermode and B) experiment two where participants judged sensations at the location of the warm thermode. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
-f45_plot(include_zero = F)[[1]]
+f45_plot(include_zero = T)[[1]]
 ```
 
 ## Directional effects in inter-segmental sensory integration
@@ -266,7 +264,7 @@ Overall these effects are in line with the interpretation that the thermosensory
 
 ```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 5: Difference between the caudal and rostral dermatome conditions and the stimulation type (Non-TGI, TGI) for all VAS rating types (cold, warm, burn). Higher values represent higher ratings when the cold probe is located in dermatomes that are related to more caudal spinal segments (T1) than the warm probe (C6). A) experiment one where participants judged sensations at the location of the cold thermode and B) experiment two where participants judged sensations at the location of the warm thermode. Small points show data from each participant, large dots are means across trials for each condition, and error bars show 95% confidence intervals."}
 
-f45_plot(include_zero = F)[[2]]
+f45_plot(include_zero = T)[[2]]
 ```
 
 # Discussion
