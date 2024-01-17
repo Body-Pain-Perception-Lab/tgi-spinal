@@ -137,19 +137,18 @@ In non-TGI stimuli the cold or warm temperatures were set to match the temperatu
 The two thermodes were positioned on the internal surface of either forearm, with a constant spacing of 5 cm in each direction (Fig. 1B). In rare cases where the participant’s forearm was too narrow to position the probes at 5 cm apart across dermatomes, this distance was adjusted either 4.5 or 4 cm.
 The positioning of the thermodes was either within the same dermatome (C6 and T1) or across dermatomes mapped onto non-adjacent spinal segments (i.e. C6 - T1).
 Further, we manipulated the spatial arrangement of the temperature pairs, by systematically presenting an equal number of trials where the cold thermode was applied on a proximal or distal location within a dermatome, or was applied on a dermatome that mapped onto a rostral or caudal segment along the spinal cord.
-We based the demarcation of the dermatome boundaries on the American Spinal Injury Association (ASIA) map and positioned the thermodes in relation to standard anatomical landmarks.
+We based the demarcation of the dermatome boundaries on the American Spinal Injury Association (ASIA) map and positioned the thermodes in relation to standard anatomical landmarks. 
 Proximo-distal coordinates referred to locations on the skin closer to the elbow or the wrist, whereas rostral-caudal coordinates referred to spinal segments closer to the head (C6) or the lower back (T1).
-Spatial arrangements of stimuli are depicted in Figure 1B. The order of the stimuli (TGI vs. non-TGI), the dermatome condition (within vs. across) and the relative placement of the colder temperature (proximal vs. distal or rostral vs. caudal) were pseudo-randomised and counterbalanced between participants.
+Spatial arrangements of stimuli are depicted in Figure 1D. The order of the stimuli (TGI vs. non-TGI), the dermatome condition (within vs. across) and the relative placement of the colder temperature (proximal vs. distal or rostral vs. caudal) were pseudo-randomised and counterbalanced between participants.
 
-During each trial, the experimenter positioned two thermodes on the participant's skin for 10 seconds, after which participants rated the most intense cold, warm or burning sensation they perceived during the stimulation period using three separated computerised VAS scales.
-VAS scales were presented one at a time on a computer screen and appeared as a horizontal line, anchored at 0, representing no sensation (e.g., no burning), and 100, signifying an extreme sensation (e.g., extreme burning).
+During each trial, the experimenter positioned the two thermodes on the participant’s skin, and then waited for both thermodes to reach within .25ºC of the desired temperatures for each stimulus. After ten seconds of stimulation, participants reported their ratings using three sequential VAS scales for each perceptual quality (cold, warm and burning). Scales ranged from 0, indicating the lack of the corresponding sensory quality, to 100, indicating an extreme sensation (Fig. 1C) and were presented in a random order. 
 The order of the three VAS scales was randomised across trials and participants had a maximum of eight seconds to respond to each scale.
 For each scale, participants provided their responses using the arrow keys on a keyboard and rated the intensity of their sensations from a specific location (labeled 'A' or 'B'), based on the experimenter's instruction.
 Unbeknown to the participant, this location systematically corresponded to either the colder temperature (Exp. 1) or the warmer temperature (Exp. 2).
 An auditory cue (300Hz, 100ms) indicated when the participants completed all ratings, after which the experimenter removed the thermodes from their skin.
 We presented a 200ms fixation dot before beginning the next trial.
 Each thermode configuration was tested three consecutive times on each arm, on three different and non-overlapping skin locations.
-An auditory tone of 500Hz lasting 100ms was played to indicate to the experimenter when to rearrange the thermode configuration or change arms to stimulate different dermatomes depending on a pseudo-randomisation order.
+An auditory tone of 500Hz lasting 100ms was played to indicate to the experimenter that the trial was over, and that they should rearrange the thermode configuration. Two simultaneous tones of the same quality occurred every three trials, indicating that the participant should change arms to stimulate different dermatomes depending on a pseudo-randomisation order. Tones were used because the experimenter could not see the screen, therefore it was the most effective way to inform the experimenter when each trial was completed. 
 Each of the four experimental conditions was repeated 12 times, with both the right and left forearms stimulated, and a minimum of five trials between the re-stimulation of the same skin location.
 This method ensured that the same skin locations were not stimulated consecutively to minimise the potential of carry-over effects.
 
@@ -159,7 +158,7 @@ In Experiment 2, participants rated the sensations localised underneath the warm
 
 ## Sample size
 
-An initial pilot study informed the [pre-registered](https://osf.io/4xcn5/) calculation of the sample size.
+An initial pilot study informed the pre-registered (https://osf.io/4xcn5/) calculation of the sample size.
 To test the directional TGI hypothesis with 95% power and detect an effect size for the coefficient of .12 or greater, we determined that we needed a minimum number of 32 TGI-responsive participants.
 We defined TGI-responders as those individuals for whom the median burning ratings for TGI stimuli significantly exceeded 0.
 Non-responders were individuals that did not meet this criterion when tested with the max cold-warm temperatures allowed in the experiment.
@@ -219,11 +218,7 @@ Overall, these results indicated that when participants judged the warm thermode
 f2_plot(include_zero = T)
 ```
 
-The findings suggest that the thermosensory quality of the reference thermode (cold or warm) showed differential sensitivity to thermosensory and painful aspects of the TGI experience, and collectively suggested that both qualitative components of the illusion are modulated at the spinal cord level.
-This interpretation is consistent with a previous study using a similar dermatome manipulation [@fardo_organization_2018], as well as another study showing modulation of heat and pain ratings of TGI stimuli by conditioned pain modulation [@harper_conditioned_2017].
-These results support the role of spinal processes in the generation of distinct perceptual aspects of the TGI and highlight the importance of the veridical temperature of the stimulus being judged when assessing thermosensory and burning components of TGI perception.
-
-```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 3: Difference between within and across dermatome conditions for each type of stimulation (Non-TGI and TGI) for each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. A) experiment one where participants judged sensations at the location of the cold thermode and B) experiment two where participants judged sensations at the location of the warm thermode. Small dots are individual subject means, large dots are population means for each condition and error bars are 95% confidence intervals."}
+```{r, results="hide", fig.width = 7.2, fig.height = 5, warning = F, message = F, echo = F, fig.cap = "Figure 3: Thermosensory and burning components of TGI are spinally mediated: The placement of warm and cold stimuli in different dermatomes reduces the experience of the TGI.  The difference between within and across dermatome conditions are displayed for each type of stimulation (Non-TGI and TGI) for each VAS rating quality (cold, warm and burning). Positive values represent higher ratings within dermatomes, negative values represent higher ratings across dermatomes. In experiment one (A), where participants judged sensations at the location of the cold thermode, cold ratings were significantly reduced during TGI when thermodes were placed across dermatomes. In experiment two (B), where participants judged sensations at the location of the warm thermode, warm and burning ratings were significantly reduced during TGI. Small dots are individual subject means, large dots are population means for each condition and error bars are 95% confidence intervals. Please note that this figure does not include trial data where VAS =0, this is to reflect the outcome of our statistical model."}
 
 f3_plot(include_zero = F)
 #plot1(include_zero = T)
