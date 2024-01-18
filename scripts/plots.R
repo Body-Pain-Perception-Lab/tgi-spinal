@@ -188,10 +188,10 @@ f3_plot = function(include_zero = T){
                           include_zero = include_zero)
   vas_h1_diff_exp1 = experiment1$vas_h1_diff
   h1_diff_sum_exp1 = experiment1$h1_diff_sum
-  diff_temp <- experiment1$diff_temp
+  diff_tmp_h1 <- experiment1$diff_tmp_h1
   
   # first make sure missing data is included in the plot as 0 for visualisation purposes
-  vas_h1_diff_exp1 <- merge(vas_h1_diff_exp1, diff_temp,
+  vas_h1_diff_exp1 <- merge(vas_h1_diff_exp1, diff_tmp_h1,
                             by = c('ID','manipulation','quality'), all.y = TRUE)
   # make all NAs = 0
   vas_h1_diff_exp1 <- vas_h1_diff_exp1 %>% 
@@ -208,10 +208,10 @@ f3_plot = function(include_zero = T){
   experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
   vas_h1_diff_exp2 = experiment2$vas_h1_diff
   h1_diff_sum_exp2 = experiment2$h1_diff_sum
-  diff_temp = experiment2$diff_temp
+  diff_tmp_h1 = experiment2$diff_tmp_h1
   
   # first make sure missing data is included in the plot as 0 for visualisation purposes
-  vas_h1_diff_exp2 <- merge(vas_h1_diff_exp2, diff_temp,
+  vas_h1_diff_exp2 <- merge(vas_h1_diff_exp2, diff_tmp_h1,
                             by = c('ID','manipulation','quality'), all.y = TRUE)
   # make all NAs = 0
   vas_h1_diff_exp2 <- vas_h1_diff_exp2 %>% 
@@ -310,20 +310,40 @@ plot2 = function(include_zero = T){
   experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'), include_zero = include_zero)
   vas_h2_diff_exp1 = experiment1$vas_h2_diff
   h2_diff_sum_exp1 = experiment1$h2_diff_sum
-  diff_temp = experiment1$diff_temp
+  diff_tmp_h2 = experiment1$diff_tmp_h2
   
+  # create full data-frame so NA values = 0
+  # for plotting purposes
+  # first make sure missing data is included in the plot as 0 for visualisation purposes
+  vas_h2_diff_exp1 <- merge(vas_h2_diff_exp1, diff_tmp_h2,
+                            by = c('ID','manipulation','quality','condition'), all.y = TRUE)
+  # make all NAs = 0
+  vas_h2_diff_exp1 <- vas_h2_diff_exp1 %>% 
+    replace_na(list(prox_caud = 0, dist_rost = 0, difference = 0))
   
-  experiment1_h2 = make_plot2(vas_h2_diff_exp1,h2_diff_sum_exp1, title = "Reference: Cold Thermode")[[1]]+plot_annotation(tag_levels = list("A","B"))
+  experiment1_h2 = make_plot2(vas_h2_diff_exp1,h2_diff_sum_exp1, 
+                              title = "Reference: Cold Thermode")[[1]]+
+    plot_annotation(tag_levels = list("A","B"))
   
   
   # experiment 2 file
-  experiment1 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
-  vas_h2_diff_exp2 = experiment1$vas_h2_diff
-  h2_diff_sum_exp2 = experiment1$h2_diff_sum
+  experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
+  vas_h2_diff_exp2 = experiment2$vas_h2_diff
+  h2_diff_sum_exp2 = experiment2$h2_diff_sum
+  diff_tmp_h2 = experiment2$diff_tmp_h2
   
   experiment2_h2 = make_plot2(vas_h2_diff_exp2,h2_diff_sum_exp2, 
                               title = "Reference: Warm Thermode")[[1]]+
     plot_annotation(tag_levels = list(c("C","D")))
+  
+  # create full data-frame so NA values = 0
+  # for plotting purposes
+  # first make sure missing data is included in the plot as 0 for visualisation purposes
+  vas_h2_diff_exp2 <- merge(vas_h2_diff_exp2, diff_tmp_h2,
+                            by = c('ID','manipulation','quality','condition'), all.y = TRUE)
+  # make all NAs = 0
+  vas_h2_diff_exp2 <- vas_h2_diff_exp2 %>% 
+    replace_na(list(prox_caud = 0, dist_rost = 0, difference = 0))
   
   
   #combine plots
@@ -341,15 +361,35 @@ f45_plot = function(include_zero = T){
   experiment1 = prep_data(file.path("data", 'STGI_exp1_compiled-data.csv'), include_zero = include_zero)
   vas_h2_diff_exp1 = experiment1$vas_h2_diff
   h2_diff_sum_exp1 = experiment1$h2_diff_sum
+  diff_tmp_h2 = experiment1$diff_tmp_h2
+  
+  # create full data-frame so NA values = 0
+  # for plotting purposes
+  # first make sure missing data is included in the plot as 0 for visualisation purposes
+  vas_h2_diff_exp1 <- merge(vas_h2_diff_exp1, diff_tmp_h2,
+                            by = c('ID','manipulation','quality','condition'), all.y = TRUE)
+  # make all NAs = 0
+  vas_h2_diff_exp1 <- vas_h2_diff_exp1 %>% 
+    replace_na(list(prox_caud = 0, dist_rost = 0, difference = 0))
   
   
   experiment1_h2 = make_plot2(vas_h2_diff_exp1,h2_diff_sum_exp1, title = "Reference: Cold Thermode")
   
   
   # experiment 2 file
-  experiment1 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
-  vas_h2_diff_exp2 = experiment1$vas_h2_diff
-  h2_diff_sum_exp2 = experiment1$h2_diff_sum
+  experiment2 = prep_data(file.path("data", 'STGI_exp2_compiled-data.csv'), include_zero = include_zero)
+  vas_h2_diff_exp2 = experiment2$vas_h2_diff
+  h2_diff_sum_exp2 = experiment2$h2_diff_sum
+  diff_tmp_h2 = experiment1$diff_tmp_h2
+  
+  # create full data-frame so NA values = 0
+  # for plotting purposes
+  # first make sure missing data is included in the plot as 0 for visualisation purposes
+  vas_h2_diff_exp1 <- merge(vas_h2_diff_exp1, diff_tmp_h2,
+                            by = c('ID','manipulation','quality','condition'), all.y = TRUE)
+  # make all NAs = 0
+  vas_h2_diff_exp1 <- vas_h2_diff_exp1 %>% 
+    replace_na(list(prox_caud = 0, dist_rost = 0, difference = 0))
   
   experiment2_h2_warm = make_plot2(vas_h2_diff_exp2,h2_diff_sum_exp2, title = "Reference: Warm Thermode")
   

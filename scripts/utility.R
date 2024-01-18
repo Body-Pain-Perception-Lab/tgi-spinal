@@ -152,7 +152,7 @@ prep_data = function(file, include_zero = T){
   
   # first, create dataframe with true length for all data
   nPP <- count(vas_h1_diff, ID)
-  diff_temp <- nPP %>% 
+  diff_tmp_h1 <- nPP %>% 
     slice(rep(row_number(), 6)) %>% 
     select(-n) %>% 
     mutate(ID = sort(ID, decreasing = FALSE))
@@ -160,10 +160,10 @@ prep_data = function(file, include_zero = T){
   quality <- c('cold','warm','burn')
   manipulation <- c(repmat(1,3,1), repmat(2,3,1))
   
-  diff_temp$quality <- matrix(rep(quality, 80))
-  diff_temp$manipulation <- matrix(rep(manipulation, 40))
+  diff_tmp_h1$quality <- matrix(rep(quality, 80))
+  diff_tmp_h1$manipulation <- matrix(rep(manipulation, 40))
   
-  diff_temp <- diff_temp %>% 
+  diff_tmp_h1 <- diff_tmp_h1 %>% 
     dplyr::mutate(manipulation = recode(manipulation, '1' = 'Non-TGI', '2' = 'TGI'))
 
   
@@ -214,6 +214,18 @@ prep_data = function(file, include_zero = T){
     tidyr::replace_na(list(prox_caud = 0, dist_rost = 0)) %>% 
     mutate(difference = prox_caud - dist_rost)
   
+  #create dataframe of actual length
+  diff_tmp_h2 <- rbind(diff_tmp_h1, diff_tmp_h1) #lengthen
+  diff_tmp_h2 <- diff_tmp_h2 %>% 
+    mutate(ID = sort(ID, decreasing = FALSE))
+  
+  condition <- c(repmat(1,6,1), repmat(2,6,1)) #within across conditions
+  
+  diff_tmp_h2$condition <- matrix(rep(condition, 40))
+  
+  diff_tmp_h2 <- diff_tmp_h2 %>% 
+    dplyr::mutate(condition = recode(condition, '1' = 'within', '2' = 'across'))
+  
   # recode quality
   vas_h2_diff$quality <- factor(vas_h2_diff$quality,
                                 levels = c('cold', 'warm', 'burn'))
@@ -247,7 +259,8 @@ prep_data = function(file, include_zero = T){
               vas_h2_diff = vas_h2_diff,
               h2_diff_sum = h2_diff_sum,
               df_long = df_long,
-              diff_temp = diff_temp))
+              diff_tmp_h1 = diff_tmp_h1,
+              diff_tmp_h2 = diff_tmp_h2))
 }
 
 
